@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 
-const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? "admin";
-
 export function AdminLauncher() {
   const [open, setOpen] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
@@ -38,14 +36,22 @@ export function AdminLauncher() {
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError("");
 
-    if (password === adminPassword) {
-      setUnlocked(true);
-      setError("");
-      return;
-    }
+    fetch("/api/admin/login", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({ password })
+    }).then((response) => {
+      if (response.ok) {
+        setUnlocked(true);
+        return;
+      }
 
-    setError("Wrong password.");
+      setError("Wrong password.");
+    }).catch(() => setError("Could not unlock admin."));
   }
 
   if (!open) {

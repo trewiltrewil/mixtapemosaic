@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { AdminLauncher } from "@/components/AdminLauncher";
+import { CartProvider } from "@/components/CartProvider";
 import { StorefrontHeader } from "@/components/StorefrontHeader";
+import { VisitorTracker } from "@/components/VisitorTracker";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,9 +14,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body>
-        <StorefrontHeader />
-        {children}
-        <AdminLauncher />
+        <CartProvider>
+          <VisitorTracker />
+          <StorefrontHeader />
+          {children}
+          <AdminLauncher />
+        </CartProvider>
       </body>
     </html>
   );

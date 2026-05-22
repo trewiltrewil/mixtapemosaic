@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { artworkOptions, productPhoto } from "@/lib/assets";
+import { useCart } from "@/components/CartProvider";
 import { createPrototypeCalibration, normalizeCalibration } from "@/lib/calibration";
 import { defaultProductionConfig } from "@/lib/geometry";
 import { loadImage, type LoadedImage } from "@/lib/image";
@@ -16,6 +17,7 @@ const sizes = ['Square (27"x27")', 'Landscape (45"x24")', 'Portrait (27"x45")'];
 
 export function Customizer() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { addItem } = useCart();
   const [calibration, setCalibration] = useState<ProductCalibration>(() => createPrototypeCalibration());
   const [artworkSrc, setArtworkSrc] = useState(artworkOptions[0].src);
   const [artworkName, setArtworkName] = useState(artworkOptions[0].name);
@@ -23,6 +25,7 @@ export function Customizer() {
   const [selectedSize, setSelectedSize] = useState(sizes[0]);
   const [artwork, setArtwork] = useState<LoadedImage | null>(null);
   const [photo, setPhoto] = useState<LoadedImage | null>(null);
+  const [cartStatus, setCartStatus] = useState("");
 
   useEffect(() => {
     loadImage(productPhoto.src).then(setPhoto);
@@ -103,6 +106,35 @@ export function Customizer() {
     setArtworkSrc(URL.createObjectURL(file));
     setArtworkName(file.name);
     setArtworkSource("upload");
+  }
+
+  async function addCurrentToCart() {
+    setCartStatus("Saving your mix...");
+    const response = await fetch("/api/customizations", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        selectedSize,
+        artworkSource,
+        artworkName: selectedLabel,
+        state: {
+          artworkSrc,
+          selectedSize
+        }
+      })
+    }).catch(() => null);
+    const result = response?.ok ? ((await response.json()) as { id?: string }) : null;
+
+    addItem({
+      size: selectedSize,
+      artworkName: selectedLabel,
+      artworkSource,
+      priceCents: 139500,
+      customizationSessionId: result?.id
+    });
+    setCartStatus("Added to cart.");
   }
 
   const selectedOption = artworkOptions.find((option) => option.src === artworkSrc);
@@ -256,12 +288,16 @@ export function Customizer() {
                 </div>
                 <Link
                   href="/checkout"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    void addCurrentToCart();
+                  }}
                   className="bg-secondary text-background border-4 border-border w-full min-h-[72px] flex items-center justify-center font-heading font-black text-2xl uppercase tracking-widest shadow-[8px_8px_0_0_#292929] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[6px_6px_0_0_#292929] transition-all"
                 >
                   Add to Cart
                 </Link>
                 <p className="font-mono font-bold text-sm uppercase text-center">
-                  Free US shipping. Ships in 2-3 weeks.
+                  {cartStatus || "Free US shipping. Ships in 2-3 weeks."}
                 </p>
               </div>
             </div>

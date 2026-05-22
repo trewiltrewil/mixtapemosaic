@@ -1,4 +1,4 @@
-# Cassette Art Customizer
+# Mixtape Mosaic
 
 A Next.js App Router prototype for personalized cassette tape wall art. It keeps the original DTF production workflow while adding a customer-facing customizer and photo-mapped product preview.
 
@@ -13,11 +13,21 @@ Open http://localhost:4173.
 
 On Windows, `start-server.cmd` launches the same local Next.js dev server in the background.
 
+Copy `.env.example` to `.env.local` when enabling hosted services. The app runs without service keys, then turns on Supabase, Stripe, and Sanity behavior as the matching env vars are added.
+
+## Hosted Services
+
+- Vercel hosts the Next.js demo from the GitHub `main` branch.
+- Supabase stores visitor events, customization sessions, proof requests, Stripe-backed orders, uploaded artwork, preview snapshots, and deployed calibration JSON.
+- Stripe Checkout handles V1 payments in test mode.
+- Sanity Studio is available at `/studio` after admin unlock and manages pages, journal posts, FAQ items, gallery entries, and product content.
+
 ## Routes
 
-- `/customize` - Customer-facing customizer with sample artwork, upload-ready image selection, and clean/realistic preview toggle.
+- `/customize` - Customer-facing customizer with sample artwork, upload-ready image selection, a realistic product preview, and a real empty-by-default cart.
 - `/admin/production` - Production export flow with transparent PNG export and optimized 22 inch gang sheet PDFs.
-- `/admin/calibrate` - Photo calibration editor for the prototype wall-unit image. Run the per-tape vision estimate, zoom/pan for manual corner cleanup, import/export JSON, and save the local calibration used by customer previews.
+- `/admin/calibrate` - Photo calibration editor for the prototype wall-unit image. Run the per-tape vision estimate, zoom/pan for manual corner cleanup, import/export JSON, and save calibration used by customer previews.
+- `/studio` - Sanity Studio for CMS content once `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` are configured.
 
 ## Production Defaults
 
@@ -38,7 +48,7 @@ The realistic preview uses the prototype product photo as a base, warps the sele
 
 The V1 calibrator uses a practical per-tape pipeline: each cassette starts from a perspective seed, then the four edges are refined independently from local image contrast. This is not a hosted SAM/YOLO model yet, but it keeps the data model ready for instance masks later: every tape is still stored as its own quadrilateral and rendered through its own homography-style warp.
 
-Use `/admin/calibrate`, click `Vision estimate`, zoom in to correct corners, then click `Save JSON`. The file is saved locally at `public/calibration/prototype-wall-unit-calibration.json`; `/customize` loads it automatically when present.
+Use `/admin/calibrate`, click `Vision estimate`, zoom in to correct corners, then click `Save JSON`. When Supabase is configured, calibration is saved in the `site_settings` table; otherwise local development falls back to `public/calibration/prototype-wall-unit-calibration.json`.
 
 Each tape now stores its own editable feature geometry:
 - transparent drive holes and corner screw holes

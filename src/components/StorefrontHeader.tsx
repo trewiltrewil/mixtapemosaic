@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Menu, ShoppingCart, Trash2, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useCart } from "@/components/CartProvider";
 
 const navItems = [
   { href: "/customize", label: "Shop", active: ["/", "/customize"], color: "text-secondary", hover: "hover:text-secondary" },
@@ -13,22 +14,12 @@ const navItems = [
   { href: "/journal", label: "Journal", active: ["/journal"], color: "text-secondary", hover: "hover:text-secondary" }
 ];
 
-const sampleCart = [
-  {
-    id: 1,
-    size: 'Square (27"x27")',
-    theme: "Custom Mosaic",
-    price: 1395,
-    text: "Preview proof before production"
-  }
-];
-
 export function StorefrontHeader() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cart, setCart] = useState(sampleCart);
-  const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + item.price, 0), [cart]);
+  const { cart, cartTotalCents, removeItem } = useCart();
+  const cartTotal = Math.round(cartTotalCents / 100);
 
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -152,14 +143,14 @@ export function StorefrontHeader() {
                       className="bg-background border-4 border-border p-4 shadow-[4px_4px_0_0_#292929] flex justify-between items-start gap-4"
                     >
                       <div>
-                        <h3 className="font-heading font-black text-xl uppercase tracking-tighter">{item.theme}</h3>
+                        <h3 className="font-heading font-black text-xl uppercase tracking-tighter">Custom Mosaic</h3>
                         <p className="font-mono text-sm font-bold text-muted-foreground">{item.size}</p>
-                        <p className="font-mono text-xs italic mt-2">"{item.text}"</p>
-                        <p className="font-mono font-bold mt-2">${item.price}</p>
+                        <p className="font-mono text-xs italic mt-2">"{item.artworkName}"</p>
+                        <p className="font-mono font-bold mt-2">${Math.round(item.priceCents / 100)}</p>
                       </div>
                       <button
                         type="button"
-                        onClick={() => setCart(cart.filter((cartItem) => cartItem.id !== item.id))}
+                        onClick={() => removeItem(item.id)}
                         className="text-destructive hover:bg-destructive hover:text-background p-2 border-2 border-transparent hover:border-border transition-colors"
                         aria-label="Remove item"
                       >

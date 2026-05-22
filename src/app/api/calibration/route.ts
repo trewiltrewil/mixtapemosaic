@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import { getSupabaseAdminClient } from "@/lib/supabase";
 
 export const runtime = "nodejs";
 
@@ -33,6 +34,24 @@ function isCalibrationPayload(value: unknown) {
 }
 
 export async function GET() {
+  const supabase = getSupabaseAdminClient();
+
+  if (supabase) {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "prototype_wall_unit_calibration")
+      .maybeSingle();
+
+    if (data?.value && isCalibrationPayload(data.value)) {
+      return NextResponse.json(data.value, {
+        headers: {
+          "cache-control": "no-store"
+        }
+      });
+    }
+  }
+
   try {
     const text = await readFile(calibrationPath, "utf8");
     return new NextResponse(text, {
@@ -53,11 +72,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid calibration payload." }, { status: 400 });
   }
 
-  await mkdir(path.dirname(calibrationPath), { recursive: true });
-  await writeFile(calibrationPath, `${JSON.stringify(body, null, 2)}\n`, "utf8");
+  const supabase = getSupabaseAdminClient();
+  if (supabase) {
+    await supabase.from("site_settings").upsert({
+      key: "prototype_wall_unit_calibration",
+      value: body,
+      updated_at: new Date().toISOString()
+    });
+  }
+
+  try {
+    await mkdir(path.dirname(calibrationPath), { recursive: true });
+    await writeFile(calibrationPath, `${JSON.stringify(body, null, 2)}\n`, "utf8");
+  } catch {
+    // Vercel deployments are read-only at runtime; Supabase is the durable path there.
+  }
 
   return NextResponse.json({
     ok: true,
-    path: "/calibration/prototype-wall-unit-calibration.json"
+    path: supabase ? "supabase:site_settings/prototype_wall_unit_calibration" : "/calibration/prototype-wall-unit-calibration.json"
   });
 }
