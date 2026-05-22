@@ -20,14 +20,14 @@ Copy `.env.example` to `.env.local` when enabling hosted services. The app runs 
 - Vercel hosts the Next.js demo from the GitHub `main` branch.
 - Supabase stores visitor events, customization sessions, proof requests, Stripe-backed orders, uploaded artwork, preview snapshots, and deployed calibration JSON.
 - Stripe Checkout handles V1 payments in test mode.
-- Sanity Studio is available at `/studio` after admin unlock and manages pages, journal posts, FAQ items, gallery entries, and product content.
+- Sanity content is read through `@sanity/client`; `/studio` is an admin-protected schema guide for the external Sanity Studio setup. The embedded Studio packages were avoided so `npm audit --audit-level=moderate` stays clean.
 
 ## Routes
 
 - `/customize` - Customer-facing customizer with sample artwork, upload-ready image selection, a realistic product preview, and a real empty-by-default cart.
 - `/admin/production` - Production export flow with transparent PNG export and optimized 22 inch gang sheet PDFs.
 - `/admin/calibrate` - Photo calibration editor for the prototype wall-unit image. Run the per-tape vision estimate, zoom/pan for manual corner cleanup, import/export JSON, and save calibration used by customer previews.
-- `/studio` - Sanity Studio for CMS content once `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` are configured.
+- `/studio` - Admin-protected Sanity schema guide for CMS content once `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` are configured.
 
 ## Production Defaults
 
