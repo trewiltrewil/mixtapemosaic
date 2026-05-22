@@ -1,0 +1,7561 @@
+{
+  "photo": {
+    "src": "/product/prototype-wall-unit.jpg",
+    "width": 4080,
+    "height": 3072,
+    "notes": "Prototype phone photo. Initial tape quads are perspective seeded and intended for machine-vision refinement plus manual correction."
+  },
+  "layout": {
+    "columns": 6,
+    "rows": 9
+  },
+  "masks": {
+    "roller-left": {
+      "id": "roller-left",
+      "kind": "circle",
+      "x": 0.28,
+      "y": 0.42,
+      "r": 0.058
+    },
+    "roller-right": {
+      "id": "roller-right",
+      "kind": "circle",
+      "x": 0.72,
+      "y": 0.42,
+      "r": 0.058
+    },
+    "screw-top-left": {
+      "id": "screw-top-left",
+      "kind": "circle",
+      "x": 0.035,
+      "y": 0.055,
+      "r": 0.018
+    },
+    "screw-top-right": {
+      "id": "screw-top-right",
+      "kind": "circle",
+      "x": 0.965,
+      "y": 0.055,
+      "r": 0.018
+    },
+    "screw-bottom-right": {
+      "id": "screw-bottom-right",
+      "kind": "circle",
+      "x": 0.965,
+      "y": 0.948,
+      "r": 0.018
+    },
+    "screw-bottom-left": {
+      "id": "screw-bottom-left",
+      "kind": "circle",
+      "x": 0.035,
+      "y": 0.948,
+      "r": 0.018
+    },
+    "window": {
+      "id": "window",
+      "kind": "rect",
+      "x": 0.43,
+      "y": 0.34,
+      "width": 0.14,
+      "height": 0.1
+    },
+    "bottom-hole-1": {
+      "id": "bottom-hole-1",
+      "kind": "circle",
+      "x": 0.25,
+      "y": 0.82,
+      "r": 0.019
+    },
+    "bottom-hole-2": {
+      "id": "bottom-hole-2",
+      "kind": "circle",
+      "x": 0.42,
+      "y": 0.84,
+      "r": 0.018
+    },
+    "bottom-hole-3": {
+      "id": "bottom-hole-3",
+      "kind": "circle",
+      "x": 0.58,
+      "y": 0.84,
+      "r": 0.018
+    },
+    "bottom-hole-4": {
+      "id": "bottom-hole-4",
+      "kind": "circle",
+      "x": 0.75,
+      "y": 0.82,
+      "r": 0.019
+    },
+    "lower-cutout": {
+      "id": "lower-cutout",
+      "kind": "rect",
+      "x": 0.19,
+      "y": 0.76,
+      "width": 0.62,
+      "height": 0.06
+    }
+  },
+  "tapes": [
+    {
+      "id": "tape-1",
+      "index": 0,
+      "row": 0,
+      "column": 0,
+      "quad": [
+        {
+          "x": 884.2412713715463,
+          "y": 276.7035814027415
+        },
+        {
+          "x": 1277.3486781652498,
+          "y": 268.0160161345029
+        },
+        {
+          "x": 1296.1715005899941,
+          "y": 529.3669379540156
+        },
+        {
+          "x": 908.1317767567988,
+          "y": 537.330539449901
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 1.0094822581519838,
+        "contrast": 1.021946213977062,
+        "shadow": 0.11431142706831451
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2969231950659321,
+            "y": 0.47848169540943736,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7232112918357989,
+            "y": 0.47592871799740255,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.027061757933190413,
+            "y": 0.03978795656430292,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9739634360804271,
+            "y": 0.04345898270234374,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.9702243616756074,
+            "y": 0.9603082718334888,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.02861542675930608,
+            "y": 0.9592109358078648,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18467651822767067,
+              "y": 0.7704846649966436
+            },
+            {
+              "x": 0.8052218436358005,
+              "y": 0.7673616091779248
+            },
+            {
+              "x": 0.8374334035638954,
+              "y": 1
+            },
+            {
+              "x": 0.1574772548721776,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25480745122055715,
+              "y": 0.9494882020719803,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35486926025462256,
+              "y": 0.9275812806671089,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.634588839450912,
+              "y": 0.9250778388922958,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7360754665067966,
+              "y": 0.9448262283091973,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-2",
+      "index": 1,
+      "row": 0,
+      "column": 1,
+      "quad": [
+        {
+          "x": 1340.2257137889064,
+          "y": 282.60952905588204
+        },
+        {
+          "x": 1738.7455438805675,
+          "y": 291.98658363112384
+        },
+        {
+          "x": 1738.7455438805678,
+          "y": 555.7162435597972
+        },
+        {
+          "x": 1349.6026509675341,
+          "y": 546.3391889845554
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9324931371025741,
+        "contrast": 0.9699542699675658,
+        "shadow": 0.11762849823164288
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.29174040325833717,
+            "y": 0.4682480431702022,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7144433157854402,
+            "y": 0.4768197932165178,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.036860312199341154,
+            "y": 0.05615794167347447,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.031386538815107494,
+            "y": 0.9455355057135607,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18,
+              "y": 0.745
+            },
+            {
+              "x": 0.7958285053740228,
+              "y": 0.7432207442416239
+            },
+            {
+              "x": 0.8463585442667232,
+              "y": 1
+            },
+            {
+              "x": 0.14450252348611978,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2568678248431395,
+              "y": 0.9507544809891191,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.359513546589162,
+              "y": 0.9247546140272694,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.642108616198645,
+              "y": 0.9189289700296653,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7381511666700582,
+              "y": 0.9512122900292064,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-3",
+      "index": 2,
+      "row": 0,
+      "column": 2,
+      "quad": [
+        {
+          "x": 1795.0071669523313,
+          "y": 301.3636382063656
+        },
+        {
+          "x": 2191.182762749336,
+          "y": 314.25708824732294
+        },
+        {
+          "x": 2177.1173569813946,
+          "y": 575.6424845321858
+        },
+        {
+          "x": 1789.1465812156894,
+          "y": 566.2654299569441
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8944689782726345,
+        "contrast": 0.966013902859413,
+        "shadow": 0.1398319968173746
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2877699378733908,
+            "y": 0.4656483605431226,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7119693804067562,
+            "y": 0.46531954254297386,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.1797250147590382,
+              "y": 0.7585487406569941
+            },
+            {
+              "x": 0.8108702869001961,
+              "y": 0.7562839441612298
+            },
+            {
+              "x": 0.8498605841788248,
+              "y": 1
+            },
+            {
+              "x": 0.15136494887795818,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2645634519970234,
+              "y": 0.9373174417790929,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.36072988151036905,
+              "y": 0.9204783337352636,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6443259555518841,
+              "y": 0.9234398374152254,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7444374817937022,
+              "y": 0.9421026427305569,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-4",
+      "index": 3,
+      "row": 0,
+      "column": 3,
+      "quad": [
+        {
+          "x": 2245.100151526443,
+          "y": 320.117747356849
+        },
+        {
+          "x": 2635.382992812839,
+          "y": 325.88811188811184
+        },
+        {
+          "x": 2624.6470594353586,
+          "y": 578.3076923076922
+        },
+        {
+          "x": 2242.755917231786,
+          "y": 582.6752754636171
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9711543826700654,
+        "contrast": 0.9923079910403613,
+        "shadow": 0.11202626868267544
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28,
+            "y": 0.42,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.72,
+            "y": 0.42,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.19083971326957094,
+              "y": 0.7558397014841894
+            },
+            {
+              "x": 0.8168991067977683,
+              "y": 0.7651084672608457
+            },
+            {
+              "x": 0.8625983069626305,
+              "y": 1
+            },
+            {
+              "x": 0.14747319063997652,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2633623415416804,
+              "y": 0.9503041845590139,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3641744113131077,
+              "y": 0.9246411467361368,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6492239720974096,
+              "y": 0.928654044079627,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7479395072976878,
+              "y": 0.9576472371365069,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-5",
+      "index": 4,
+      "row": 0,
+      "column": 4,
+      "quad": [
+        {
+          "x": 2699.7985930777204,
+          "y": 331.2587412587412
+        },
+        {
+          "x": 3080.9242279782684,
+          "y": 339.3146853146853
+        },
+        {
+          "x": 3059.452361223308,
+          "y": 599.7902097902097
+        },
+        {
+          "x": 2683.6946930115,
+          "y": 591.7342657342657
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.987355439234816,
+        "contrast": 0.9662247338287853,
+        "shadow": 0.1320006822794676
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2800834636227175,
+            "y": 0.4660623263844314,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7106363402691414,
+            "y": 0.4707461345951573,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18,
+              "y": 0.745
+            },
+            {
+              "x": 0.82,
+              "y": 0.745
+            },
+            {
+              "x": 0.8770004138390203,
+              "y": 1
+            },
+            {
+              "x": 0.13984032361009624,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2621334536465066,
+              "y": 0.9481141793285972,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.36687547272031595,
+              "y": 0.922374889738948,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6504332630190095,
+              "y": 0.9226049994533165,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7574028096773112,
+              "y": 0.9417965086594988,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-6",
+      "index": 5,
+      "row": 0,
+      "column": 5,
+      "quad": [
+        {
+          "x": 3149.974589263979,
+          "y": 345.9046474387638
+        },
+        {
+          "x": 3540.289599324341,
+          "y": 347.076779260669
+        },
+        {
+          "x": 3510.361563077477,
+          "y": 605.160839160839
+        },
+        {
+          "x": 3128.876480612067,
+          "y": 602.6015164360058
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9053104751842329,
+        "contrast": 1.0636797820270976,
+        "shadow": 0.1252526648744242
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2831201528969629,
+            "y": 0.4660025367593394,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7119759366988458,
+            "y": 0.46731790654526734,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18546616359251655,
+              "y": 0.7609475329777639
+            },
+            {
+              "x": 0.8291966485728496,
+              "y": 0.7613495985069689
+            },
+            {
+              "x": 0.8624289612816811,
+              "y": 1
+            },
+            {
+              "x": 0.15460946731170677,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2666409187497971,
+              "y": 0.957938459114038,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3642615119865798,
+              "y": 0.9265385745846331,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6443630872028615,
+              "y": 0.9380841597575457,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7509354995047332,
+              "y": 0.9587659054221965,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-7",
+      "index": 6,
+      "row": 1,
+      "column": 0,
+      "quad": [
+        {
+          "x": 899.7036086636972,
+          "y": 572.3999816780363
+        },
+        {
+          "x": 1288.4338630399602,
+          "y": 569.117930395985
+        },
+        {
+          "x": 1298.2751353026506,
+          "y": 821.8358791139337
+        },
+        {
+          "x": 919.3861531890774,
+          "y": 821.8358791139337
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9422242445452138,
+        "contrast": 1.0275449973695505,
+        "shadow": 0.1360064947976207
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28843182931882816,
+            "y": 0.4637723161913048,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7225684657873639,
+            "y": 0.4579199961318576,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18507519424512478,
+              "y": 0.7449469715264118
+            },
+            {
+              "x": 0.8238433719362352,
+              "y": 0.7692548224478826
+            },
+            {
+              "x": 0.8484805208358229,
+              "y": 1
+            },
+            {
+              "x": 0.14265827757163813,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.24931499093691586,
+              "y": 0.9463508729214708,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35052757197343587,
+              "y": 0.9240972898605925,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6363898290632959,
+              "y": 0.9243804154108446,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7386655476954311,
+              "y": 0.9511353421629207,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-8",
+      "index": 7,
+      "row": 1,
+      "column": 1,
+      "quad": [
+        {
+          "x": 1352.227394248464,
+          "y": 578.7193289973835
+        },
+        {
+          "x": 1735.142351378592,
+          "y": 589.4605877386423
+        },
+        {
+          "x": 1735.142351378592,
+          "y": 831.1389094169639
+        },
+        {
+          "x": 1359.3846831667843,
+          "y": 825.7682800463346
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8828048799629322,
+        "contrast": 1.006650128094625,
+        "shadow": 0.13641524771170224
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28830878495212403,
+            "y": 0.4535711357650551,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7156110976963246,
+            "y": 0.45278039350932037,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.17743956498735536,
+              "y": 0.7619221980430191
+            },
+            {
+              "x": 0.8117560037559535,
+              "y": 0.7629839645698159
+            },
+            {
+              "x": 0.8554884521280078,
+              "y": 1
+            },
+            {
+              "x": 0.13761872252094465,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2549266666770272,
+              "y": 0.9419894492374122,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35321788963753753,
+              "y": 0.9305834013094634,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.644679407229092,
+              "y": 0.9237111362539363,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7426498268602781,
+              "y": 0.9536035700947683,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-9",
+      "index": 8,
+      "row": 1,
+      "column": 2,
+      "quad": [
+        {
+          "x": 1795.9793071843133,
+          "y": 600.201846479901
+        },
+        {
+          "x": 2175.3156198552815,
+          "y": 616.3137345917891
+        },
+        {
+          "x": 2171.7369753961216,
+          "y": 861.5724758505304
+        },
+        {
+          "x": 1794.1899849547333,
+          "y": 847.250797528852
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8783016032679006,
+        "contrast": 1.0722059944304057,
+        "shadow": 0.1434242880702368
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28042379156936836,
+            "y": 0.4676617215479149,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.709047153432048,
+            "y": 0.46833726922770064,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.1697641176546783,
+              "y": 0.7692513421299627
+            },
+            {
+              "x": 0.8121108696603319,
+              "y": 0.7671584470066148
+            },
+            {
+              "x": 0.8500476289948025,
+              "y": 1
+            },
+            {
+              "x": 0.13566623008093412,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.24590338281322643,
+              "y": 0.9567047865182443,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.34938972826760084,
+              "y": 0.935290403620998,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6300988743738867,
+              "y": 0.9290764030344767,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7322832492292056,
+              "y": 0.9590255539262869,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-10",
+      "index": 9,
+      "row": 1,
+      "column": 3,
+      "quad": [
+        {
+          "x": 2231.1499388068555,
+          "y": 625.4265734265732
+        },
+        {
+          "x": 2619.4328626257243,
+          "y": 621.8461538461537
+        },
+        {
+          "x": 2608.696929248244,
+          "y": 868.8951048951047
+        },
+        {
+          "x": 2232.459150989856,
+          "y": 873.3034417319163
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9083519897604128,
+        "contrast": 1.016454029805318,
+        "shadow": 0.13487175582093186
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.282388018878535,
+            "y": 0.4620702414421339,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7150294032509871,
+            "y": 0.45769325903908226,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.029175740868936845,
+            "y": 0.052539986179540775,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9726081500833403,
+            "y": 0.03920702433872393,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.029850156040550403,
+            "y": 0.9553889636679305,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.17478121371885436,
+              "y": 0.7754390139149888
+            },
+            {
+              "x": 0.8153441831522842,
+              "y": 0.7626637098093745
+            },
+            {
+              "x": 0.8456434816416462,
+              "y": 1
+            },
+            {
+              "x": 0.14547713520069433,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2645074205882755,
+              "y": 0.9685663663219203,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3562321849707179,
+              "y": 0.9453897330019939,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6442231888320957,
+              "y": 0.9428763497876952,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7486218700092433,
+              "y": 0.9663025022576354,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-11",
+      "index": 10,
+      "row": 1,
+      "column": 4,
+      "quad": [
+        {
+          "x": 2682.059140661025,
+          "y": 632.5874125874124
+        },
+        {
+          "x": 3064.974097791154,
+          "y": 643.3286713286711
+        },
+        {
+          "x": 3035.296511123978,
+          "y": 887.118881118881
+        },
+        {
+          "x": 2657.008629446905,
+          "y": 881.4265734265731
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8785425529471831,
+        "contrast": 0.9814988060109318,
+        "shadow": 0.14866635429672898
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28038179663304147,
+            "y": 0.4587748091394899,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7125487688262605,
+            "y": 0.4621773205885366,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18039375319447723,
+              "y": 0.7600178629018217
+            },
+            {
+              "x": 0.8203408305156495,
+              "y": 0.7602517833576286
+            },
+            {
+              "x": 0.8549512753954869,
+              "y": 1
+            },
+            {
+              "x": 0.13950920217111,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2782809928260336,
+              "y": 0.9381594688905373,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.37699136723727694,
+              "y": 0.9131044670850181,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6584996865074207,
+              "y": 0.9243032954051684,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7611866049147031,
+              "y": 0.9537250057609256,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-12",
+      "index": 11,
+      "row": 1,
+      "column": 5,
+      "quad": [
+        {
+          "x": 3120.443086908135,
+          "y": 655.8601398601396
+        },
+        {
+          "x": 3499.779399579103,
+          "y": 657.6503496503495
+        },
+        {
+          "x": 3474.728888364982,
+          "y": 899.328671328671
+        },
+        {
+          "x": 3107.917831301075,
+          "y": 904.6993006993006
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9899197508881116,
+        "contrast": 0.9933078364697576,
+        "shadow": 0.14295551065995823
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2718469760054174,
+            "y": 0.4799561011280693,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7033134115927792,
+            "y": 0.47828111439640714,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.953642672045524,
+            "y": 0.04539461574928487,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.19671622353716745,
+              "y": 0.7733788329267391
+            },
+            {
+              "x": 0.8086993481821041,
+              "y": 0.7828156844143496
+            },
+            {
+              "x": 0.8574351463393497,
+              "y": 1
+            },
+            {
+              "x": 0.14902520046769185,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2559198150898249,
+              "y": 0.9554631029377303,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35567753745304137,
+              "y": 0.9393380881596264,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6418689299364098,
+              "y": 0.9405412188638558,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7499098919310946,
+              "y": 0.9657128337861262,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-13",
+      "index": 12,
+      "row": 2,
+      "column": 0,
+      "quad": [
+        {
+          "x": 906.2644568388239,
+          "y": 859.5794688575235
+        },
+        {
+          "x": 1294.9947112150871,
+          "y": 862.8615201395746
+        },
+        {
+          "x": 1303.1957714339958,
+          "y": 1104.092289370344
+        },
+        {
+          "x": 925.9470013642041,
+          "y": 1100.8102380882926
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.948622854136629,
+        "contrast": 0.9744886341041639,
+        "shadow": 0.14379782686271939
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2899106686451761,
+            "y": 0.4518239459038545,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7155670193728048,
+            "y": 0.459947011393439,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18835087607061032,
+              "y": 0.7593204956350053
+            },
+            {
+              "x": 0.7945737432322282,
+              "y": 0.7696249766117089
+            },
+            {
+              "x": 0.8261492558175563,
+              "y": 1
+            },
+            {
+              "x": 0.14569245883308382,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25,
+              "y": 0.88,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.42,
+              "y": 0.88,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.58,
+              "y": 0.88,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.75,
+              "y": 0.88,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-14",
+      "index": 13,
+      "row": 2,
+      "column": 1,
+      "quad": [
+        {
+          "x": 1355.68255683501,
+          "y": 866.143571421626
+        },
+        {
+          "x": 1736.2117509923648,
+          "y": 877.6307509088055
+        },
+        {
+          "x": 1737.8519630361468,
+          "y": 1115.5794688575234
+        },
+        {
+          "x": 1360.6031929663552,
+          "y": 1107.3743406523952
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9247430035367142,
+        "contrast": 0.973773316504521,
+        "shadow": 0.11780949576539569
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2912506478087425,
+            "y": 0.44893400856089893,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7132964695119081,
+            "y": 0.4546605094194615,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18143764511315494,
+              "y": 0.7603760581210169
+            },
+            {
+              "x": 0.8178144342282185,
+              "y": 0.7504598535147122
+            },
+            {
+              "x": 0.8577633336152407,
+              "y": 1
+            },
+            {
+              "x": 0.1427306810671586,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.26218954889249385,
+              "y": 0.9575077571140951,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3632540270763673,
+              "y": 0.930688701940014,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6478029910054107,
+              "y": 0.9300120750101015,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7484485813286162,
+              "y": 0.9498858068228049,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-15",
+      "index": 14,
+      "row": 2,
+      "column": 2,
+      "quad": [
+        {
+          "x": 1791.9789604809425,
+          "y": 895.6820329600876
+        },
+        {
+          "x": 2161.0266703318257,
+          "y": 898.9640842421388
+        },
+        {
+          "x": 2156.1060342004803,
+          "y": 1138.5538278318822
+        },
+        {
+          "x": 1793.6191725247245,
+          "y": 1133.6307509088056
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9996639936347491,
+        "contrast": 0.9615074958770856,
+        "shadow": 0.1306816844023706
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2843381975021705,
+            "y": 0.4700596407640943,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7183652816225711,
+            "y": 0.4580235882763419,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18923972123379523,
+              "y": 0.7675222412154568
+            },
+            {
+              "x": 0.8131141919622509,
+              "y": 0.7603570052914966
+            },
+            {
+              "x": 0.874385160812277,
+              "y": 1
+            },
+            {
+              "x": 0.14568625471745167,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2568821610058619,
+              "y": 0.9492901610564473,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.36477911032481286,
+              "y": 0.9330302200038443,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6453095197435811,
+              "y": 0.932062093673889,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7504009145566315,
+              "y": 0.9626930438682378,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-16",
+      "index": 15,
+      "row": 2,
+      "column": 3,
+      "quad": [
+        {
+          "x": 2220.1519209429075,
+          "y": 915.819859635569
+        },
+        {
+          "x": 2599.438374207952,
+          "y": 905.7501817110198
+        },
+        {
+          "x": 2591.606500541712,
+          "y": 1148.5413050029317
+        },
+        {
+          "x": 2223.3547279955305,
+          "y": 1151.6820329600876
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9359474626346491,
+        "contrast": 1.0635255726866308,
+        "shadow": 0.11895445409842069
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28190786205529433,
+            "y": 0.45220197072967705,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7172309961875989,
+            "y": 0.451986183591072,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18572680256231436,
+              "y": 0.7673306710144395
+            },
+            {
+              "x": 0.8173853735264234,
+              "y": 0.7693277202145226
+            },
+            {
+              "x": 0.8512207208630638,
+              "y": 1
+            },
+            {
+              "x": 0.14679090111387283,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2575617045057926,
+              "y": 0.9636092026931848,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3614801366775847,
+              "y": 0.9469238193808915,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6484826812713331,
+              "y": 0.9390677831043086,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7494440940472588,
+              "y": 0.9600562794018702,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-17",
+      "index": 16,
+      "row": 2,
+      "column": 4,
+      "quad": [
+        {
+          "x": 2651.752170458651,
+          "y": 916.8586986041477
+        },
+        {
+          "x": 3034.666782231853,
+          "y": 913.5821534301135
+        },
+        {
+          "x": 3023.778205361001,
+          "y": 1158.24613552419
+        },
+        {
+          "x": 2647.5484553005685,
+          "y": 1153.0167174138426
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8959986354410647,
+        "contrast": 0.9523338799807243,
+        "shadow": 0.12374580847972538
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2878538569815699,
+            "y": 0.472671241706731,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.711840276994609,
+            "y": 0.4668631017893516,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9761448049161051,
+            "y": 0.06776980110313348,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.026606172915214815,
+            "y": 0.9722799911399882,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.198460406681873,
+              "y": 0.7737163023421166
+            },
+            {
+              "x": 0.8151927157254523,
+              "y": 0.7612408207495286
+            },
+            {
+              "x": 0.8528661792914627,
+              "y": 1
+            },
+            {
+              "x": 0.15281228942030128,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2657347781709451,
+              "y": 0.9510305981401496,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3672980098818858,
+              "y": 0.9444362276732274,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6510218332851256,
+              "y": 0.9299241918572358,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7471061899171499,
+              "y": 0.9558824022395337,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-18",
+      "index": 17,
+      "row": 2,
+      "column": 5,
+      "quad": [
+        {
+          "x": 3081.0578610325956,
+          "y": 939.0183219327565
+        },
+        {
+          "x": 3458.5105068396724,
+          "y": 934.5398083320805
+        },
+        {
+          "x": 3443.5081627234035,
+          "y": 1169.9162257152268
+        },
+        {
+          "x": 3071.6639999208323,
+          "y": 1176.354139263485
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9094946702511515,
+        "contrast": 0.9623278563450731,
+        "shadow": 0.12057197433081455
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2816997238232612,
+            "y": 0.45111083014486925,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7124866791025948,
+            "y": 0.4593898665429648,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.03272967003322429,
+            "y": 0.03741688596054906,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9777440370486247,
+            "y": 0.04038537948432836,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.9719080303617429,
+            "y": 0.9431224926237353,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.19467302774979653,
+              "y": 0.7612302922697888
+            },
+            {
+              "x": 0.82,
+              "y": 0.745
+            },
+            {
+              "x": 0.8550578724724169,
+              "y": 1
+            },
+            {
+              "x": 0.1532511614424764,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.26651593649305405,
+              "y": 0.9490156314903577,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3684261382250475,
+              "y": 0.9295690964778619,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6514660105579271,
+              "y": 0.9314927931156977,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7870355074559066,
+              "y": 0.9489426191516442,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-19",
+      "index": 18,
+      "row": 3,
+      "column": 0,
+      "quad": [
+        {
+          "x": 929.2274254517678,
+          "y": 1161.5281868062411
+        },
+        {
+          "x": 1296.6349232588689,
+          "y": 1168.092289370344
+        },
+        {
+          "x": 1304.8359834777773,
+          "y": 1406.041007319062
+        },
+        {
+          "x": 930.8676374955493,
+          "y": 1396.1948534729079
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8879870104047586,
+        "contrast": 0.9608538029902411,
+        "shadow": 0.11058914011577144
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2892795620189237,
+            "y": 0.4582252106375949,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7216973164104552,
+            "y": 0.4663054192492455,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.1783439920158113,
+              "y": 0.7734188569861004
+            },
+            {
+              "x": 0.8082034204290703,
+              "y": 0.7770917713052844
+            },
+            {
+              "x": 0.8355587284943098,
+              "y": 1
+            },
+            {
+              "x": 0.1411837918894569,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.24612757570703336,
+              "y": 0.9441957685920356,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3475244313165111,
+              "y": 0.9247625321429989,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6285746036261305,
+              "y": 0.9336576471926524,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7309844171739258,
+              "y": 0.957359532649445,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-20",
+      "index": 19,
+      "row": 3,
+      "column": 1,
+      "quad": [
+        {
+          "x": 1355.2950895796012,
+          "y": 1178.4721559472453
+        },
+        {
+          "x": 1729.5121879428036,
+          "y": 1177.0802095686086
+        },
+        {
+          "x": 1740.64136438084,
+          "y": 1410.9307853857717
+        },
+        {
+          "x": 1367.1837370318897,
+          "y": 1415.5002938522334
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8871695045765955,
+        "contrast": 1.0336666175894424,
+        "shadow": 0.13613862823753153
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.29148395544335254,
+            "y": 0.4600223712405461,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7177854597390458,
+            "y": 0.46347669120824236,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.029827570919674657,
+            "y": 0.052548294502768295,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9732245451686017,
+            "y": 0.04878005246477448,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.9699806482056,
+            "y": 0.9597907984678877,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18076593478065664,
+              "y": 0.7646844097460276
+            },
+            {
+              "x": 0.8098409729735657,
+              "y": 0.7616232952626809
+            },
+            {
+              "x": 0.8420199646548727,
+              "y": 1
+            },
+            {
+              "x": 0.13819435816395484,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2534462861439527,
+              "y": 0.9434627152722113,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3524973718397932,
+              "y": 0.9279270330676791,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6350366442035892,
+              "y": 0.929147204688317,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7360410542874558,
+              "y": 0.9518585371785542,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-21",
+      "index": 20,
+      "row": 3,
+      "column": 2,
+      "quad": [
+        {
+          "x": 1788.6985363933793,
+          "y": 1197.6307509088053
+        },
+        {
+          "x": 2157.496931612989,
+          "y": 1206.7216663447723
+        },
+        {
+          "x": 2151.028286167661,
+          "y": 1435.9861387973392
+        },
+        {
+          "x": 1790.7225787502346,
+          "y": 1426.242354848829
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8731514238595264,
+        "contrast": 0.9838070522958515,
+        "shadow": 0.14768890153820394
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2911431891459461,
+            "y": 0.457776252702861,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7171065213459614,
+            "y": 0.4612854975619826,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.1838560520190218,
+              "y": 0.7693206408555971
+            },
+            {
+              "x": 0.8149818436338608,
+              "y": 0.7691024227763313
+            },
+            {
+              "x": 0.8517444965531292,
+              "y": 1
+            },
+            {
+              "x": 0.14019073894792086,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2518325503990981,
+              "y": 0.9580674460619671,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35492993311519294,
+              "y": 0.9353231232419568,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6409466493287077,
+              "y": 0.9336944823691824,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7443072887206077,
+              "y": 0.9555273274035229,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-22",
+      "index": 21,
+      "row": 3,
+      "column": 3,
+      "quad": [
+        {
+          "x": 2205.2828355656266,
+          "y": 1214.6632927853104
+        },
+        {
+          "x": 2575.3265192984886,
+          "y": 1204.9195088368006
+        },
+        {
+          "x": 2574.3601053648144,
+          "y": 1435.5794688575234
+        },
+        {
+          "x": 2212.238544305476,
+          "y": 1444.3379763672126
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9897435116418637,
+        "contrast": 1.0043297053277638,
+        "shadow": 0.13477850006795053
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28183061231272644,
+            "y": 0.45709158309191694,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7125606973528602,
+            "y": 0.45361621618859266,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.1839148183098605,
+              "y": 0.7613828163652714
+            },
+            {
+              "x": 0.81861026207066,
+              "y": 0.760097261564718
+            },
+            {
+              "x": 0.8514259855642429,
+              "y": 1
+            },
+            {
+              "x": 0.14171213269174626,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2521697190437857,
+              "y": 0.9546939863527544,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3567193053344346,
+              "y": 0.9325915640516464,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6462920850636485,
+              "y": 0.9332587364014604,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7438576299354761,
+              "y": 0.9552375898906865,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-23",
+      "index": 22,
+      "row": 3,
+      "column": 4,
+      "quad": [
+        {
+          "x": 2643.5831744439856,
+          "y": 1223.956729706255
+        },
+        {
+          "x": 3014.441120998134,
+          "y": 1228.7603300610128
+        },
+        {
+          "x": 2998.8386831172156,
+          "y": 1457.5317969563669
+        },
+        {
+          "x": 2633.407738940956,
+          "y": 1451.9897252677797
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.862667291406542,
+        "contrast": 0.9959448351604806,
+        "shadow": 0.11759140900088824
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.27465298654226983,
+            "y": 0.4493533704476275,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7079521421745689,
+            "y": 0.45012613822127123,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.0259667016468105,
+            "y": 0.03775475975186953,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9726484921169185,
+            "y": 0.04015342098463759,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.9785290188474365,
+            "y": 0.958516398220098,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.026504407602187485,
+            "y": 0.962850670751742,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.1864426190642032,
+              "y": 0.7605236795034676
+            },
+            {
+              "x": 0.8193658280567386,
+              "y": 0.7624728907386026
+            },
+            {
+              "x": 0.8522460346976973,
+              "y": 1
+            },
+            {
+              "x": 0.14858800675866438,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.259420659550584,
+              "y": 0.9572537046915326,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3605040680357907,
+              "y": 0.9389825420773567,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.645848200238115,
+              "y": 0.93222160092471,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7518737539854559,
+              "y": 0.9560320264144964,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-24",
+      "index": 23,
+      "row": 3,
+      "column": 5,
+      "quad": [
+        {
+          "x": 3053.302022149072,
+          "y": 1243.5794688575234
+        },
+        {
+          "x": 3427.270368131299,
+          "y": 1227.169212447267
+        },
+        {
+          "x": 3414.1486717810467,
+          "y": 1458.5538278318825
+        },
+        {
+          "x": 3048.3813860177265,
+          "y": 1476.6051098831645
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8740889786800835,
+        "contrast": 1.0014990449210746,
+        "shadow": 0.13767017439939083
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.27867490653714383,
+            "y": 0.45165391663796456,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.70493671982955,
+            "y": 0.45210934657051866,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.033062041316612834,
+            "y": 0.041813802743803155,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9744230677558822,
+            "y": 0.04657457213560983,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.9755844810780085,
+            "y": 0.9625443459365247,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.19328996519712097,
+              "y": 0.7575731137708649
+            },
+            {
+              "x": 0.8134648319057656,
+              "y": 0.760769518394507
+            },
+            {
+              "x": 0.8695114720521462,
+              "y": 1
+            },
+            {
+              "x": 0.15377794970198286,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2670085136830299,
+              "y": 0.9412994315491835,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3714852603392794,
+              "y": 0.9235354869540563,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6517267761543112,
+              "y": 0.9296610139841327,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7505548690677215,
+              "y": 0.9476699664082268,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-25",
+      "index": 24,
+      "row": 4,
+      "column": 0,
+      "quad": [
+        {
+          "x": 929.6057093940191,
+          "y": 1444.3379763672126
+        },
+        {
+          "x": 1299.649419660804,
+          "y": 1442.946029988576
+        },
+        {
+          "x": 1308.3745480961184,
+          "y": 1671.8924627874458
+        },
+        {
+          "x": 944.9082739284728,
+          "y": 1674.0126333994392
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8724043462745612,
+        "contrast": 1.0210309952026,
+        "shadow": 0.12542066135909408
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2849174179047754,
+            "y": 0.4589311139280665,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.717863023601434,
+            "y": 0.45200541645036785,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.9746798806389917,
+            "y": 0.9551838076358622,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.17411355440158507,
+              "y": 0.7877842235555812
+            },
+            {
+              "x": 0.8096241429981281,
+              "y": 0.7743978032017093
+            },
+            {
+              "x": 0.848706829336504,
+              "y": 1
+            },
+            {
+              "x": 0.14057287292906928,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.24448299442550162,
+              "y": 0.9651685999076034,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.347575729943461,
+              "y": 0.9360462698827581,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.635338331569921,
+              "y": 0.9389951370594167,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7365527871832417,
+              "y": 0.9636943753573791,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-26",
+      "index": 25,
+      "row": 4,
+      "column": 1,
+      "quad": [
+        {
+          "x": 1360.8596777986195,
+          "y": 1448.5138686024736
+        },
+        {
+          "x": 1733.6856556409903,
+          "y": 1454.0817603157227
+        },
+        {
+          "x": 1728.4401833516272,
+          "y": 1679.0978633195832
+        },
+        {
+          "x": 1363.6419188402822,
+          "y": 1675.4046328774266
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9556189915307913,
+        "contrast": 0.9742574005843199,
+        "shadow": 0.1352670769940596
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2934134216548436,
+            "y": 0.44434138726564637,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7193360589068444,
+            "y": 0.4414790523483997,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18167369526593222,
+              "y": 0.7562509779498396
+            },
+            {
+              "x": 0.8122006114172353,
+              "y": 0.7604534159009334
+            },
+            {
+              "x": 0.8497574600897841,
+              "y": 1
+            },
+            {
+              "x": 0.14960416972817897,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25347838752316343,
+              "y": 0.9521507908876558,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35708274609645524,
+              "y": 0.9375225303148391,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6431277145731776,
+              "y": 0.9337638841039306,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7436216259844635,
+              "y": 0.9564742437535392,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-27",
+      "index": 26,
+      "row": 4,
+      "column": 2,
+      "quad": [
+        {
+          "x": 1782.3756168199377,
+          "y": 1470.7853823561184
+        },
+        {
+          "x": 2139.899003593932,
+          "y": 1468.0014364994938
+        },
+        {
+          "x": 2141.2902302504563,
+          "y": 1696.2841471530837
+        },
+        {
+          "x": 1786.5490845181243,
+          "y": 1694.892147675096
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8986366311952587,
+        "contrast": 0.9540444223081431,
+        "shadow": 0.14646522958471905
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2879283770518078,
+            "y": 0.45907969320749975,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7225493692202895,
+            "y": 0.4554510729708888,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18536727902335665,
+              "y": 0.7684137247941708
+            },
+            {
+              "x": 0.8253700437889004,
+              "y": 0.7619412138798893
+            },
+            {
+              "x": 0.8578673372639963,
+              "y": 1
+            },
+            {
+              "x": 0.1490234597324288,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25782459814126163,
+              "y": 0.9575980092687506,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.36291362928139187,
+              "y": 0.9304190597003942,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6469808097729033,
+              "y": 0.9263921779855321,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.751618798271173,
+              "y": 0.9576003156828622,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-28",
+      "index": 27,
+      "row": 4,
+      "column": 3,
+      "quad": [
+        {
+          "x": 2195.544673512729,
+          "y": 1479.1371668266406
+        },
+        {
+          "x": 2561.414995683097,
+          "y": 1479.1371668266406
+        },
+        {
+          "x": 2557.24152798491,
+          "y": 1699.0680399103571
+        },
+        {
+          "x": 2201.109261731747,
+          "y": 1706.0278780022427
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9220910918031586,
+        "contrast": 0.9766376248810866,
+        "shadow": 0.128710355302901
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.27616717660496587,
+            "y": 0.46712996560152054,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7063354843727373,
+            "y": 0.4707253802078383,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.17838589669019958,
+              "y": 0.7610909501656867
+            },
+            {
+              "x": 0.8096699289928112,
+              "y": 0.7843459869314932
+            },
+            {
+              "x": 0.8468485355995228,
+              "y": 1
+            },
+            {
+              "x": 0.13662862960474342,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2486269096956477,
+              "y": 0.960084170594391,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3548076981425353,
+              "y": 0.9364901667146251,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6390945919833927,
+              "y": 0.9421207432534909,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7401127816233786,
+              "y": 0.9586474553148081,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-29",
+      "index": 28,
+      "row": 4,
+      "column": 4,
+      "quad": [
+        {
+          "x": 2617.060665601894,
+          "y": 1501.4086274809345
+        },
+        {
+          "x": 2989.8865903764186,
+          "y": 1495.8407888670365
+        },
+        {
+          "x": 2977.3663995532434,
+          "y": 1718.5556078073773
+        },
+        {
+          "x": 2612.887197903707,
+          "y": 1722.7315000426386
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9125083830405492,
+        "contrast": 1.0332849657515544,
+        "shadow": 0.11548269104299834
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2771516870639152,
+            "y": 0.4617535883791446,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7113666172344308,
+            "y": 0.4605694600343412,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18591434173100288,
+              "y": 0.7659371708874276
+            },
+            {
+              "x": 0.8131962591920181,
+              "y": 0.7678343283639907
+            },
+            {
+              "x": 0.8720144719009154,
+              "y": 1
+            },
+            {
+              "x": 0.1441437514297832,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2597818556893055,
+              "y": 0.9651634914086921,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3595864544913917,
+              "y": 0.9372884443003482,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6442259885120771,
+              "y": 0.9454511831586639,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7449729495026981,
+              "y": 0.9608793664602092,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-30",
+      "index": 29,
+      "row": 4,
+      "column": 5,
+      "quad": [
+        {
+          "x": 3041.358792597029,
+          "y": 1502.8006004092467
+        },
+        {
+          "x": 3411.7031931969154,
+          "y": 1504.9673504596024
+        },
+        {
+          "x": 3397.491164985884,
+          "y": 1726.9074188275752
+        },
+        {
+          "x": 3033.011963336348,
+          "y": 1732.4753105408238
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9188560513383708,
+        "contrast": 0.9715771948010661,
+        "shadow": 0.142837419244388
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.29254135273133375,
+            "y": 0.4515442515652367,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7219702449512472,
+            "y": 0.4465821184590057,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9737973456995264,
+            "y": 0.035394473402344896,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.9736343994051775,
+            "y": 0.9621838613533952,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.19206588320823767,
+              "y": 0.770380613516393
+            },
+            {
+              "x": 0.8115653634878945,
+              "y": 0.7661464910538859
+            },
+            {
+              "x": 0.8568806587814614,
+              "y": 1
+            },
+            {
+              "x": 0.1634429745185403,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.27547707235859215,
+              "y": 0.9514824775669062,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.37353168186950253,
+              "y": 0.9244718591092759,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6466983497009215,
+              "y": 0.9250047372910551,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.750970679145117,
+              "y": 0.9461757499746325,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-31",
+      "index": 30,
+      "row": 5,
+      "column": 0,
+      "quad": [
+        {
+          "x": 932.3878177660662,
+          "y": 1701.852012316657
+        },
+        {
+          "x": 1294.084672238247,
+          "y": 1707.4199040299059
+        },
+        {
+          "x": 1300.257613311087,
+          "y": 1932.1786326914641
+        },
+        {
+          "x": 937.9524059850845,
+          "y": 1921.7828854003735
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9411782802315428,
+        "contrast": 1.0469861573784147,
+        "shadow": 0.12780984019162134
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2852103045786951,
+            "y": 0.45829880219171704,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7146497773285266,
+            "y": 0.4553960378894132,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.17537697018841986,
+              "y": 0.777189539251041
+            },
+            {
+              "x": 0.8018336574746222,
+              "y": 0.7692989780978301
+            },
+            {
+              "x": 0.8482567698666843,
+              "y": 1
+            },
+            {
+              "x": 0.15058115940129546,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2512801876620004,
+              "y": 0.9585838838451014,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3531423172764185,
+              "y": 0.9380822516685327,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6400703362398005,
+              "y": 0.9355705014819369,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7364558404230516,
+              "y": 0.9547483012406276,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-32",
+      "index": 31,
+      "row": 5,
+      "column": 1,
+      "quad": [
+        {
+          "x": 1360.8595185950805,
+          "y": 1715.7716885004284
+        },
+        {
+          "x": 1728.8218737740815,
+          "y": 1720.1061683807254
+        },
+        {
+          "x": 1731.1573738311006,
+          "y": 1943.8630659868215
+        },
+        {
+          "x": 1364.4838648791106,
+          "y": 1942.1104009925182
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8877227435249369,
+        "contrast": 0.9757826152603957,
+        "shadow": 0.14247404931520577
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2962998816562202,
+            "y": 0.44604128332854165,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7190494094586741,
+            "y": 0.44525227079233937,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.025179759253482117,
+            "y": 0.04928105863713951,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9764423813104063,
+            "y": 0.04618491297761883,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.03132981934872348,
+            "y": 0.9488537085436047,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18,
+              "y": 0.745
+            },
+            {
+              "x": 0.82,
+              "y": 0.745
+            },
+            {
+              "x": 0.8725513475734296,
+              "y": 1
+            },
+            {
+              "x": 0.14795464714473328,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25519040163542434,
+              "y": 0.9540099339320655,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35727094552363114,
+              "y": 0.9324284998117203,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6359053546849575,
+              "y": 0.9274387376938228,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7376258227553937,
+              "y": 0.9499872376843831,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-33",
+      "index": 32,
+      "row": 5,
+      "column": 2,
+      "quad": [
+        {
+          "x": 1783.766631205077,
+          "y": 1718.555634357053
+        },
+        {
+          "x": 2141.2901241147633,
+          "y": 1728.2993652062119
+        },
+        {
+          "x": 2135.3037557848197,
+          "y": 1945.0972329643123
+        },
+        {
+          "x": 1782.3755106842455,
+          "y": 1942.6623996760306
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8646221969235921,
+        "contrast": 0.9561858482267417,
+        "shadow": 0.11989140177320223
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2810623795231544,
+            "y": 0.454946814302385,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7139410780191024,
+            "y": 0.452655293942097,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18,
+              "y": 0.745
+            },
+            {
+              "x": 0.82,
+              "y": 0.745
+            },
+            {
+              "x": 0.8426143741833023,
+              "y": 0.9973718111135006
+            },
+            {
+              "x": 0.1311555643790126,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2515444408062891,
+              "y": 0.9568710951168368,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35843029193424286,
+              "y": 0.93656700551818,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6439380262344857,
+              "y": 0.9437423281088722,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7426914693790637,
+              "y": 0.9589319620094758,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-34",
+      "index": 33,
+      "row": 5,
+      "column": 3,
+      "quad": [
+        {
+          "x": 2188.588964772879,
+          "y": 1739.4352017320602
+        },
+        {
+          "x": 2550.2858192450603,
+          "y": 1735.2592563974483
+        },
+        {
+          "x": 2550.2858192450603,
+          "y": 1962.1500206724013
+        },
+        {
+          "x": 2194.1535529918974,
+          "y": 1964.9339134296752
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8904429998640989,
+        "contrast": 1.0527431217800767,
+        "shadow": 0.11121522188244853
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2789031994215846,
+            "y": 0.4637284435831062,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7117523556502208,
+            "y": 0.4519176761689798,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.027720678457833978,
+            "y": 0.0551255910769611,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.975878333005282,
+            "y": 0.045790178750839045,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.030937805693191732,
+            "y": 0.9523644695605771,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18,
+              "y": 0.745
+            },
+            {
+              "x": 0.82,
+              "y": 0.745
+            },
+            {
+              "x": 0.8508146418768235,
+              "y": 1
+            },
+            {
+              "x": 0.1361366218113896,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2632653556550203,
+              "y": 0.9552962223064935,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3697794146543148,
+              "y": 0.911473617729706,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6524106895604708,
+              "y": 0.9230589310733899,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7516210193467319,
+              "y": 0.9455287146649415,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-35",
+      "index": 34,
+      "row": 5,
+      "column": 4,
+      "quad": [
+        {
+          "x": 2610.1049037941984,
+          "y": 1751.9628784378444
+        },
+        {
+          "x": 2974.8349325311865,
+          "y": 1759.5581692617811
+        },
+        {
+          "x": 2959.281461307511,
+          "y": 1978.8535896134465
+        },
+        {
+          "x": 2606.977454800291,
+          "y": 1972.717935004171
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9551828180017764,
+        "contrast": 1.010405290674753,
+        "shadow": 0.12136304002138786
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28722592682626696,
+            "y": 0.4502884715896679,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7194112292551335,
+            "y": 0.44928076156829433,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.02804457639001812,
+            "y": 0.044329217418514956,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9721281620670911,
+            "y": 0.04206302149334671,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.02854561004496724,
+            "y": 0.9583990049084185,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18229342780645508,
+              "y": 0.7797892473812889
+            },
+            {
+              "x": 0.8222794266614454,
+              "y": 0.7637021852444101
+            },
+            {
+              "x": 0.8679033815290151,
+              "y": 1
+            },
+            {
+              "x": 0.14585497015482654,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2634884323052199,
+              "y": 0.9708659936133383,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.36317308643157076,
+              "y": 0.9501877055214794,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6564027141470985,
+              "y": 0.9501934908471611,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7578467123743816,
+              "y": 0.958246244496088,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-36",
+      "index": 35,
+      "row": 5,
+      "column": 5,
+      "quad": [
+        {
+          "x": 3026.442996291149,
+          "y": 1769.165369971297
+        },
+        {
+          "x": 3386.3619354800016,
+          "y": 1768.6664473788892
+        },
+        {
+          "x": 3375.232865177658,
+          "y": 1988.597320462606
+        },
+        {
+          "x": 3016.318357882832,
+          "y": 1989.9893730399442
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8846596512012184,
+        "contrast": 0.962534516322321,
+        "shadow": 0.11446881825861055
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2686933589514595,
+            "y": 0.4482954546379733,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.699358524660366,
+            "y": 0.4497978065621281,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18563955234543916,
+              "y": 0.763072422778515
+            },
+            {
+              "x": 0.8097519237152745,
+              "y": 0.7597640983874419
+            },
+            {
+              "x": 0.8664032070780817,
+              "y": 1
+            },
+            {
+              "x": 0.1476325555441066,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2627346282455671,
+              "y": 0.9639160367621119,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.36040621355714997,
+              "y": 0.9344051562572786,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6446867589813351,
+              "y": 0.9335905212719379,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7491853403776841,
+              "y": 0.9589076413871471,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-37",
+      "index": 36,
+      "row": 6,
+      "column": 0,
+      "quad": [
+        {
+          "x": 931.248604302078,
+          "y": 2010.4643357703592
+        },
+        {
+          "x": 1292.693604785262,
+          "y": 2006.6928623319632
+        },
+        {
+          "x": 1305.2139017441298,
+          "y": 2219.6639238734692
+        },
+        {
+          "x": 949.0816354909671,
+          "y": 2221.055870252106
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9708413227181881,
+        "contrast": 0.9888327796646627,
+        "shadow": 0.14424207690098229
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.29673002962272,
+            "y": 0.44215422854806763,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7263042898979846,
+            "y": 0.4338980826691585,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.1757410539752086,
+              "y": 0.7673010796462264
+            },
+            {
+              "x": 0.8208763930371189,
+              "y": 0.7732067224906406
+            },
+            {
+              "x": 0.8553768579011672,
+              "y": 1
+            },
+            {
+              "x": 0.14358103395485985,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25513287447221134,
+              "y": 0.9589015854238478,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3593123532784251,
+              "y": 0.9375317719608236,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6460942277257209,
+              "y": 0.934106356665069,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7468651735360533,
+              "y": 0.9540980948587112,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-38",
+      "index": 37,
+      "row": 6,
+      "column": 1,
+      "quad": [
+        {
+          "x": 1351.1216218814145,
+          "y": 2017.8286192087855
+        },
+        {
+          "x": 1715.6007173952582,
+          "y": 2017.8286192087855
+        },
+        {
+          "x": 1717.728248503241,
+          "y": 2231.8843467173842
+        },
+        {
+          "x": 1355.2949834439087,
+          "y": 2230.7996542006167
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8894658460118807,
+        "contrast": 0.9631704136983898,
+        "shadow": 0.13523315782396822
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.29320402324883515,
+            "y": 0.4427376062420926,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7152283208121814,
+            "y": 0.4427376062420926,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.1918447865507223,
+              "y": 0.7664349411649078
+            },
+            {
+              "x": 0.8088878448691494,
+              "y": 0.7554621501505762
+            },
+            {
+              "x": 0.8451150118512091,
+              "y": 1
+            },
+            {
+              "x": 0.1593755692238565,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25877155514372735,
+              "y": 0.9721747726836467,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3602917834350989,
+              "y": 0.9502291906549812,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6384863780160352,
+              "y": 0.9447427951478142,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7412156238358814,
+              "y": 0.9639451794228986,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-39",
+      "index": 38,
+      "row": 6,
+      "column": 2,
+      "quad": [
+        {
+          "x": 1767.0730257515609,
+          "y": 2022.004511444047
+        },
+        {
+          "x": 2127.378706635064,
+          "y": 2022.0045645433977
+        },
+        {
+          "x": 2123.2052920047236,
+          "y": 2240.5434381491264
+        },
+        {
+          "x": 1767.0730257515609,
+          "y": 2234.9755995352284
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8670695408305619,
+        "contrast": 1.002690046896896,
+        "shadow": 0.13868297283217543
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2842381356371343,
+            "y": 0.4499611655948771,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7143843556098882,
+            "y": 0.4611512216803465,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18228654562321478,
+              "y": 0.7678564018996931
+            },
+            {
+              "x": 0.8101272531320204,
+              "y": 0.7662593535890033
+            },
+            {
+              "x": 0.853859012553903,
+              "y": 1
+            },
+            {
+              "x": 0.14841635227641045,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2564633500697272,
+              "y": 0.9680218408275811,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.359632887972358,
+              "y": 0.9491293110616468,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6381493652922005,
+              "y": 0.9450298751886014,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7431040812433038,
+              "y": 0.9559408238067294,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-40",
+      "index": 39,
+      "row": 6,
+      "column": 3,
+      "quad": [
+        {
+          "x": 2181.63325603303,
+          "y": 2034.5322412491812
+        },
+        {
+          "x": 2539.15669587487,
+          "y": 2028.9644026352832
+        },
+        {
+          "x": 2544.7212840938882,
+          "y": 2241.935437627114
+        },
+        {
+          "x": 2185.8066706633704,
+          "y": 2250.287222097636
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9774207106058019,
+        "contrast": 1.0178733617057152,
+        "shadow": 0.11237764135526959
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28,
+            "y": 0.42,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.72,
+            "y": 0.42,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18244936724395744,
+              "y": 0.7587312018123199
+            },
+            {
+              "x": 0.8239423537683577,
+              "y": 0.7626531421261823
+            },
+            {
+              "x": 0.8545984558334395,
+              "y": 0.9992255840712697
+            },
+            {
+              "x": 0.14970636184716485,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25644061564825904,
+              "y": 0.9596995251822841,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35765566598945536,
+              "y": 0.9336588921326155,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6375371119110762,
+              "y": 0.9334202322690751,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7396769948910551,
+              "y": 0.9591946861900142,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-41",
+      "index": 40,
+      "row": 6,
+      "column": 4,
+      "quad": [
+        {
+          "x": 2597.5846068353303,
+          "y": 2037.3161871058055
+        },
+        {
+          "x": 2953.7169792241853,
+          "y": 2042.8840788190544
+        },
+        {
+          "x": 2945.3700438278115,
+          "y": 2257.247060189522
+        },
+        {
+          "x": 2592.0201247520044,
+          "y": 2253.071167954261
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9290346179140032,
+        "contrast": 1.0001146799625713,
+        "shadow": 0.12898907430353573
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28196122017912767,
+            "y": 0.45126649774247324,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7081141410733998,
+            "y": 0.4523458267661372,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18707474764948248,
+              "y": 0.7706371775282423
+            },
+            {
+              "x": 0.8136242801918632,
+              "y": 0.7602364840385522
+            },
+            {
+              "x": 0.8556941690160131,
+              "y": 1
+            },
+            {
+              "x": 0.15015796854368846,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.26299815782535063,
+              "y": 0.9589209312838374,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.36182160865388624,
+              "y": 0.9434068092406999,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6441961729320091,
+              "y": 0.9405342694474144,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7452547487833368,
+              "y": 0.9548551970582377,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-42",
+      "index": 41,
+      "row": 6,
+      "column": 5,
+      "quad": [
+        {
+          "x": 2999.6246462936238,
+          "y": 2045.6679715763282
+        },
+        {
+          "x": 3364.1037948753137,
+          "y": 2048.4519174329525
+        },
+        {
+          "x": 3353.1621634308267,
+          "y": 2268.6903115977607
+        },
+        {
+          "x": 2992.668831418082,
+          "y": 2266.990844138032
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.874325161511224,
+        "contrast": 1.0121795680474315,
+        "shadow": 0.13247536635550206
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2912342012864792,
+            "y": 0.4539852249669005,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7085843686615982,
+            "y": 0.4457661897239046,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.20022612022719355,
+              "y": 0.7774660096913982
+            },
+            {
+              "x": 0.8251917774908518,
+              "y": 0.7760639875214808
+            },
+            {
+              "x": 0.8511768203454334,
+              "y": 1
+            },
+            {
+              "x": 0.17805339323339117,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.27004332341210574,
+              "y": 0.9501057932297592,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3730678762714765,
+              "y": 0.9254873858095868,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6468558393835283,
+              "y": 0.9365184591041248,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7540933471959623,
+              "y": 0.9515553041373234,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-43",
+      "index": 42,
+      "row": 7,
+      "column": 0,
+      "quad": [
+        {
+          "x": 930.9966972452349,
+          "y": 2262.81489880342
+        },
+        {
+          "x": 1285.73778990972,
+          "y": 2255.8550607115344
+        },
+        {
+          "x": 1303.822675087606,
+          "y": 2463.258257089467
+        },
+        {
+          "x": 950.4726498761062,
+          "y": 2475.7859868946016
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9043803196167572,
+        "contrast": 1.079923634576719,
+        "shadow": 0.13008888896321877
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.30109456025230447,
+            "y": 0.4441739413811821,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7248567513966951,
+            "y": 0.4437325418629495,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.19093172519016155,
+              "y": 0.7728621483591246
+            },
+            {
+              "x": 0.8182684415780361,
+              "y": 0.773126358420547
+            },
+            {
+              "x": 0.8482464227491058,
+              "y": 1
+            },
+            {
+              "x": 0.1469370674936003,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2536860068894317,
+              "y": 0.9557013917686075,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3592233701545273,
+              "y": 0.9286145032416356,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6460797246435007,
+              "y": 0.9396531330614873,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7456729854802706,
+              "y": 0.9622542264552343,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-44",
+      "index": 43,
+      "row": 7,
+      "column": 1,
+      "quad": [
+        {
+          "x": 1363.6418127045897,
+          "y": 2255.8550607115344
+        },
+        {
+          "x": 1718.3121235174958,
+          "y": 2268.1060899329923
+        },
+        {
+          "x": 1713.6411234034579,
+          "y": 2480.1785542437315
+        },
+        {
+          "x": 1360.8594655272345,
+          "y": 2470.2180951813525
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8750519013695884,
+        "contrast": 1.0641580261919443,
+        "shadow": 0.1442335027223453
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2881113154008632,
+            "y": 0.45088078234270046,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7187109275047969,
+            "y": 0.44190420783459206,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.025755836895959002,
+            "y": 0.04208575243222024,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9692248656859987,
+            "y": 0.043968188744565,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.19208091152229287,
+              "y": 0.7863664243417505
+            },
+            {
+              "x": 0.8153209680050708,
+              "y": 0.7859603134815023
+            },
+            {
+              "x": 0.8465247411476139,
+              "y": 1
+            },
+            {
+              "x": 0.15084076696032073,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25320730846952666,
+              "y": 0.9610091300625392,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35887251706823703,
+              "y": 0.9368851330171127,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6451339081594266,
+              "y": 0.9397629764419732,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.74474070444672,
+              "y": 0.9679999155622792,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-45",
+      "index": 44,
+      "row": 7,
+      "column": 2,
+      "quad": [
+        {
+          "x": 1762.6866246008578,
+          "y": 2275.116749910207
+        },
+        {
+          "x": 2118.850383296262,
+          "y": 2272.195641586368
+        },
+        {
+          "x": 2121.185883353281,
+          "y": 2484.2681058971066
+        },
+        {
+          "x": 1766.1898746863862,
+          "y": 2486.604992556178
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9202171964535955,
+        "contrast": 0.969804797543693,
+        "shadow": 0.13830013948492706
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2911484332064378,
+            "y": 0.4428916987344352,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7179989029569438,
+            "y": 0.44274062770662304,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18720827735734807,
+              "y": 0.7656524599942778
+            },
+            {
+              "x": 0.8024484010967703,
+              "y": 0.7679605682687135
+            },
+            {
+              "x": 0.8502414590910586,
+              "y": 1
+            },
+            {
+              "x": 0.15198277514472494,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25554027135198243,
+              "y": 0.9604192565062014,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35389252184520353,
+              "y": 0.9400652920163266,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6352327376529,
+              "y": 0.9395981253055097,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.736398686730662,
+              "y": 0.9608234092763894,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-46",
+      "index": 45,
+      "row": 7,
+      "column": 3,
+      "quad": [
+        {
+          "x": 2177.237884721738,
+          "y": 2275.116749910207
+        },
+        {
+          "x": 2533.985518431397,
+          "y": 2281.543188222654
+        },
+        {
+          "x": 2526.6362131785404,
+          "y": 2496.6653949715574
+        },
+        {
+          "x": 2172.5668846077,
+          "y": 2493.0314308686243
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9375695562351029,
+        "contrast": 1.0241608723717217,
+        "shadow": 0.14553817096340937
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.29147360188779425,
+            "y": 0.43808075242295097,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.711854243735932,
+            "y": 0.43877358110311704,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.1911567780851801,
+              "y": 0.7656752521086462
+            },
+            {
+              "x": 0.8198388891930121,
+              "y": 0.7585910166843118
+            },
+            {
+              "x": 0.8513686054725238,
+              "y": 1
+            },
+            {
+              "x": 0.15863611534824712,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2682340581077473,
+              "y": 0.9632289308815851,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3667349863107793,
+              "y": 0.937289316347536,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.645251017001333,
+              "y": 0.9350836687479123,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7493101099075257,
+              "y": 0.9467789307311694,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-47",
+      "index": 46,
+      "row": 7,
+      "column": 4,
+      "quad": [
+        {
+          "x": 2583.673030152092,
+          "y": 2290.6541980716124
+        },
+        {
+          "x": 2936.859278267182,
+          "y": 2292.6433998532434
+        },
+        {
+          "x": 2931.458467144574,
+          "y": 2506.409178920067
+        },
+        {
+          "x": 2578.108441933074,
+          "y": 2505.0172325414305
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9172739199572242,
+        "contrast": 1.0532308800311876,
+        "shadow": 0.1108054463902954
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28473037440919186,
+            "y": 0.4506526657068513,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7121584870881954,
+            "y": 0.4490705165740559,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.9758750841216364,
+            "y": 0.043949516830732616,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.19106163920507882,
+              "y": 0.7790485987486158
+            },
+            {
+              "x": 0.822258825805246,
+              "y": 0.7767574994001382
+            },
+            {
+              "x": 0.8452687554663495,
+              "y": 1
+            },
+            {
+              "x": 0.16306544282310645,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25803086684541704,
+              "y": 0.9641539473086579,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.360263759880129,
+              "y": 0.9416104968169456,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6479190765861458,
+              "y": 0.9341514142694797,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7440379600048068,
+              "y": 0.9636077220500927,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-48",
+      "index": 47,
+      "row": 7,
+      "column": 5,
+      "quad": [
+        {
+          "x": 2994.0598458032205,
+          "y": 2297.614036163498
+        },
+        {
+          "x": 3350.1921120563834,
+          "y": 2311.533712347269
+        },
+        {
+          "x": 3329.3249858368345,
+          "y": 2525.8967468170877
+        },
+        {
+          "x": 2975.975013693181,
+          "y": 2509.193124776692
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9310623634827788,
+        "contrast": 1.0593318911221286,
+        "shadow": 0.12886890295951162
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.27924964771959687,
+            "y": 0.44248850410175605,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7104123893263836,
+            "y": 0.4447262238570219,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.19240256383040458,
+              "y": 0.7626790813899719
+            },
+            {
+              "x": 0.8155126880046548,
+              "y": 0.7569124573039844
+            },
+            {
+              "x": 0.8609548371955345,
+              "y": 1
+            },
+            {
+              "x": 0.1554015514556658,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2705447131472611,
+              "y": 0.9603823028704233,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.37328756643593364,
+              "y": 0.9358774701172081,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6486692260424303,
+              "y": 0.9282405516744473,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7475415450215704,
+              "y": 0.9534155079607597,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-49",
+      "index": 48,
+      "row": 8,
+      "column": 0,
+      "quad": [
+        {
+          "x": 946.2992352457655,
+          "y": 2502.2333132344816
+        },
+        {
+          "x": 1302.4316076346206,
+          "y": 2499.4493673778575
+        },
+        {
+          "x": 1309.3873163744704,
+          "y": 2711.0284559910515
+        },
+        {
+          "x": 958.1068549577968,
+          "y": 2713.2829984861123
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 1.0084841538019644,
+        "contrast": 1.055155555685633,
+        "shadow": 0.14463918234454468
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28976708183202815,
+            "y": 0.45394400461892065,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7158055830582254,
+            "y": 0.4527526965299275,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.1852197444468722,
+              "y": 0.7749055322902224
+            },
+            {
+              "x": 0.8110821452452791,
+              "y": 0.7661327082663099
+            },
+            {
+              "x": 0.8385260590980746,
+              "y": 1
+            },
+            {
+              "x": 0.1453792271618585,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25057398358675603,
+              "y": 0.9584121620029373,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3523511597432553,
+              "y": 0.942914686236161,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6364815339874806,
+              "y": 0.9376944214216484,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7372415099129297,
+              "y": 0.9608890151454255,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-50",
+      "index": 49,
+      "row": 8,
+      "column": 1,
+      "quad": [
+        {
+          "x": 1353.3902396082701,
+          "y": 2519.905627447946
+        },
+        {
+          "x": 1710.03612917624,
+          "y": 2523.1128806094894
+        },
+        {
+          "x": 1710.03612917624,
+          "y": 2724.9481852741737
+        },
+        {
+          "x": 1356.6861039647401,
+          "y": 2723.556238895537
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9904663156479364,
+        "contrast": 1.0799086297641043,
+        "shadow": 0.1436850727375713
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2885075645630779,
+            "y": 0.4412465769497362,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7175457299333312,
+            "y": 0.4419190222303794,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.19078313978791514,
+              "y": 0.758502724007616
+            },
+            {
+              "x": 0.8106679003279623,
+              "y": 0.7702286269761898
+            },
+            {
+              "x": 0.8399430976687797,
+              "y": 1
+            },
+            {
+              "x": 0.15570774685453406,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2553397139118001,
+              "y": 0.9591914384034134,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.35785725164937593,
+              "y": 0.9411835292021478,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6402501042736853,
+              "y": 0.9448638224766988,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7393027110494033,
+              "y": 0.9614599573590027,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-51",
+      "index": 50,
+      "row": 8,
+      "column": 2,
+      "quad": [
+        {
+          "x": 1763.2704996151124,
+          "y": 2522.8267357717846
+        },
+        {
+          "x": 2110.676133096695,
+          "y": 2515.81607579457
+        },
+        {
+          "x": 2116.249530197028,
+          "y": 2733.299969744696
+        },
+        {
+          "x": 1765.6817990950371,
+          "y": 2738.867861457945
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.8826340543356491,
+        "contrast": 0.9704747559013777,
+        "shadow": 0.13675709790491963
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28798615946243156,
+            "y": 0.4654624700413152,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7181809400523799,
+            "y": 0.4591858967182049,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18,
+              "y": 0.745
+            },
+            {
+              "x": 0.82,
+              "y": 0.745
+            },
+            {
+              "x": 0.8574662736493321,
+              "y": 1
+            },
+            {
+              "x": 0.14277529965163716,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25178665504053693,
+              "y": 0.9486202736152531,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3652361244016428,
+              "y": 0.9349294270313779,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6435678817753866,
+              "y": 0.9312957136383633,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7482812775026888,
+              "y": 0.9508269827407607,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-52",
+      "index": 51,
+      "row": 8,
+      "column": 3,
+      "quad": [
+        {
+          "x": 2169.112959074162,
+          "y": 2525.896773366763
+        },
+        {
+          "x": 2519.972518089283,
+          "y": 2530.4216174137673
+        },
+        {
+          "x": 2514.1160488892883,
+          "y": 2744.435700071843
+        },
+        {
+          "x": 2163.548317787298,
+          "y": 2734.691916123333
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9447552827105391,
+        "contrast": 0.9578082008140336,
+        "shadow": 0.11019396532748943
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.28864565814515375,
+            "y": 0.44576517279280875,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7160241850859183,
+            "y": 0.4403664206871077,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.19033418026051807,
+              "y": 0.7749324471639725
+            },
+            {
+              "x": 0.8096489257194776,
+              "y": 0.7664746601774092
+            },
+            {
+              "x": 0.8422041984175609,
+              "y": 1
+            },
+            {
+              "x": 0.14994815198215974,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25993756260154677,
+              "y": 0.961134235247979,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3628067042701339,
+              "y": 0.9370654420410344,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6457230058839917,
+              "y": 0.9245103583852486,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7511110152642776,
+              "y": 0.9528360438493966,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-53",
+      "index": 52,
+      "row": 8,
+      "column": 4,
+      "quad": [
+        {
+          "x": 2569.7617188080853,
+          "y": 2539.8164495505343
+        },
+        {
+          "x": 2920.32939684223,
+          "y": 2542.600395407159
+        },
+        {
+          "x": 2916.156035279736,
+          "y": 2755.57143039899
+        },
+        {
+          "x": 2567.2663942439185,
+          "y": 2752.42585002556
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9779781486070714,
+        "contrast": 1.0185904688169831,
+        "shadow": 0.14145576676004568
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.2816851812684077,
+            "y": 0.4418315327113709,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7054647459537596,
+            "y": 0.4414840252281749,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.17937803764008864,
+              "y": 0.7655460079719912
+            },
+            {
+              "x": 0.8142103669948708,
+              "y": 0.7663416583628474
+            },
+            {
+              "x": 0.8505409570339147,
+              "y": 1
+            },
+            {
+              "x": 0.13997116446543814,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.2561382005127748,
+              "y": 0.9419037561373389,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3528957372134899,
+              "y": 0.9200693884334833,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6371247147640481,
+              "y": 0.9252343079578172,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.7392571689209383,
+              "y": 0.958887800062053,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tape-54",
+      "index": 53,
+      "row": 8,
+      "column": 5,
+      "quad": [
+        {
+          "x": 2973.1927195836715,
+          "y": 2545.3843412637834
+        },
+        {
+          "x": 3321.049037646815,
+          "y": 2548.5324890215716
+        },
+        {
+          "x": 3318.1958624666445,
+          "y": 2759.7473757336015
+        },
+        {
+          "x": 2971.80159906284,
+          "y": 2762.531268490876
+        }
+      ],
+      "visibleEdgePx": 5,
+      "maskIds": [
+        "roller-left",
+        "roller-right",
+        "bottom-hole-1",
+        "bottom-hole-2",
+        "bottom-hole-3",
+        "bottom-hole-4"
+      ],
+      "lighting": {
+        "brightness": 0.9849507327110041,
+        "contrast": 0.9869794198208547,
+        "shadow": 0.12250074244861026
+      },
+      "features": {
+        "cornerRadius": 0.035,
+        "transparentHoles": [
+          {
+            "id": "roller-left",
+            "label": "Left drive hole",
+            "x": 0.27909761999347626,
+            "y": 0.45392787567612125,
+            "r": 0.058
+          },
+          {
+            "id": "roller-right",
+            "label": "Right drive hole",
+            "x": 0.7043703128853843,
+            "y": 0.45151646316017885,
+            "r": 0.058
+          },
+          {
+            "id": "screw-top-left",
+            "label": "Top left screw",
+            "x": 0.035,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-top-right",
+            "label": "Top right screw",
+            "x": 0.965,
+            "y": 0.055,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-right",
+            "label": "Bottom right screw",
+            "x": 0.965,
+            "y": 0.948,
+            "r": 0.018
+          },
+          {
+            "id": "screw-bottom-left",
+            "label": "Bottom left screw",
+            "x": 0.035,
+            "y": 0.948,
+            "r": 0.018
+          }
+        ],
+        "blackHoles": [],
+        "raised": {
+          "enabled": true,
+          "gapMm": 0.5,
+          "polygon": [
+            {
+              "x": 0.18172909065808543,
+              "y": 0.7755328423851923
+            },
+            {
+              "x": 0.8132946737362524,
+              "y": 0.7674870860702672
+            },
+            {
+              "x": 0.8547357989332446,
+              "y": 1
+            },
+            {
+              "x": 0.13352674400570932,
+              "y": 1
+            }
+          ],
+          "blackHoles": [
+            {
+              "id": "raised-hole-left",
+              "label": "Raised left alignment",
+              "x": 0.25638377013060437,
+              "y": 0.9567496852214591,
+              "r": 0.019
+            },
+            {
+              "id": "raised-hole-mid-left",
+              "label": "Raised mid-left alignment",
+              "x": 0.3575212801781154,
+              "y": 0.9284514189751061,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-mid-right",
+              "label": "Raised mid-right alignment",
+              "x": 0.6442302755536741,
+              "y": 0.9321271240351975,
+              "r": 0.017
+            },
+            {
+              "id": "raised-hole-right",
+              "label": "Raised right alignment",
+              "x": 0.747061346886991,
+              "y": 0.9549690012871115,
+              "r": 0.019
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "previewFrame": {
+    "x": 834,
+    "y": 162,
+    "width": 2721,
+    "height": 2721,
+    "rotationDeg": 0.5
+  }
+}

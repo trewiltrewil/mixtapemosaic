@@ -1,0 +1,13 @@
+node_modules/
+.next/
+out/
+dev-server.log
+dev-server.err
+prod-server*.log
+prod-server*.err
+*.tsbuildinfo
+public/calibration/debug-estimate.jpg
+_figma_vite_reference/
+_figma_vite_fixed_reference/
+figma-*.png
+marketing-home-smoke.png

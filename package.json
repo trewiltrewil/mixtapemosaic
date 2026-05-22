@@ -1,0 +1,30 @@
+{
+  "name": "cassette-art-customizer",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Next.js product customizer and production exporter for cassette tape DTF wall art.",
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0 --port 4173",
+    "build": "next build",
+    "start": "next start --hostname 0.0.0.0 --port 4173",
+    "legacy:start": "node server.js"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
+    "lucide-react": "^1.16.0",
+    "motion": "^12.40.0",
+    "next": "^16.2.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwindcss": "^4.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "postcss": "8.5.10"
+  }
+}
