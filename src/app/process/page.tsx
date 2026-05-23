@@ -5,7 +5,7 @@ const steps = [
     label: "Step 01",
     title: "Sourcing the Gold",
     body: "We scour flea markets, estate sales, and abandoned storage units to find authentic, generation-defining cassettes. We don't use blanks&mdash;we want tapes that have been loved, played, and lived with.",
-    image: "/figma/process-vintage-audio.png",
+    image: "/assets/story/cassette-wall-archive.jpg",
     frame: "bg-card rotate-2",
     reverse: false
   },
@@ -13,7 +13,7 @@ const steps = [
     label: "Step 02",
     title: "Cleaning & Prepping",
     body: "Each tape is hand-cleaned. We preserve the original labels when possible, but often strip the plastic down to its structural core to prepare it for priming and painting in our signature vibrant colorways.",
-    image: "/figma/process-art-studio.png",
+    image: "/assets/story/cassette-six-pack.jpg",
     frame: "bg-accent -rotate-2",
     reverse: true
   },
@@ -21,7 +21,7 @@ const steps = [
     label: "Step 03",
     title: "The Mosaic Assembly",
     body: "Using your selected themes, we arrange the painted cassettes into a dense, structural grid. This is where the magic happens&mdash;combining analog geometry into a monolithic piece of neo-brutalist art.",
-    image: "/figma/process-artisan-assembly.png",
+    image: "/assets/story/exhibition-red-mosaic.jpg",
     frame: "bg-card rotate-1",
     reverse: false
   }

@@ -3,40 +3,58 @@ import type { ReactNode } from "react";
 
 export const galleryItems = [
   {
-    title: "The Mosaic",
-    size: "42x36\"",
-    src: "/figma/builder-preview.png",
-    alt: "Custom cassette mosaic wall art"
+    title: "Red Diner Wall",
+    size: "Installed piece",
+    src: "/assets/story/exhibition-red-mosaic.jpg",
+    alt: "Large red and yellow cassette mosaic installed on a restaurant wall"
   },
   {
-    title: "Green Wall Study",
-    size: "42x36\"",
+    title: "Zebra Lightbox",
+    size: "Archive study",
+    src: "/assets/story/zebra-tape-wall.jpg",
+    alt: "Cassette wall art showing a zebra image across a tape grid"
+  },
+  {
+    title: "Tape Archive Wall",
+    size: "Material wall",
+    src: "/assets/story/cassette-wall-archive.jpg",
+    alt: "Wall of clear cassette tapes with vintage labels"
+  },
+  {
+    title: "Green Wall Proof",
+    size: "Prototype",
     src: "/product/prototype-wall-unit.jpg",
-    alt: "Prototype cassette wall art"
+    alt: "Prototype cassette wall art on a green wall"
   },
   {
     title: "Blue Food Truck",
-    size: "42x36\"",
+    size: "Artwork test",
     src: "/assets/ryan-waring-geeZzrAXyMQ-unsplash.jpg",
     alt: "Blue food truck artwork sample"
   },
   {
     title: "Sunset Palms",
-    size: "42x36\"",
+    size: "Artwork test",
     src: "/assets/aishwarya-mv-3i-TsBuiTPk-unsplash.jpg",
     alt: "Sunset palm artwork sample"
   },
   {
-    title: "Logo Study",
-    size: "Edition proof",
-    src: "/assets/mixtape-mosaic-logo-compact.svg",
-    alt: "Colorful abstract artwork sample"
+    title: "Warm Tape Pile",
+    size: "Texture study",
+    src: "/assets/story/cassette-pile-warm.jpg",
+    alt: "Close-up pile of vintage cassette tapes"
   },
   {
-    title: "Tape Colorway",
-    size: "Studio sample",
-    src: "/assets/mixtape-mosaic-logo-art.svg",
-    alt: "Mixtape Mosaic logo artwork"
+    title: "Studio Closeup",
+    size: "Material study",
+    src: "/assets/story/cassette-closeup-grid.jpg",
+    alt: "Close-up grid of stacked cassette tapes"
+  },
+  {
+    title: "Green Label Set",
+    size: "Color study",
+    src: "/assets/story/cassette-green-labels.jpg",
+    alt: "Green tinted cassette tape close-up grid"
   }
 ];
 
@@ -44,35 +62,35 @@ export const journalPosts = [
   {
     volume: "Vol. 06",
     title: "The Anatomy of a Maxell UR90",
-    src: "/figma/blog-maxell-ur90.png",
+    src: "/assets/story/cassette-six-pack.jpg",
     color: "bg-primary",
     href: "/journal/maxell-ur90"
   },
   {
     volume: "Vol. 05",
     title: "Why We Don't Use Blanks",
-    src: "/figma/blog-no-blanks.png",
+    src: "/assets/story/cassette-wall-archive.jpg",
     color: "bg-secondary",
     href: "/journal/maxell-ur90"
   },
   {
     volume: "Vol. 04",
     title: "Restoring the Boombox Aesthetic",
-    src: "/figma/blog-boombox.png",
+    src: "/assets/story/cassette-pile-warm.jpg",
     color: "bg-accent",
     href: "/journal/maxell-ur90"
   },
   {
     volume: "Vol. 03",
-    title: "Crate Digging in Tokyo",
-    src: "/figma/blog-crate-tokyo.png",
+    title: "When the Grid Becomes a Picture",
+    src: "/assets/story/exhibition-red-mosaic.jpg",
     color: "bg-primary",
     href: "/journal/maxell-ur90"
   },
   {
     volume: "Vol. 02",
     title: "The Perfect Imperfection",
-    src: "/figma/blog-perfect-imperfection.png",
+    src: "/assets/story/zebra-tape-wall.jpg",
     color: "bg-accent",
     href: "/journal/maxell-ur90"
   },

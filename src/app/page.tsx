@@ -65,9 +65,9 @@ export default function HomePage() {
           >
             <div className="aspect-[4/3] sm:aspect-square bg-accent border-4 border-border shadow-[8px_8px_0_0_#292929] sm:shadow-[12px_12px_0_0_#292929] relative z-10 overflow-hidden group">
               <img
-                src="/product/prototype-wall-unit.jpg"
-                alt="Cassette tape wall art"
-                className="w-full h-full object-cover object-center mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+                src="/assets/story/exhibition-red-mosaic.jpg"
+                alt="Finished cassette mosaic wall art installed in a restaurant"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute top-4 left-4 bg-primary border-2 border-border p-2 shadow-[4px_4px_0_0_#292929]">
                 <Play className="fill-current w-6 h-6" />
@@ -85,8 +85,8 @@ export default function HomePage() {
           <div className="order-2 md:order-1 relative">
             <div className="bg-card border-4 border-border shadow-[8px_8px_0_0_#292929] overflow-hidden -rotate-2">
               <img
-                src="/product/prototype-wall-unit.jpg"
-                alt="Prototype cassette wall art"
+                src="/assets/story/cassette-closeup-grid.jpg"
+                alt="Close-up of vintage cassette tape shells and labels"
                 className="w-full h-[400px] object-cover grayscale hover:grayscale-0 transition-all duration-500"
               />
             </div>
@@ -114,6 +114,48 @@ export default function HomePage() {
             >
               Read Our Process <ArrowRight className="w-5 h-5" />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-foreground text-background border-b-4 border-border py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-[0.9fr_1.1fr] gap-12 items-center">
+          <div className="space-y-5">
+            <div className="inline-block border-2 border-background bg-secondary text-background px-4 py-1 font-mono font-bold text-sm shadow-[4px_4px_0_0_#FEB93C] uppercase tracking-widest">
+              Wall Presence
+            </div>
+            <h2 className="font-heading font-black text-5xl lg:text-7xl uppercase tracking-tighter leading-none">
+              More than a print.
+            </h2>
+            <p className="text-lg lg:text-xl font-medium text-background/80 max-w-xl">
+              The image breaks across real cassette shells, label windows, shadows, and uneven vintage details. Up close
+              it reads like an archive. Across the room it lands like a single bold artwork.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border-4 border-background bg-primary shadow-[8px_8px_0_0_#FEB93C] overflow-hidden -rotate-2">
+              <img
+                src="/assets/story/zebra-tape-wall.jpg"
+                alt="Cassette wall art with a zebra image"
+                className="h-[360px] w-full object-cover"
+              />
+            </div>
+            <div className="space-y-4 pt-8">
+              <div className="border-4 border-background bg-card shadow-[8px_8px_0_0_#6B8F8B] overflow-hidden rotate-2">
+                <img
+                  src="/assets/story/cassette-green-labels.jpg"
+                  alt="Green tinted cassette material close-up"
+                  className="h-[170px] w-full object-cover"
+                />
+              </div>
+              <div className="border-4 border-background bg-card shadow-[8px_8px_0_0_#F66630] overflow-hidden -rotate-1">
+                <img
+                  src="/assets/story/cassette-pile-warm.jpg"
+                  alt="Warm close-up pile of vintage cassettes"
+                  className="h-[170px] w-full object-cover"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
