@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { productPhoto } from "@/lib/assets";
+import { getProductPhoto, productPhotos, type ProductLayoutKey } from "@/lib/assets";
 import {
   bilinearPoint,
   createDefaultTapeFeatures,
@@ -69,13 +69,16 @@ const mainCornerHitPx = 14;
 const featureCenterHitPx = 9;
 const raisedCornerHitPx = 10;
 const panStartPx = 4;
-const defaultPreviewFrame = createPrototypeCalibration().previewFrame ?? {
-  x: 650,
-  y: 120,
-  width: 2850,
-  height: 2850,
-  rotationDeg: 0
-};
+
+function getDefaultPreviewFrame(layout: ProductLayoutKey) {
+  return createPrototypeCalibration(layout).previewFrame ?? {
+    x: 0,
+    y: 0,
+    width: getProductPhoto(layout).width,
+    height: getProductPhoto(layout).height,
+    rotationDeg: 0
+  };
+}
 
 function downloadText(text: string, filename: string) {
   const blob = new Blob([text], { type: "application/json" });
@@ -189,8 +192,9 @@ function isCalibration(value: unknown): value is ProductCalibration {
 
 export function CalibrationEditor() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [layoutKey, setLayoutKey] = useState<ProductLayoutKey>("square");
   const [photo, setPhoto] = useState<LoadedImage | null>(null);
-  const [calibration, setCalibration] = useState<ProductCalibration>(() => createPrototypeCalibration());
+  const [calibration, setCalibration] = useState<ProductCalibration>(() => createPrototypeCalibration("square"));
   const [selectedTape, setSelectedTape] = useState(0);
   const [selectedFeature, setSelectedFeature] = useState(defaultFeatureTarget);
   const [drag, setDrag] = useState<DragState | null>(null);
@@ -199,6 +203,12 @@ export function CalibrationEditor() {
 
   useEffect(() => {
     let active = true;
+    const productPhoto = getProductPhoto(layoutKey);
+    setPhoto(null);
+    setCalibration(createPrototypeCalibration(layoutKey));
+    setSelectedTape(0);
+    setSelectedFeature(defaultFeatureTarget);
+    setStatus(`Loading ${layoutKey} prototype photo...`);
 
     loadImage(productPhoto.src).then((image) => {
       if (active) {
@@ -207,7 +217,7 @@ export function CalibrationEditor() {
       }
     });
 
-    fetch(`/api/calibration?ts=${Date.now()}`, { cache: "no-store" })
+    fetch(`/api/calibration?layout=${layoutKey}&ts=${Date.now()}`, { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -231,7 +241,7 @@ export function CalibrationEditor() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [layoutKey]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -259,7 +269,7 @@ export function CalibrationEditor() {
       context.scale(view.zoom, view.zoom);
       context.drawImage(photo, photoRect.x, photoRect.y, photoRect.width, photoRect.height);
 
-      const frame = calibration.previewFrame ?? defaultPreviewFrame;
+      const frame = calibration.previewFrame ?? getDefaultPreviewFrame(layoutKey);
       const framePoints = previewFrameCorners(frame).map((point) =>
         getScaledCalibrationPoint(point, photo, canvas.width, canvas.height)
       );
@@ -573,7 +583,7 @@ export function CalibrationEditor() {
 
   async function saveCalibration() {
     setStatus("Saving calibration JSON...");
-    const response = await fetch("/api/calibration", {
+    const response = await fetch(`/api/calibration?layout=${layoutKey}`, {
       method: "POST",
       headers: {
         "content-type": "application/json"
@@ -587,7 +597,7 @@ export function CalibrationEditor() {
       return;
     }
 
-    setStatus("Saved to public/calibration/prototype-wall-unit-calibration.json.");
+    setStatus(`Saved ${layoutKey} calibration JSON.`);
   }
 
   function updatePreviewFrame(
@@ -597,7 +607,20 @@ export function CalibrationEditor() {
       const normalized = normalizeCalibration(current);
       return {
         ...normalized,
-        previewFrame: updater(normalized.previewFrame ?? defaultPreviewFrame)
+        previewFrame: updater(normalized.previewFrame ?? getDefaultPreviewFrame(layoutKey))
+      };
+    });
+  }
+
+  function updateRenderSettings(values: Partial<NonNullable<ProductCalibration["renderSettings"]>>) {
+    setCalibration((current) => {
+      const normalized = normalizeCalibration(current);
+      return {
+        ...normalized,
+        renderSettings: {
+          ...normalized.renderSettings!,
+          ...values
+        }
       };
     });
   }
@@ -616,17 +639,15 @@ export function CalibrationEditor() {
       x: (minX + maxX) / 2,
       y: (minY + maxY) / 2
     };
-    const padding = 140;
-    const size = Math.min(
-      Math.max(maxX - minX, maxY - minY) + padding * 2,
-      Math.max(photo.naturalWidth, photo.naturalHeight)
-    );
+    const padding = 80;
+    const width = Math.min(maxX - minX + padding * 2, photo.naturalWidth);
+    const height = Math.min(maxY - minY + padding * 2, photo.naturalHeight);
 
     updatePreviewFrame(() => ({
-      x: clamp(center.x - size / 2, 0, Math.max(0, photo.naturalWidth - size)),
-      y: clamp(center.y - size / 2, 0, Math.max(0, photo.naturalHeight - size)),
-      width: size,
-      height: size,
+      x: clamp(center.x - width / 2, 0, Math.max(0, photo.naturalWidth - width)),
+      y: clamp(center.y - height / 2, 0, Math.max(0, photo.naturalHeight - height)),
+      width,
+      height,
       rotationDeg: 0
     }));
     setStatus("Customizer crop fitted around the calibrated tapes. Save JSON to use it on the public preview.");
@@ -636,7 +657,8 @@ export function CalibrationEditor() {
   const selectedFeatures = getTapeFeatures(selected);
   const featureTargets = featureTargetsForTape(selectedTape);
   const activeFeature = selectedFeatureTarget();
-  const previewFrame = calibration.previewFrame ?? defaultPreviewFrame;
+  const previewFrame = calibration.previewFrame ?? getDefaultPreviewFrame(layoutKey);
+  const renderSettings = normalizeCalibration(calibration).renderSettings!;
 
   return (
     <main className="tool-shell">
@@ -775,6 +797,19 @@ export function CalibrationEditor() {
         </div>
 
         <div className="panel two-col">
+          <label>
+            Layout
+            <select
+              value={layoutKey}
+              onChange={(event) => setLayoutKey(event.target.value as ProductLayoutKey)}
+            >
+              {Object.keys(productPhotos).map((key) => (
+                <option key={key} value={key}>
+                  {key === "landscape" ? "Landscape" : "Square"}
+                </option>
+              ))}
+            </select>
+          </label>
           <button
             type="button"
             onClick={runVisionEstimate}
@@ -785,10 +820,10 @@ export function CalibrationEditor() {
           <button
             type="button"
             onClick={() => {
-              setCalibration(createPrototypeCalibration());
+              setCalibration(createPrototypeCalibration(layoutKey));
               setSelectedTape(0);
               setSelectedFeature(defaultFeatureTarget);
-              setStatus("Reset to the perspective seed.");
+              setStatus(`Reset ${layoutKey} to the default grid seed.`);
             }}
           >
             Reset seed
@@ -801,7 +836,7 @@ export function CalibrationEditor() {
             onClick={() =>
               downloadText(
                 JSON.stringify(calibration, null, 2),
-                "prototype-wall-unit-calibration.json"
+                `${layoutKey}-wall-unit-calibration.json`
               )
             }
           >
@@ -850,7 +885,7 @@ export function CalibrationEditor() {
         <div className="panel">
           <h2>Customizer Crop</h2>
           <p className="metric">
-            The yellow box sets the square public preview framing. Use it to crop out extra wall
+            The yellow box sets the public preview framing. Use it to crop out extra wall
             and correct a slightly tilted product photo.
           </p>
           <div className="two-col">
@@ -861,9 +896,9 @@ export function CalibrationEditor() {
                 step={1}
                 value={Math.round(previewFrame.x)}
                 onChange={(event) =>
-                  updatePreviewFrame((frame) => ({
-                    ...frame,
-                    x: Number(event.target.value)
+                updatePreviewFrame((frame) => ({
+                  ...frame,
+                  x: Number(event.target.value)
                   }))
                 }
               />
@@ -885,22 +920,37 @@ export function CalibrationEditor() {
           </div>
           <div className="two-col">
             <label>
-              Size
+              Width
               <input
                 type="number"
                 min={200}
                 step={1}
                 value={Math.round(previewFrame.width)}
-                onChange={(event) => {
-                  const size = Math.max(200, Number(event.target.value));
+                onChange={(event) =>
                   updatePreviewFrame((frame) => ({
                     ...frame,
-                    width: size,
-                    height: size
-                  }));
-                }}
+                    width: Math.max(200, Number(event.target.value))
+                  }))
+                }
               />
             </label>
+            <label>
+              Height
+              <input
+                type="number"
+                min={200}
+                step={1}
+                value={Math.round(previewFrame.height)}
+                onChange={(event) =>
+                  updatePreviewFrame((frame) => ({
+                    ...frame,
+                    height: Math.max(200, Number(event.target.value))
+                  }))
+                }
+              />
+            </label>
+          </div>
+          <div className="two-col">
             <label>
               Rotate
               <input
@@ -923,13 +973,86 @@ export function CalibrationEditor() {
             <button
               type="button"
               onClick={() => {
-                updatePreviewFrame(() => defaultPreviewFrame);
+                updatePreviewFrame(() => getDefaultPreviewFrame(layoutKey));
                 setStatus("Customizer crop reset. Save JSON to keep this framing.");
               }}
             >
               Reset crop
             </button>
           </div>
+        </div>
+
+        <div className="panel">
+          <h2>Preview Artwork Fit</h2>
+          <p className="metric">
+            These settings affect only the customer mockup overlay, not the DTF production export.
+          </p>
+          <div className="two-col">
+            <label>
+              Overlay opacity
+              <input
+                type="number"
+                min={0}
+                max={1}
+                step={0.005}
+                value={Number(renderSettings.artworkOpacity.toFixed(3))}
+                onChange={(event) =>
+                  updateRenderSettings({ artworkOpacity: clamp(Number(event.target.value), 0, 1) })
+                }
+              />
+            </label>
+            <label>
+              Raised edge opacity
+              <input
+                type="number"
+                min={0}
+                max={1}
+                step={0.005}
+                value={Number(renderSettings.raisedEdgeArtworkOpacity.toFixed(3))}
+                onChange={(event) =>
+                  updateRenderSettings({
+                    raisedEdgeArtworkOpacity: clamp(Number(event.target.value), 0, 1)
+                  })
+                }
+              />
+            </label>
+          </div>
+          <div className="two-col">
+            <label>
+              Artwork gap X mm
+              <input
+                type="number"
+                min={0}
+                max={20}
+                step={0.1}
+                value={Number(renderSettings.artworkGapXMm.toFixed(1))}
+                onChange={(event) =>
+                  updateRenderSettings({ artworkGapXMm: clamp(Number(event.target.value), 0, 20) })
+                }
+              />
+            </label>
+            <label>
+              Artwork gap Y mm
+              <input
+                type="number"
+                min={0}
+                max={25}
+                step={0.1}
+                value={Number(renderSettings.artworkGapYMm.toFixed(1))}
+                onChange={(event) =>
+                  updateRenderSettings({ artworkGapYMm: clamp(Number(event.target.value), 0, 25) })
+                }
+              />
+            </label>
+          </div>
+          <label>
+            Background fill
+            <input
+              type="text"
+              value={renderSettings.backgroundFill}
+              onChange={(event) => updateRenderSettings({ backgroundFill: event.target.value })}
+            />
+          </label>
         </div>
 
         <div className="panel">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { artworkOptions, productPhoto } from "@/lib/assets";
+import { artworkOptions, getProductPhoto } from "@/lib/assets";
 import { createPrototypeCalibration, normalizeCalibration } from "@/lib/calibration";
 import { defaultProductionConfig } from "@/lib/geometry";
 import { loadImage, type LoadedImage } from "@/lib/image";
@@ -12,10 +12,11 @@ function MockupCanvas({ src, name }: { src: string; name: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [artwork, setArtwork] = useState<LoadedImage | null>(null);
   const [photo, setPhoto] = useState<LoadedImage | null>(null);
-  const [calibration, setCalibration] = useState<ProductCalibration>(() => createPrototypeCalibration());
+  const [calibration, setCalibration] = useState<ProductCalibration>(() => createPrototypeCalibration("square"));
 
   useEffect(() => {
     let active = true;
+    const productPhoto = getProductPhoto("square");
     Promise.all([loadImage(src), loadImage(productPhoto.src)]).then(([loadedArtwork, loadedPhoto]) => {
       if (active) {
         setArtwork(loadedArtwork);
@@ -29,7 +30,7 @@ function MockupCanvas({ src, name }: { src: string; name: string }) {
 
   useEffect(() => {
     let active = true;
-    fetch(`/api/calibration?ts=${Date.now()}`, { cache: "no-store" })
+    fetch(`/api/calibration?layout=square&ts=${Date.now()}`, { cache: "no-store" })
       .then(async (response) => (response.ok ? ((await response.json()) as ProductCalibration) : null))
       .then((saved) => {
         if (active && saved?.tapes?.length) {

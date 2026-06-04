@@ -1,4 +1,4 @@
-import { productPhoto } from "./assets";
+import { getProductPhoto, type ProductLayoutKey } from "./assets";
 import type {
   Point,
   ProductCalibration,
@@ -9,45 +9,40 @@ import type {
   TapeMask
 } from "./types";
 
-const defaultMaskIds = [
-  "roller-left",
-  "roller-right",
-  "screw-top-left",
-  "screw-top-right",
-  "screw-bottom-right",
-  "screw-bottom-left"
-];
+const defaultMaskIds = ["roller-left", "roller-right"];
 
-const defaultPreviewFrame = {
-  x: 0,
-  y: 0,
-  width: productPhoto.width,
-  height: productPhoto.height,
-  rotationDeg: 0
+const layoutSeeds: Record<ProductLayoutKey, {
+  bounds: { x: number; y: number; width: number; height: number };
+  tapeGapX: number;
+  tapeGapY: number;
+}> = {
+  square: {
+    bounds: { x: 69, y: 62, width: 1120, height: 1133 },
+    tapeGapX: 5,
+    tapeGapY: 8
+  },
+  landscape: {
+    bounds: { x: 69, y: 54, width: 1494, height: 1142 },
+    tapeGapX: 5,
+    tapeGapY: 8
+  }
 };
 
-const defaultGridBounds = {
-  x: 68,
-  y: 62,
-  width: 1116,
-  height: 1134
+const defaultRenderSettings = {
+  artworkOpacity: 0.975,
+  raisedEdgeArtworkOpacity: 0.9,
+  artworkGapXMm: 0,
+  artworkGapYMm: 0,
+  backgroundFill: "#f0f0f0"
 };
-
-const defaultTapeGapX = 5;
-const defaultTapeGapY = 8;
-const defaultTapeWidth = (defaultGridBounds.width - defaultTapeGapX * 5) / 6;
-const defaultTapeHeight = (defaultGridBounds.height - defaultTapeGapY * 8) / 9;
 
 export const defaultMasks: Record<string, TapeMask> = {
   "roller-left": { id: "roller-left", kind: "circle", x: 0.28, y: 0.42, r: 0.058 },
-  "roller-right": { id: "roller-right", kind: "circle", x: 0.72, y: 0.42, r: 0.058 },
-  "screw-top-left": { id: "screw-top-left", kind: "circle", x: 0.035, y: 0.055, r: 0.018 },
-  "screw-top-right": { id: "screw-top-right", kind: "circle", x: 0.965, y: 0.055, r: 0.018 },
-  "screw-bottom-right": { id: "screw-bottom-right", kind: "circle", x: 0.965, y: 0.948, r: 0.018 },
-  "screw-bottom-left": { id: "screw-bottom-left", kind: "circle", x: 0.035, y: 0.948, r: 0.018 }
+  "roller-right": { id: "roller-right", kind: "circle", x: 0.72, y: 0.42, r: 0.058 }
 };
 
 export const defaultMaskIdList = defaultMaskIds;
+export const defaultProductRenderSettings = defaultRenderSettings;
 
 function rotatePoint(point: Point, center: Point, radians: number): Point {
   const cos = Math.cos(radians);
@@ -85,11 +80,7 @@ export function createDefaultTapeFeatures(): TapeFeatureSet {
     cornerRadius: 0.035,
     transparentHoles: [
       circle("roller-left", "Left drive hole", 0.28, 0.42, 0.058),
-      circle("roller-right", "Right drive hole", 0.72, 0.42, 0.058),
-      circle("screw-top-left", "Top left screw", 0.035, 0.055, 0.018),
-      circle("screw-top-right", "Top right screw", 0.965, 0.055, 0.018),
-      circle("screw-bottom-right", "Bottom right screw", 0.965, 0.948, 0.018),
-      circle("screw-bottom-left", "Bottom left screw", 0.035, 0.948, 0.018)
+      circle("roller-right", "Right drive hole", 0.72, 0.42, 0.058)
     ],
     blackHoles: [],
     raised: {
@@ -131,17 +122,32 @@ export function getTapeFeatures(tape: TapeCalibration): TapeFeatureSet {
   };
 }
 
-function makeTape(row: number, column: number): TapeCalibration {
-  const index = row * 6 + column;
-  const x = defaultGridBounds.x + column * (defaultTapeWidth + defaultTapeGapX);
-  const y = defaultGridBounds.y + row * (defaultTapeHeight + defaultTapeGapY);
+function getDefaultPreviewFrame(layout: ProductLayoutKey) {
+  const photo = getProductPhoto(layout);
+  return {
+    x: 0,
+    y: 0,
+    width: photo.width,
+    height: photo.height,
+    rotationDeg: 0
+  };
+}
+
+function makeTape(layout: ProductLayoutKey, row: number, column: number): TapeCalibration {
+  const photo = getProductPhoto(layout);
+  const seed = layoutSeeds[layout];
+  const index = row * photo.columns + column;
+  const tapeWidth = (seed.bounds.width - seed.tapeGapX * Math.max(0, photo.columns - 1)) / photo.columns;
+  const tapeHeight = (seed.bounds.height - seed.tapeGapY * Math.max(0, photo.rows - 1)) / photo.rows;
+  const x = seed.bounds.x + column * (tapeWidth + seed.tapeGapX);
+  const y = seed.bounds.y + row * (tapeHeight + seed.tapeGapY);
 
   return {
     id: `tape-${index + 1}`,
     index,
     row,
     column,
-    quad: makeQuad(x, y, defaultTapeWidth, defaultTapeHeight, 0),
+    quad: makeQuad(x, y, tapeWidth, tapeHeight, 0),
     visibleEdgePx: 2,
     maskIds: defaultMaskIds,
     features: createDefaultTapeFeatures(),
@@ -153,22 +159,26 @@ function makeTape(row: number, column: number): TapeCalibration {
   };
 }
 
-export function createPrototypeCalibration(): ProductCalibration {
+export function createPrototypeCalibration(layout: ProductLayoutKey = "square"): ProductCalibration {
+  const photo = getProductPhoto(layout);
   return {
     photo: {
-      src: productPhoto.src,
-      width: productPhoto.width,
-      height: productPhoto.height,
+      src: photo.src,
+      width: photo.width,
+      height: photo.height,
       notes:
-        "Square artwork wall base. Default tape quads are reset to the clean 6 x 9 grid in this exported product image."
+        `${layout === "landscape" ? "Landscape" : "Square"} cassette grid base. Default tape quads are reset to the clean ${photo.columns} x ${photo.rows} grid in this exported product image.`
     },
-    previewFrame: defaultPreviewFrame,
+    renderSettings: defaultRenderSettings,
+    previewFrame: getDefaultPreviewFrame(layout),
     layout: {
-      columns: 6,
-      rows: 9
+      columns: photo.columns,
+      rows: photo.rows
     },
     masks: defaultMasks,
-    tapes: Array.from({ length: 54 }, (_, index) => makeTape(Math.floor(index / 6), index % 6))
+    tapes: Array.from({ length: photo.columns * photo.rows }, (_, index) =>
+      makeTape(layout, Math.floor(index / photo.columns), index % photo.columns)
+    )
   };
 }
 
@@ -178,15 +188,30 @@ export function cloneCalibration(calibration: ProductCalibration): ProductCalibr
 
 export function normalizeCalibration(calibration: ProductCalibration): ProductCalibration {
   const next = cloneCalibration(calibration);
-  next.previewFrame = next.previewFrame ?? defaultPreviewFrame;
+  next.renderSettings = {
+    ...defaultRenderSettings,
+    ...next.renderSettings
+  };
+  next.previewFrame = next.previewFrame ?? {
+    x: 0,
+    y: 0,
+    width: next.photo.width,
+    height: next.photo.height,
+    rotationDeg: 0
+  };
   next.masks = {
     ...defaultMasks,
     ...next.masks
   };
   next.tapes = next.tapes.map((tape) => ({
     ...tape,
-    maskIds: tape.maskIds?.filter((id) => id !== "window" && id !== "lower-cutout") ?? defaultMaskIds,
-    features: getTapeFeatures(tape)
+    maskIds:
+      tape.maskIds?.filter((id) => !id.startsWith("screw-") && id !== "window" && id !== "lower-cutout") ??
+      defaultMaskIds,
+    features: {
+      ...getTapeFeatures(tape),
+      transparentHoles: getTapeFeatures(tape).transparentHoles.filter((hole) => !hole.id.startsWith("screw-"))
+    }
   }));
   return next;
 }

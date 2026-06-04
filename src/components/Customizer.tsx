@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { artworkOptions, productPhoto } from "@/lib/assets";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { artworkOptions, getProductPhoto, type ProductLayoutKey } from "@/lib/assets";
 import { useCart } from "@/components/CartProvider";
 import { createPrototypeCalibration, normalizeCalibration } from "@/lib/calibration";
 import { defaultProductionConfig } from "@/lib/geometry";
@@ -13,7 +13,18 @@ import type { ProductCalibration } from "@/lib/types";
 
 type ArtworkSource = "curated" | "upload" | "unsplash";
 
-const sizes = ['Square (27"x27")', 'Landscape (45"x24")', 'Portrait (27"x45")'];
+const sizes: Array<{
+  id: string;
+  label: string;
+  layout: ProductLayoutKey;
+  columns: number;
+  rows: number;
+  aspectRatio: string;
+}> = [
+  { id: "square", label: 'Square (27"x27")', layout: "square", columns: 6, rows: 9, aspectRatio: "1 / 1" },
+  { id: "landscape", label: 'Landscape (45"x24")', layout: "landscape", columns: 8, rows: 9, aspectRatio: "1630 / 1254" },
+  { id: "portrait", label: 'Portrait (27"x45")', layout: "square", columns: 6, rows: 9, aspectRatio: "1 / 1" }
+];
 
 export function Customizer() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -22,19 +33,39 @@ export function Customizer() {
   const [artworkSrc, setArtworkSrc] = useState(artworkOptions[0].src);
   const [artworkName, setArtworkName] = useState(artworkOptions[0].name);
   const [artworkSource, setArtworkSource] = useState<ArtworkSource>("curated");
-  const [selectedSize, setSelectedSize] = useState(sizes[0]);
+  const [selectedSizeId, setSelectedSizeId] = useState(sizes[0].id);
   const [artwork, setArtwork] = useState<LoadedImage | null>(null);
   const [photo, setPhoto] = useState<LoadedImage | null>(null);
   const [cartStatus, setCartStatus] = useState("");
-
-  useEffect(() => {
-    loadImage(productPhoto.src).then(setPhoto);
-  }, []);
+  const selectedSize = sizes.find((size) => size.id === selectedSizeId) ?? sizes[0];
+  const selectedLayout = selectedSize.layout;
+  const previewConfig = useMemo(
+    () => ({
+      ...defaultProductionConfig,
+      columns: selectedSize.columns,
+      rows: selectedSize.rows
+    }),
+    [selectedSize.columns, selectedSize.rows]
+  );
 
   useEffect(() => {
     let active = true;
+    const productPhoto = getProductPhoto(selectedLayout);
+    loadImage(productPhoto.src).then((image) => {
+      if (active) {
+        setPhoto(image);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [selectedLayout]);
 
-    fetch(`/api/calibration?ts=${Date.now()}`, { cache: "no-store" })
+  useEffect(() => {
+    let active = true;
+    setCalibration(createPrototypeCalibration(selectedLayout));
+
+    fetch(`/api/calibration?layout=${selectedLayout}&ts=${Date.now()}`, { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -53,7 +84,7 @@ export function Customizer() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [selectedLayout]);
 
   useEffect(() => {
     let active = true;
@@ -89,7 +120,7 @@ export function Customizer() {
         calibration,
         canvas.width,
         canvas.height,
-        defaultProductionConfig,
+        previewConfig,
         false
       );
     };
@@ -97,7 +128,7 @@ export function Customizer() {
     render();
     window.addEventListener("resize", render);
     return () => window.removeEventListener("resize", render);
-  }, [artwork, photo, calibration]);
+  }, [artwork, photo, calibration, previewConfig]);
 
   function handleUpload(file: File | undefined) {
     if (!file) {
@@ -116,19 +147,19 @@ export function Customizer() {
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        selectedSize,
+        selectedSize: selectedSize.label,
         artworkSource,
         artworkName: selectedLabel,
         state: {
           artworkSrc,
-          selectedSize
+          selectedSize: selectedSize.label
         }
       })
     }).catch(() => null);
     const result = response?.ok ? ((await response.json()) as { id?: string }) : null;
 
     addItem({
-      size: selectedSize,
+      size: selectedSize.label,
       artworkName: selectedLabel,
       artworkSource,
       priceCents: 139500,
@@ -155,16 +186,19 @@ export function Customizer() {
         <div className="bg-background border-4 border-border shadow-[8px_8px_0_0_#292929] sm:shadow-[12px_12px_0_0_#292929] p-3 sm:p-6 lg:p-12">
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12">
             <div className="space-y-6">
-              <div className="aspect-square w-full border-4 border-border shadow-[8px_8px_0_0_#292929] overflow-hidden bg-card relative">
+              <div
+                className="w-full border-4 border-border shadow-[8px_8px_0_0_#292929] overflow-hidden bg-card relative"
+                style={{ aspectRatio: selectedSize.aspectRatio }}
+              >
                 <canvas
                   ref={canvasRef}
-                  className="w-full h-full block bg-[#213d3a]"
+                  className="w-full h-full block bg-[#f0f0f0]"
                   aria-label="Realistic Mixtape Mosaic preview"
                 />
               </div>
               <div className="flex flex-col gap-1 sm:flex-row sm:justify-between font-mono font-bold text-xs sm:text-sm uppercase">
                 <span>Preview: {selectedLabel}</span>
-                <span>{selectedSize}</span>
+                <span>{selectedSize.label}</span>
               </div>
             </div>
 
@@ -177,16 +211,16 @@ export function Customizer() {
                 <div className="grid gap-3">
                   {sizes.map((size) => (
                     <button
-                      key={size}
+                      key={size.id}
                       type="button"
-                      onClick={() => setSelectedSize(size)}
+                      onClick={() => setSelectedSizeId(size.id)}
                       className={`text-left px-6 py-4 border-2 border-border font-bold uppercase tracking-wider transition-all ${
-                        selectedSize === size
+                        selectedSizeId === size.id
                           ? "bg-card shadow-[4px_4px_0_0_#292929]"
                           : "bg-card hover:bg-muted"
                       }`}
                     >
-                      {size}
+                      {size.label}
                     </button>
                   ))}
                 </div>

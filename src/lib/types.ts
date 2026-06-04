@@ -69,6 +69,13 @@ export type ProductCalibration = {
     height: number;
     notes: string;
   };
+  renderSettings?: {
+    artworkOpacity: number;
+    raisedEdgeArtworkOpacity: number;
+    artworkGapXMm: number;
+    artworkGapYMm: number;
+    backgroundFill: string;
+  };
   previewFrame?: {
     x: number;
     y: number;

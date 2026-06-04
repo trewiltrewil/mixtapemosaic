@@ -1,5 +1,7 @@
 import type { ArtworkOption } from "./types";
 
+export type ProductLayoutKey = "square" | "landscape";
+
 export const artworkOptions: ArtworkOption[] = [
   {
     id: "truck",
@@ -15,8 +17,31 @@ export const artworkOptions: ArtworkOption[] = [
   }
 ];
 
-export const productPhoto = {
-  src: "/product/artwork-wall-base.png",
-  width: 1254,
-  height: 1254
+export const productPhotos: Record<ProductLayoutKey, {
+  src: string;
+  width: number;
+  height: number;
+  columns: number;
+  rows: number;
+}> = {
+  square: {
+    src: "/product/cassette-grid-square.png",
+    width: 1254,
+    height: 1254,
+    columns: 6,
+    rows: 9
+  },
+  landscape: {
+    src: "/product/cassette-grid-landscape.png",
+    width: 1630,
+    height: 1254,
+    columns: 8,
+    rows: 9
+  }
 };
+
+export const productPhoto = productPhotos.square;
+
+export function getProductPhoto(layout: ProductLayoutKey) {
+  return productPhotos[layout];
+}

@@ -2,15 +2,29 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase";
+import type { ProductLayoutKey } from "@/lib/assets";
 
 export const runtime = "nodejs";
 
-const calibrationPath = path.join(
-  process.cwd(),
-  "public",
-  "calibration",
-  "prototype-wall-unit-calibration.json"
-);
+const calibrationFiles: Record<ProductLayoutKey, string> = {
+  square: "prototype-wall-unit-calibration.json",
+  landscape: "landscape-wall-unit-calibration.json"
+};
+
+function getLayout(request: Request): ProductLayoutKey {
+  const url = new URL(request.url);
+  return url.searchParams.get("layout") === "landscape" ? "landscape" : "square";
+}
+
+function getCalibrationPath(layout: ProductLayoutKey) {
+  return path.join(process.cwd(), "public", "calibration", calibrationFiles[layout]);
+}
+
+function getSettingsKey(layout: ProductLayoutKey) {
+  return layout === "landscape"
+    ? "landscape_wall_unit_calibration"
+    : "prototype_wall_unit_calibration";
+}
 
 function isCalibrationPayload(value: unknown) {
   if (!value || typeof value !== "object") {
@@ -33,14 +47,16 @@ function isCalibrationPayload(value: unknown) {
   );
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const layout = getLayout(request);
+  const calibrationPath = getCalibrationPath(layout);
   const supabase = getSupabaseAdminClient();
 
   if (supabase) {
     const { data } = await supabase
       .from("site_settings")
       .select("value")
-      .eq("key", "prototype_wall_unit_calibration")
+      .eq("key", getSettingsKey(layout))
       .maybeSingle();
 
     if (data?.value && isCalibrationPayload(data.value)) {
@@ -66,6 +82,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const layout = getLayout(request);
+  const calibrationPath = getCalibrationPath(layout);
   const body = (await request.json()) as unknown;
 
   if (!isCalibrationPayload(body)) {
@@ -75,7 +93,7 @@ export async function POST(request: Request) {
   const supabase = getSupabaseAdminClient();
   if (supabase) {
     await supabase.from("site_settings").upsert({
-      key: "prototype_wall_unit_calibration",
+      key: getSettingsKey(layout),
       value: body,
       updated_at: new Date().toISOString()
     });
@@ -90,6 +108,8 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    path: supabase ? "supabase:site_settings/prototype_wall_unit_calibration" : "/calibration/prototype-wall-unit-calibration.json"
+    path: supabase
+      ? `supabase:site_settings/${getSettingsKey(layout)}`
+      : `/calibration/${calibrationFiles[layout]}`
   });
 }

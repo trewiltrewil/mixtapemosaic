@@ -1,5 +1,5 @@
-import { bilinearPoint, getTapeFeatures } from "./calibration";
-import { defaultProductionConfig, getDrawRect, layoutMm, mmToPx, TAPE } from "./geometry";
+import { bilinearPoint, defaultProductRenderSettings, getTapeFeatures } from "./calibration";
+import { defaultProductionConfig, getDrawRect, mmToPx, TAPE } from "./geometry";
 import type { LoadedImage } from "./image";
 import { drawProductionImage } from "./production-renderer";
 import type {
@@ -119,10 +119,27 @@ function mapQuad(quad: Quad, mapping: PhotoMapping): Quad {
   return quad.map((point) => mapping.mapPoint(point)) as Quad;
 }
 
-function makeArtworkCanvas(image: LoadedImage, config: ProductionConfig) {
-  const layout = layoutMm(config);
+function getPreviewArtworkLayout(calibration: ProductCalibration) {
+  const settings = {
+    ...defaultProductRenderSettings,
+    ...calibration.renderSettings
+  };
+
+  return {
+    width:
+      calibration.layout.columns * TAPE.widthMm +
+      Math.max(0, calibration.layout.columns - 1) * settings.artworkGapXMm,
+    height:
+      calibration.layout.rows * TAPE.heightMm +
+      Math.max(0, calibration.layout.rows - 1) * settings.artworkGapYMm,
+    gapXMm: settings.artworkGapXMm,
+    gapYMm: settings.artworkGapYMm
+  };
+}
+
+function makeArtworkCanvas(image: LoadedImage, config: ProductionConfig, sourceLayout: ReturnType<typeof getPreviewArtworkLayout>) {
   const width = 1800;
-  const height = Math.round(width / (layout.width / layout.height));
+  const height = Math.round(width / (sourceLayout.width / sourceLayout.height));
   const drawRect = getDrawRect(image, width, height, config);
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -375,7 +392,8 @@ function restorePhotoCircle(
 function restorePhotoStroke(
   context: CanvasRenderingContext2D,
   photoMapping: PhotoMapping,
-  drawStroke: (strokeContext: CanvasRenderingContext2D) => void
+  drawStroke: (strokeContext: CanvasRenderingContext2D) => void,
+  alpha = 1
 ) {
   const mask = document.createElement("canvas");
   mask.width = context.canvas.width;
@@ -391,6 +409,7 @@ function restorePhotoStroke(
   photoMapping.drawPhoto(maskContext);
 
   context.save();
+  context.globalAlpha = alpha;
   context.drawImage(mask, 0, 0);
   context.restore();
 }
@@ -413,7 +432,8 @@ function strokeRaisedGap(
   photoMapping: PhotoMapping,
   raisedPolygon: Quad,
   quad: Quad,
-  gapMm: number
+  gapMm: number,
+  photoBlendAlpha: number
 ) {
   const p0 = bilinearPoint(quad, raisedPolygon[0].x, raisedPolygon[0].y);
   const p1 = bilinearPoint(quad, raisedPolygon[1].x, raisedPolygon[1].y);
@@ -421,19 +441,24 @@ function strokeRaisedGap(
   const p3 = bilinearPoint(quad, raisedPolygon[3].x, raisedPolygon[3].y);
   const lineWidth = Math.max(1, gapMm * averageTapeScalePxPerMm(quad));
 
-  restorePhotoStroke(context, photoMapping, (strokeContext) => {
-    strokeContext.beginPath();
-    strokeContext.moveTo(p0.x, p0.y);
-    strokeContext.lineTo(p1.x, p1.y);
-    strokeContext.lineTo(p2.x, p2.y);
-    strokeContext.lineTo(p3.x, p3.y);
-    strokeContext.closePath();
-    strokeContext.strokeStyle = "rgba(255, 255, 255, 1)";
-    strokeContext.lineWidth = lineWidth;
-    strokeContext.lineCap = "round";
-    strokeContext.lineJoin = "round";
-    strokeContext.stroke();
-  });
+  restorePhotoStroke(
+    context,
+    photoMapping,
+    (strokeContext) => {
+      strokeContext.beginPath();
+      strokeContext.moveTo(p0.x, p0.y);
+      strokeContext.lineTo(p1.x, p1.y);
+      strokeContext.lineTo(p2.x, p2.y);
+      strokeContext.lineTo(p3.x, p3.y);
+      strokeContext.closePath();
+      strokeContext.strokeStyle = "rgba(255, 255, 255, 1)";
+      strokeContext.lineWidth = lineWidth;
+      strokeContext.lineCap = "round";
+      strokeContext.lineJoin = "round";
+      strokeContext.stroke();
+    },
+    photoBlendAlpha
+  );
 }
 
 export function drawCleanPreview(
@@ -459,8 +484,12 @@ export function drawRealisticPreview(
   config: ProductionConfig = defaultProductionConfig,
   showOverlay = false
 ) {
+  const settings = {
+    ...defaultProductRenderSettings,
+    ...calibration.renderSettings
+  };
   context.clearRect(0, 0, width, height);
-  context.fillStyle = "#18201e";
+  context.fillStyle = settings.backgroundFill;
   context.fillRect(0, 0, width, height);
 
   if (!photo) {
@@ -474,7 +503,8 @@ export function drawRealisticPreview(
     return;
   }
 
-  const sourceCanvas = makeArtworkCanvas(artwork, config);
+  const sourceLayout = getPreviewArtworkLayout(calibration);
+  const sourceCanvas = makeArtworkCanvas(artwork, config, sourceLayout);
   const sourceContext = sourceCanvas.getContext("2d", { willReadFrequently: true });
 
   if (!sourceContext) {
@@ -486,19 +516,22 @@ export function drawRealisticPreview(
     width: sourceCanvas.width,
     height: sourceCanvas.height
   };
-  const sourceLayout = layoutMm(config);
   const sourceTapeWidth = mmToPx(TAPE.widthMm, sourceLayout.width, sourceCanvas.width);
   const sourceTapeHeight = mmToPx(TAPE.heightMm, sourceLayout.height, sourceCanvas.height);
+  const overlayOpacity = Math.min(1, Math.max(0, settings.artworkOpacity));
+  const raisedEdgeArtworkOpacity = Math.min(overlayOpacity, Math.max(0, settings.raisedEdgeArtworkOpacity));
+  const raisedPhotoBlendAlpha =
+    overlayOpacity > 0 ? Math.min(1, Math.max(0, 1 - raisedEdgeArtworkOpacity / overlayOpacity)) : 0;
 
   calibration.tapes.forEach((tape) => {
     const features = getTapeFeatures(tape);
     const sourceX = mmToPx(
-      tape.column * (TAPE.widthMm + TAPE.gapXMm),
+      tape.column * (TAPE.widthMm + sourceLayout.gapXMm),
       sourceLayout.width,
       sourceCanvas.width
     );
     const sourceY = mmToPx(
-      tape.row * (TAPE.heightMm + TAPE.gapYMm),
+      tape.row * (TAPE.heightMm + sourceLayout.gapYMm),
       sourceLayout.height,
       sourceCanvas.height
     );
@@ -507,7 +540,7 @@ export function drawRealisticPreview(
     context.save();
     traceRoundedQuad(context, quad, features.cornerRadius);
     context.clip();
-    context.globalAlpha = 0.9;
+    context.globalAlpha = overlayOpacity;
     context.filter = `brightness(${tape.lighting.brightness}) contrast(${tape.lighting.contrast}) saturate(0.96)`;
     warpImageToQuad(
       context,
@@ -533,7 +566,14 @@ export function drawRealisticPreview(
     );
 
     if (features.raised.enabled) {
-      strokeRaisedGap(context, photoMapping, features.raised.polygon, quad, features.raised.gapMm);
+      strokeRaisedGap(
+        context,
+        photoMapping,
+        features.raised.polygon,
+        quad,
+        features.raised.gapMm,
+        raisedPhotoBlendAlpha
+      );
     }
 
     if (showOverlay) {
