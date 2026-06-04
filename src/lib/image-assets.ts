@@ -1,5 +1,6 @@
 import sharp from "sharp";
 import { getSupabaseAdminClient } from "./supabase";
+import { getR2BucketNames, getR2PublicUrl, uploadR2Object } from "./r2";
 
 export type ImageAssetStatus = "draft" | "active" | "archived" | "processing" | "failed";
 
@@ -55,7 +56,7 @@ export type PublicImageAsset = Pick<
   | "categories"
 >;
 
-// Public image assets intentionally omit original_storage_key and any full-resolution source URL.
+// Public customizer artwork intentionally omits original_storage_key and any full-resolution source URL.
 
 export type AssetMetadataInput = {
   title: string;
@@ -72,9 +73,6 @@ export type AssetMetadataInput = {
   status?: ImageAssetStatus;
   created_by?: string | null;
 };
-
-const originalsBucket = process.env.SUPABASE_IMAGE_ORIGINALS_BUCKET ?? "image-originals";
-const derivativesBucket = process.env.SUPABASE_IMAGE_DERIVATIVES_BUCKET ?? "image-derivatives";
 
 const derivativeTargets = {
   thumb: 300,
@@ -169,16 +167,6 @@ function dominantColorFromStats(stats: sharp.Stats) {
   return `#${channels
     .map((channel) => Math.round(channel.mean).toString(16).padStart(2, "0"))
     .join("")}`;
-}
-
-function publicUrl(bucket: string, key: string) {
-  const explicitBase = process.env.SUPABASE_PUBLIC_IMAGE_BASE_URL;
-  if (explicitBase) {
-    return `${explicitBase.replace(/\/$/, "")}/${key}`;
-  }
-
-  const supabase = requireSupabaseAdmin();
-  return supabase.storage.from(bucket).getPublicUrl(key).data.publicUrl;
 }
 
 export async function listAdminImageAssets() {
@@ -276,20 +264,17 @@ export async function createImageAssetFromUpload(file: File, metadata: AssetMeta
   const originalBuffer = Buffer.from(await file.arrayBuffer());
   const ext = extensionForContentType(contentType, file.name);
   const originalStorageKey = `originals/${id}/source.${ext}`;
+  const buckets = getR2BucketNames();
   const baseSharp = sharp(originalBuffer, { failOn: "none" });
   const [imageMetadata, stats] = await Promise.all([baseSharp.metadata(), sharp(originalBuffer).stats()]);
   const dominantColor = dominantColorFromStats(stats);
 
-  const { error: originalError } = await supabase.storage
-    .from(originalsBucket)
-    .upload(originalStorageKey, originalBuffer, {
-      contentType,
-      upsert: false
-    });
-
-  if (originalError) {
-    throw originalError;
-  }
+  await uploadR2Object({
+    bucket: buckets.originals,
+    key: originalStorageKey,
+    body: originalBuffer,
+    contentType
+  });
 
   const derivativeKeys: Record<keyof typeof derivativeTargets, string> = {
     thumb: `derivatives/${id}/thumb.webp`,
@@ -307,12 +292,14 @@ export async function createImageAssetFromUpload(file: File, metadata: AssetMeta
       .webp({ quality: 82 })
       .toBuffer();
 
-    const { error } = await supabase.storage.from(derivativesBucket).upload(derivativeKeys[name], output, {
-      contentType: "image/webp",
-      upsert: true
-    });
-
-    if (error) {
+    try {
+      await uploadR2Object({
+        bucket: buckets.derivatives,
+        key: derivativeKeys[name],
+        body: output,
+        contentType: "image/webp"
+      });
+    } catch (error) {
       await supabase.from("image_assets").insert({
         id,
         title: metadata.title,
@@ -351,10 +338,10 @@ export async function createImageAssetFromUpload(file: File, metadata: AssetMeta
     card_storage_key: derivativeKeys.card,
     preview_storage_key: derivativeKeys.preview,
     large_storage_key: derivativeKeys.large,
-    thumb_url: publicUrl(derivativesBucket, derivativeKeys.thumb),
-    card_url: publicUrl(derivativesBucket, derivativeKeys.card),
-    preview_url: publicUrl(derivativesBucket, derivativeKeys.preview),
-    large_url: publicUrl(derivativesBucket, derivativeKeys.large),
+    thumb_url: getR2PublicUrl(derivativeKeys.thumb),
+    card_url: getR2PublicUrl(derivativeKeys.card),
+    preview_url: getR2PublicUrl(derivativeKeys.preview),
+    large_url: getR2PublicUrl(derivativeKeys.large),
     dominant_color: dominantColor,
     blurhash: null,
     tags: metadata.tags ?? [],

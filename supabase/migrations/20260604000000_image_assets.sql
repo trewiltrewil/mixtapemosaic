@@ -52,31 +52,3 @@ create policy "public read active image assets"
   using (status = 'active');
 
 grant select on public.image_assets to anon, authenticated;
-
-insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values
-  (
-    'image-originals',
-    'image-originals',
-    false,
-    104857600,
-    array['image/jpeg', 'image/png', 'image/webp', 'image/tiff']
-  ),
-  (
-    'image-derivatives',
-    'image-derivatives',
-    true,
-    15728640,
-    array['image/webp']
-  )
-on conflict (id) do update set
-  public = excluded.public,
-  file_size_limit = excluded.file_size_limit,
-  allowed_mime_types = excluded.allowed_mime_types;
-
-drop policy if exists "public read image derivatives" on storage.objects;
-create policy "public read image derivatives"
-  on storage.objects for select
-  to anon, authenticated
-  using (bucket_id = 'image-derivatives');
-

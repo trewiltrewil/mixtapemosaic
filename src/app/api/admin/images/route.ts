@@ -18,7 +18,7 @@ export async function GET() {
     return NextResponse.json({ assets });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Could not load image assets." },
+      { error: error instanceof Error ? error.message : "Could not load customizer artwork." },
       { status: 500 }
     );
   }
@@ -50,4 +50,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

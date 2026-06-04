@@ -8,6 +8,9 @@ export function loadImage(src: string): Promise<LoadedImage> {
     const image = new Image() as LoadedImage;
     image.onload = () => resolve(image);
     image.onerror = () => reject(new Error(`Could not load ${src}`));
+    if (/^https?:\/\//.test(src)) {
+      image.crossOrigin = "anonymous";
+    }
     image.src = src;
   });
 }

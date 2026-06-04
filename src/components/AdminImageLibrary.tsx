@@ -115,7 +115,7 @@ export function AdminImageLibrary() {
     const payload = response ? ((await response.json()) as { assets?: ImageAsset[]; error?: string }) : null;
 
     if (!response?.ok) {
-      setError(payload?.error ?? "Could not load image assets.");
+      setError(payload?.error ?? "Could not load customizer artwork.");
       setLoading(false);
       return;
     }
@@ -245,18 +245,18 @@ export function AdminImageLibrary() {
     <main className="tool-shell image-admin-shell">
       <section className="canvas-panel">
         <div className="panel image-admin-intro">
-          <p className="eyebrow">Internal asset library</p>
-          <h1>Image assets</h1>
+          <p className="eyebrow">Internal customizer library</p>
+          <h1>Customizer artwork</h1>
           <p>
-            Upload approved artwork once, keep the full-resolution original private for future print
-            production, and serve WebP derivatives to the public customizer.
+            Upload approved configurator artwork once, keep the full-resolution original private for
+            future print production, and serve WebP derivatives to the public cassette customizer.
           </p>
         </div>
 
         <div className="image-admin-grid">
-          {loading ? <div className="panel">Loading image assets...</div> : null}
+          {loading ? <div className="panel">Loading customizer artwork...</div> : null}
           {!loading && assets.length === 0 ? (
-            <div className="panel">No image assets yet. Upload the first approved image to seed the library.</div>
+            <div className="panel">No customizer artwork yet. Upload the first approved image to seed the cassette configurator.</div>
           ) : null}
 
           {assets.map((asset) => (

@@ -105,8 +105,8 @@ export function AdminLauncher() {
               <span>Align tape polygons, holes, raised sections, and public preview crop.</span>
             </Link>
             <Link href="/admin/images" onClick={() => setOpen(false)}>
-              <strong>Image asset library</strong>
-              <span>Upload approved artwork, metadata, and web preview derivatives.</span>
+              <strong>Customizer artwork library</strong>
+              <span>Upload approved cassette-configurator artwork and web preview derivatives.</span>
             </Link>
           </div>
         )}

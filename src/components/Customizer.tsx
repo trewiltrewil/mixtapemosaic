@@ -108,7 +108,7 @@ export function Customizer() {
         );
       })
       .catch(() => {
-        // The bundled samples keep the customizer usable when the asset library is unavailable.
+        // The bundled samples keep the customizer usable when the R2-backed artwork library is unavailable.
       });
 
     return () => {
