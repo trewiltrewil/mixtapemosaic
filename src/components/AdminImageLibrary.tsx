@@ -241,6 +241,31 @@ export function AdminImageLibrary() {
     setSaving(false);
   }
 
+  async function seedCuratedSamples() {
+    setSaving(true);
+    setMessage("");
+    setError("");
+
+    const response = await fetch("/api/admin/images/seed-curated", {
+      method: "POST"
+    }).catch(() => null);
+    const result = response
+      ? ((await response.json()) as { created?: ImageAsset[]; skipped?: string[]; error?: string })
+      : null;
+
+    if (!response?.ok) {
+      setError(result?.error ?? "Could not seed bundled samples.");
+      setSaving(false);
+      return;
+    }
+
+    await loadAssets();
+    setMessage(
+      `Seed complete. Created ${result?.created?.length ?? 0}; skipped ${result?.skipped?.length ?? 0}.`
+    );
+    setSaving(false);
+  }
+
   return (
     <main className="tool-shell image-admin-shell">
       <section className="canvas-panel">
@@ -296,6 +321,9 @@ export function AdminImageLibrary() {
 
           {message ? <p className="status-message">{message}</p> : null}
           {error ? <p className="admin-launcher-error">{error}</p> : null}
+          <button type="button" className="secondary-button" disabled={saving} onClick={seedCuratedSamples}>
+            Seed bundled samples
+          </button>
         </div>
 
         <form className="panel image-admin-form" onSubmit={submit}>
