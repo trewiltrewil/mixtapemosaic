@@ -18,6 +18,26 @@ const defaultMaskIds = [
   "screw-bottom-left"
 ];
 
+const defaultPreviewFrame = {
+  x: 0,
+  y: 0,
+  width: productPhoto.width,
+  height: productPhoto.height,
+  rotationDeg: 0
+};
+
+const defaultGridBounds = {
+  x: 68,
+  y: 62,
+  width: 1116,
+  height: 1134
+};
+
+const defaultTapeGapX = 5;
+const defaultTapeGapY = 8;
+const defaultTapeWidth = (defaultGridBounds.width - defaultTapeGapX * 5) / 6;
+const defaultTapeHeight = (defaultGridBounds.height - defaultTapeGapY * 8) / 9;
+
 export const defaultMasks: Record<string, TapeMask> = {
   "roller-left": { id: "roller-left", kind: "circle", x: 0.28, y: 0.42, r: 0.058 },
   "roller-right": { id: "roller-right", kind: "circle", x: 0.72, y: 0.42, r: 0.058 },
@@ -54,10 +74,6 @@ export function makeQuad(x: number, y: number, width: number, height: number, an
     rotatePoint({ x: x + width, y: y + height }, center, angle),
     rotatePoint({ x, y: y + height }, center, angle)
   ];
-}
-
-function lerp(start: number, end: number, amount: number) {
-  return start + (end - start) * amount;
 }
 
 function circle(id: string, label: string, x: number, y: number, r: number): TapeCircleFeature {
@@ -117,34 +133,22 @@ export function getTapeFeatures(tape: TapeCalibration): TapeFeatureSet {
 
 function makeTape(row: number, column: number): TapeCalibration {
   const index = row * 6 + column;
-  const rowAmount = row / 8;
-  const colAmount = column / 5;
-  const leftColumnsTop = [905, 1365, 1810, 2255, 2698, 3142];
-  const leftColumnsBottom = [910, 1360, 1800, 2242, 2684, 3128];
-  const rowTopLeft = [280, 585, 885, 1186, 1486, 1788, 2088, 2388, 2658];
-  const rowTopRight = [350, 655, 955, 1254, 1554, 1856, 2155, 2454, 2724];
-  const x = lerp(leftColumnsTop[column], leftColumnsBottom[column], rowAmount);
-  const y = lerp(rowTopLeft[row], rowTopRight[row], colAmount);
-  const width = lerp(408, 438, colAmount) + deterministicJitter(index + 3, 8);
-  const height = lerp(248, 268, rowAmount) + deterministicJitter(index + 9, 8);
-  const angle =
-    lerp(-0.015, 0.02, colAmount) +
-    lerp(-0.01, 0.012, rowAmount) +
-    deterministicJitter(index + 17, 0.025);
+  const x = defaultGridBounds.x + column * (defaultTapeWidth + defaultTapeGapX);
+  const y = defaultGridBounds.y + row * (defaultTapeHeight + defaultTapeGapY);
 
   return {
     id: `tape-${index + 1}`,
     index,
     row,
     column,
-    quad: makeQuad(x, y, width, height, angle),
-    visibleEdgePx: 5,
+    quad: makeQuad(x, y, defaultTapeWidth, defaultTapeHeight, 0),
+    visibleEdgePx: 2,
     maskIds: defaultMaskIds,
     features: createDefaultTapeFeatures(),
     lighting: {
-      brightness: 0.94 + deterministicJitter(index + 41, 0.16),
-      contrast: 1.02 + deterministicJitter(index + 47, 0.14),
-      shadow: 0.11 + Math.abs(deterministicJitter(index + 53, 0.08))
+      brightness: 1,
+      contrast: 1,
+      shadow: 0.05
     }
   };
 }
@@ -156,15 +160,9 @@ export function createPrototypeCalibration(): ProductCalibration {
       width: productPhoto.width,
       height: productPhoto.height,
       notes:
-        "Prototype phone photo. Initial tape quads are perspective seeded and intended for machine-vision refinement plus manual correction."
+        "Square artwork wall base. Default tape quads are reset to the clean 6 x 9 grid in this exported product image."
     },
-    previewFrame: {
-      x: 650,
-      y: 120,
-      width: 2850,
-      height: 2850,
-      rotationDeg: 0
-    },
+    previewFrame: defaultPreviewFrame,
     layout: {
       columns: 6,
       rows: 9
@@ -180,13 +178,7 @@ export function cloneCalibration(calibration: ProductCalibration): ProductCalibr
 
 export function normalizeCalibration(calibration: ProductCalibration): ProductCalibration {
   const next = cloneCalibration(calibration);
-  next.previewFrame = next.previewFrame ?? {
-    x: 650,
-    y: 120,
-    width: 2850,
-    height: 2850,
-    rotationDeg: 0
-  };
+  next.previewFrame = next.previewFrame ?? defaultPreviewFrame;
   next.masks = {
     ...defaultMasks,
     ...next.masks

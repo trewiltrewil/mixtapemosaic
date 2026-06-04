@@ -16,7 +16,7 @@ export const artworkOptions: ArtworkOption[] = [
 ];
 
 export const productPhoto = {
-  src: "/product/prototype-wall-unit.jpg",
-  width: 4080,
-  height: 3072
+  src: "/product/artwork-wall-base.png",
+  width: 1254,
+  height: 1254
 };
