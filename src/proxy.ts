@@ -5,8 +5,9 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const protectsAdminPage = pathname.startsWith("/admin") || pathname.startsWith("/studio");
   const protectsCalibrationWrite = pathname === "/api/calibration" && request.method !== "GET";
+  const protectsAdminApi = pathname.startsWith("/api/admin") && pathname !== "/api/admin/login";
 
-  if (!protectsAdminPage && !protectsCalibrationWrite) {
+  if (!protectsAdminPage && !protectsCalibrationWrite && !protectsAdminApi) {
     return NextResponse.next();
   }
 
@@ -27,5 +28,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/studio/:path*", "/api/calibration"]
+  matcher: ["/admin/:path*", "/studio/:path*", "/api/calibration", "/api/admin/:path*"]
 };

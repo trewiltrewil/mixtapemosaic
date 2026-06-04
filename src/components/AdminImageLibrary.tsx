@@ -1,0 +1,421 @@
+"use client";
+
+import { FormEvent, useEffect, useMemo, useState } from "react";
+
+type ImageAssetStatus = "draft" | "active" | "archived" | "processing" | "failed";
+
+type ImageAsset = {
+  id: string;
+  title: string;
+  description: string | null;
+  alt_text: string | null;
+  source_type: string;
+  source_name: string | null;
+  source_url: string | null;
+  source_author: string | null;
+  source_license: string | null;
+  source_downloaded_at: string | null;
+  original_storage_key: string;
+  original_filename: string;
+  original_content_type: string;
+  original_width: number | null;
+  original_height: number | null;
+  original_size_bytes: number | null;
+  thumb_url: string | null;
+  card_url: string | null;
+  preview_url: string | null;
+  large_url: string | null;
+  dominant_color: string | null;
+  tags: string[];
+  categories: string[];
+  status: ImageAssetStatus;
+  created_at: string;
+  updated_at: string;
+};
+
+const emptyForm = {
+  title: "",
+  description: "",
+  alt_text: "",
+  source_type: "manual_upload",
+  source_name: "",
+  source_url: "",
+  source_author: "",
+  source_license: "",
+  source_downloaded_at: "",
+  tags: "",
+  categories: "",
+  status: "draft" as ImageAssetStatus
+};
+
+function listToText(list: string[] | null | undefined) {
+  return list?.join(", ") ?? "";
+}
+
+function textToList(value: string) {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function bytesLabel(bytes: number | null) {
+  if (!bytes) {
+    return "Unknown";
+  }
+
+  const mb = bytes / 1024 / 1024;
+  return `${mb.toFixed(mb >= 10 ? 1 : 2)} MB`;
+}
+
+function dateInputValue(value: string | null) {
+  if (!value) {
+    return "";
+  }
+
+  return value.slice(0, 10);
+}
+
+export function AdminImageLibrary() {
+  const [assets, setAssets] = useState<ImageAsset[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyForm);
+  const [file, setFile] = useState<File | null>(null);
+  const [uploadPreview, setUploadPreview] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const selectedAsset = useMemo(
+    () => assets.find((asset) => asset.id === selectedId) ?? null,
+    [assets, selectedId]
+  );
+
+  useEffect(() => {
+    void loadAssets();
+  }, []);
+
+  useEffect(() => {
+    if (!file) {
+      setUploadPreview("");
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    setUploadPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
+  async function loadAssets() {
+    setLoading(true);
+    setError("");
+
+    const response = await fetch("/api/admin/images", { cache: "no-store" }).catch(() => null);
+    const payload = response ? ((await response.json()) as { assets?: ImageAsset[]; error?: string }) : null;
+
+    if (!response?.ok) {
+      setError(payload?.error ?? "Could not load image assets.");
+      setLoading(false);
+      return;
+    }
+
+    setAssets(payload?.assets ?? []);
+    setLoading(false);
+  }
+
+  function selectAsset(asset: ImageAsset) {
+    setSelectedId(asset.id);
+    setFile(null);
+    setForm({
+      title: asset.title,
+      description: asset.description ?? "",
+      alt_text: asset.alt_text ?? "",
+      source_type: asset.source_type,
+      source_name: asset.source_name ?? "",
+      source_url: asset.source_url ?? "",
+      source_author: asset.source_author ?? "",
+      source_license: asset.source_license ?? "",
+      source_downloaded_at: dateInputValue(asset.source_downloaded_at),
+      tags: listToText(asset.tags),
+      categories: listToText(asset.categories),
+      status: asset.status
+    });
+  }
+
+  function startNewUpload() {
+    setSelectedId(null);
+    setFile(null);
+    setForm(emptyForm);
+    setMessage("");
+    setError("");
+  }
+
+  function updateField(name: keyof typeof emptyForm, value: string) {
+    setForm((current) => ({ ...current, [name]: value }));
+  }
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaving(true);
+    setMessage("");
+    setError("");
+
+    const payload = {
+      ...form,
+      tags: textToList(form.tags),
+      categories: textToList(form.categories)
+    };
+
+    if (selectedAsset) {
+      const response = await fetch(`/api/admin/images/${selectedAsset.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload)
+      }).catch(() => null);
+      const result = response ? ((await response.json()) as { asset?: ImageAsset; error?: string }) : null;
+
+      if (!response?.ok || !result?.asset) {
+        setError(result?.error ?? "Could not update image metadata.");
+        setSaving(false);
+        return;
+      }
+
+      setAssets((current) => current.map((asset) => (asset.id === result.asset?.id ? result.asset : asset)));
+      setMessage("Metadata saved.");
+      setSaving(false);
+      return;
+    }
+
+    if (!file) {
+      setError("Choose an image file before uploading.");
+      setSaving(false);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.set("file", file);
+    Object.entries(form).forEach(([key, value]) => formData.set(key, value));
+
+    const response = await fetch("/api/admin/images", {
+      method: "POST",
+      body: formData
+    }).catch(() => null);
+    const result = response ? ((await response.json()) as { asset?: ImageAsset; error?: string }) : null;
+
+    if (!response?.ok || !result?.asset) {
+      setError(result?.error ?? "Could not upload image asset.");
+      setSaving(false);
+      return;
+    }
+
+    setAssets((current) => [result.asset as ImageAsset, ...current]);
+    selectAsset(result.asset);
+    setMessage("Image uploaded and web derivatives generated.");
+    setSaving(false);
+  }
+
+  async function archiveSelected() {
+    if (!selectedAsset) {
+      return;
+    }
+
+    setSaving(true);
+    setMessage("");
+    setError("");
+
+    const response = await fetch(`/api/admin/images/${selectedAsset.id}/archive`, {
+      method: "POST"
+    }).catch(() => null);
+    const result = response ? ((await response.json()) as { asset?: ImageAsset; error?: string }) : null;
+
+    if (!response?.ok || !result?.asset) {
+      setError(result?.error ?? "Could not archive image.");
+      setSaving(false);
+      return;
+    }
+
+    setAssets((current) => current.map((asset) => (asset.id === result.asset?.id ? result.asset : asset)));
+    selectAsset(result.asset);
+    setMessage("Image archived.");
+    setSaving(false);
+  }
+
+  return (
+    <main className="tool-shell image-admin-shell">
+      <section className="canvas-panel">
+        <div className="panel image-admin-intro">
+          <p className="eyebrow">Internal asset library</p>
+          <h1>Image assets</h1>
+          <p>
+            Upload approved artwork once, keep the full-resolution original private for future print
+            production, and serve WebP derivatives to the public customizer.
+          </p>
+        </div>
+
+        <div className="image-admin-grid">
+          {loading ? <div className="panel">Loading image assets...</div> : null}
+          {!loading && assets.length === 0 ? (
+            <div className="panel">No image assets yet. Upload the first approved image to seed the library.</div>
+          ) : null}
+
+          {assets.map((asset) => (
+            <button
+              key={asset.id}
+              type="button"
+              className={`image-admin-card ${selectedId === asset.id ? "selected" : ""}`}
+              onClick={() => selectAsset(asset)}
+            >
+              <span className={`asset-status asset-status-${asset.status}`}>{asset.status}</span>
+              {asset.thumb_url ? (
+                <img src={asset.thumb_url} alt={asset.alt_text ?? asset.title} loading="lazy" />
+              ) : (
+                <span className="asset-empty-thumb">No preview</span>
+              )}
+              <span>
+                <strong>{asset.title}</strong>
+                <small>{asset.source_author || asset.source_name || asset.source_type}</small>
+              </span>
+              <span className="asset-tags">{[...asset.categories, ...asset.tags].slice(0, 4).join(" / ")}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <aside className="control-rail">
+        <div className="panel">
+          <div className="image-admin-actions">
+            <div>
+              <p className="eyebrow">{selectedAsset ? "Edit metadata" : "Upload new"}</p>
+              <h2>{selectedAsset ? selectedAsset.title : "New image"}</h2>
+            </div>
+            <button type="button" onClick={startNewUpload}>
+              New
+            </button>
+          </div>
+
+          {message ? <p className="status-message">{message}</p> : null}
+          {error ? <p className="admin-launcher-error">{error}</p> : null}
+        </div>
+
+        <form className="panel image-admin-form" onSubmit={submit}>
+          {!selectedAsset ? (
+            <label className="image-admin-file">
+              <span>Original source image</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+              />
+              {uploadPreview ? <img src={uploadPreview} alt="Selected upload preview" /> : null}
+            </label>
+          ) : (
+            <div className="image-admin-original">
+              <span>Private original</span>
+              <strong>{selectedAsset.original_filename}</strong>
+              <small>
+                {selectedAsset.original_width ?? "?"} x {selectedAsset.original_height ?? "?"} px,
+                {" "}{bytesLabel(selectedAsset.original_size_bytes)}
+              </small>
+              <code>{selectedAsset.original_storage_key}</code>
+            </div>
+          )}
+
+          <label>
+            Title
+            <input value={form.title} onChange={(event) => updateField("title", event.target.value)} required />
+          </label>
+          <label>
+            Description
+            <textarea rows={3} value={form.description} onChange={(event) => updateField("description", event.target.value)} />
+          </label>
+          <label>
+            Alt text
+            <input value={form.alt_text} onChange={(event) => updateField("alt_text", event.target.value)} />
+          </label>
+
+          <div className="two-col">
+            <label>
+              Source type
+              <input value={form.source_type} onChange={(event) => updateField("source_type", event.target.value)} />
+            </label>
+            <label>
+              Status
+              <select value={form.status} onChange={(event) => updateField("status", event.target.value)}>
+                <option value="draft">Draft</option>
+                <option value="active">Active</option>
+                <option value="archived">Archived</option>
+                <option value="processing">Processing</option>
+                <option value="failed">Failed</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Source name
+            <input value={form.source_name} onChange={(event) => updateField("source_name", event.target.value)} />
+          </label>
+          <label>
+            Source URL
+            <input type="url" value={form.source_url} onChange={(event) => updateField("source_url", event.target.value)} />
+          </label>
+
+          <div className="two-col">
+            <label>
+              Author
+              <input value={form.source_author} onChange={(event) => updateField("source_author", event.target.value)} />
+            </label>
+            <label>
+              License
+              <input value={form.source_license} onChange={(event) => updateField("source_license", event.target.value)} />
+            </label>
+          </div>
+
+          <label>
+            Downloaded date
+            <input
+              type="date"
+              value={form.source_downloaded_at}
+              onChange={(event) => updateField("source_downloaded_at", event.target.value)}
+            />
+          </label>
+
+          <div className="two-col">
+            <label>
+              Tags
+              <input value={form.tags} onChange={(event) => updateField("tags", event.target.value)} placeholder="beach, sunset" />
+            </label>
+            <label>
+              Categories
+              <input value={form.categories} onChange={(event) => updateField("categories", event.target.value)} placeholder="landscape, music" />
+            </label>
+          </div>
+
+          {selectedAsset ? (
+            <div className="image-admin-derivatives">
+              {[
+                ["Thumb", selectedAsset.thumb_url],
+                ["Card", selectedAsset.card_url],
+                ["Preview", selectedAsset.preview_url],
+                ["Large", selectedAsset.large_url]
+              ].map(([label, url]) => (
+                <a key={label} href={url ?? "#"} target="_blank" rel="noreferrer" aria-disabled={!url}>
+                  {label}
+                </a>
+              ))}
+            </div>
+          ) : null}
+
+          <button type="submit" className="primary-button" disabled={saving}>
+            {saving ? "Saving..." : selectedAsset ? "Save metadata" : "Upload image"}
+          </button>
+          {selectedAsset ? (
+            <button type="button" className="secondary-button" disabled={saving} onClick={archiveSelected}>
+              Archive image
+            </button>
+          ) : null}
+        </form>
+      </aside>
+    </main>
+  );
+}

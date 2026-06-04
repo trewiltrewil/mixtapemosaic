@@ -9,9 +9,24 @@ import { createPrototypeCalibration, normalizeCalibration } from "@/lib/calibrat
 import { defaultProductionConfig } from "@/lib/geometry";
 import { loadImage, type LoadedImage } from "@/lib/image";
 import { drawRealisticPreview } from "@/lib/preview-renderer";
-import type { ProductCalibration } from "@/lib/types";
+import type { ArtworkOption, ProductCalibration } from "@/lib/types";
 
 type ArtworkSource = "curated" | "upload" | "unsplash";
+
+type PublicImageAsset = {
+  id: string;
+  title: string;
+  description: string | null;
+  alt_text: string | null;
+  thumb_url: string | null;
+  card_url: string | null;
+  preview_url: string | null;
+  large_url: string | null;
+  dominant_color: string | null;
+  blurhash: string | null;
+  tags: string[];
+  categories: string[];
+};
 
 const sizes: Array<{
   id: string;
@@ -33,12 +48,17 @@ export function Customizer() {
   const [artworkSrc, setArtworkSrc] = useState(artworkOptions[0].src);
   const [artworkName, setArtworkName] = useState(artworkOptions[0].name);
   const [artworkSource, setArtworkSource] = useState<ArtworkSource>("curated");
+  const [libraryOptions, setLibraryOptions] = useState<ArtworkOption[]>([]);
   const [selectedSizeId, setSelectedSizeId] = useState(sizes[0].id);
   const [artwork, setArtwork] = useState<LoadedImage | null>(null);
   const [photo, setPhoto] = useState<LoadedImage | null>(null);
   const [cartStatus, setCartStatus] = useState("");
   const selectedSize = sizes.find((size) => size.id === selectedSizeId) ?? sizes[0];
   const selectedLayout = selectedSize.layout;
+  const allArtworkOptions = useMemo(
+    () => [...libraryOptions, ...artworkOptions],
+    [libraryOptions]
+  );
   const previewConfig = useMemo(
     () => ({
       ...defaultProductionConfig,
@@ -47,6 +67,54 @@ export function Customizer() {
     }),
     [selectedSize.columns, selectedSize.rows]
   );
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/images", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) {
+          return [];
+        }
+
+        const payload = (await response.json()) as { assets?: PublicImageAsset[] };
+        return payload.assets ?? [];
+      })
+      .then((assets) => {
+        if (!active) {
+          return;
+        }
+
+        setLibraryOptions(
+          assets
+            .map((asset): ArtworkOption | null => {
+              const src = asset.preview_url ?? asset.large_url ?? asset.card_url ?? asset.thumb_url;
+              if (!src) {
+                return null;
+              }
+
+              const creditParts = [
+                asset.categories?.[0],
+                asset.tags?.[0]
+              ].filter(Boolean);
+
+              return {
+                id: `asset-${asset.id}`,
+                name: asset.title,
+                src,
+                credit: creditParts.length ? creditParts.join(" / ") : "Mixtape Mosaic library"
+              };
+            })
+            .filter((asset): asset is ArtworkOption => Boolean(asset))
+        );
+      })
+      .catch(() => {
+        // The bundled samples keep the customizer usable when the asset library is unavailable.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -168,7 +236,7 @@ export function Customizer() {
     setCartStatus("Added to cart.");
   }
 
-  const selectedOption = artworkOptions.find((option) => option.src === artworkSrc);
+  const selectedOption = allArtworkOptions.find((option) => option.src === artworkSrc);
   const selectedLabel = selectedOption?.name ?? artworkName;
 
   return (
@@ -263,7 +331,7 @@ export function Customizer() {
 
                 {artworkSource === "curated" ? (
                   <div className="grid sm:grid-cols-2 gap-3">
-                    {artworkOptions.map((option, index) => (
+                    {allArtworkOptions.map((option, index) => (
                       <button
                         key={option.id}
                         type="button"
