@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
-import { createImageAssetFromR2Original, type AssetMetadataInput } from "@/lib/image-assets";
+import {
+  createImageAssetFromOriginalBuffer,
+  type AssetMetadataInput
+} from "@/lib/image-assets";
+import {
+  deriveSourceMetadataFromFilename,
+  generateArtworkMetadata,
+  mergeMetadata
+} from "@/lib/artwork-auto-metadata";
+import { downloadR2ObjectBuffer, getR2BucketNames } from "@/lib/r2";
 import { isAdminRequest } from "@/lib/server-admin";
 
 export const runtime = "nodejs";
@@ -11,7 +20,7 @@ function listFromBody(value: unknown) {
 function metadataFromBody(body: Record<string, unknown>): AssetMetadataInput {
   const status = body.status;
   return {
-    title: typeof body.title === "string" && body.title.trim() ? body.title.trim() : "Untitled image",
+    title: typeof body.title === "string" && body.title.trim() ? body.title.trim() : "",
     description: typeof body.description === "string" && body.description.trim() ? body.description.trim() : null,
     alt_text: typeof body.alt_text === "string" && body.alt_text.trim() ? body.alt_text.trim() : null,
     source_type: typeof body.source_type === "string" && body.source_type.trim() ? body.source_type.trim() : "manual_upload",
@@ -29,7 +38,7 @@ function metadataFromBody(body: Record<string, unknown>): AssetMetadataInput {
     status:
       status === "active" || status === "archived" || status === "processing" || status === "failed"
         ? status
-        : "draft"
+        : "active"
   };
 }
 
@@ -55,13 +64,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Upload must be an image file." }, { status: 400 });
     }
 
-    const asset = await createImageAssetFromR2Original({
+    const buckets = getR2BucketNames();
+    const originalBuffer = await downloadR2ObjectBuffer({ bucket: buckets.originals, key: originalStorageKey });
+    const submittedMetadata = metadataFromBody(body);
+    const filenameDefaults = deriveSourceMetadataFromFilename(originalFilename);
+    const generatedMetadata = await generateArtworkMetadata({
+      originalBuffer,
+      filename: originalFilename,
+      contentType: originalContentType
+    }).catch(() => null);
+
+    const asset = await createImageAssetFromOriginalBuffer({
       id,
+      originalBuffer,
       originalStorageKey,
       originalFilename,
       originalContentType,
       originalSizeBytes: Number.isFinite(originalSizeBytes) ? originalSizeBytes : null,
-      metadata: metadataFromBody(body)
+      metadata: mergeMetadata({
+        submitted: submittedMetadata,
+        generated: generatedMetadata,
+        filenameDefaults
+      })
     });
 
     return NextResponse.json({ asset }, { status: 201 });

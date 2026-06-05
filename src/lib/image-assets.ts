@@ -98,7 +98,7 @@ function cleanText(value: unknown) {
 function cleanStatus(value: unknown): ImageAssetStatus {
   return value === "active" || value === "archived" || value === "processing" || value === "failed"
     ? value
-    : "draft";
+    : "active";
 }
 
 export function parseList(value: FormDataEntryValue | null | undefined) {
@@ -328,7 +328,7 @@ export async function createImageAssetFromR2Original({
   });
 }
 
-async function createImageAssetFromOriginalBuffer({
+export async function createImageAssetFromOriginalBuffer({
   id,
   originalBuffer,
   originalStorageKey,
@@ -421,7 +421,7 @@ async function createImageAssetFromOriginalBuffer({
     blurhash: null,
     tags: metadata.tags ?? [],
     categories: metadata.categories ?? [],
-    status: metadata.status ?? "draft",
+    status: metadata.status ?? "active",
     created_by: metadata.created_by ?? null,
     updated_at: new Date().toISOString()
   };

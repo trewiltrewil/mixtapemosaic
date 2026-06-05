@@ -45,7 +45,7 @@ const emptyForm = {
   source_downloaded_at: "",
   tags: "",
   categories: "",
-  status: "draft" as ImageAssetStatus
+  status: "active" as ImageAssetStatus
 };
 
 function listToText(list: string[] | null | undefined) {
@@ -235,7 +235,7 @@ export function AdminImageLibrary() {
         return;
       }
 
-      setUploadStage("Generating web derivatives...");
+      setUploadStage("Generating AI metadata and web derivatives...");
       const completeResponse = await fetch("/api/admin/images/complete-upload", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -403,7 +403,11 @@ export function AdminImageLibrary() {
 
           <label>
             Title
-            <input value={form.title} onChange={(event) => updateField("title", event.target.value)} required />
+            <input
+              value={form.title}
+              onChange={(event) => updateField("title", event.target.value)}
+              placeholder="Auto-generated if blank"
+            />
           </label>
           <label>
             Description
