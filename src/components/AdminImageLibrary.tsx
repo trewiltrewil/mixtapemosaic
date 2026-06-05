@@ -84,6 +84,7 @@ export function AdminImageLibrary() {
   const [uploadPreview, setUploadPreview] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadStage, setUploadStage] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -158,6 +159,7 @@ export function AdminImageLibrary() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
+    setUploadStage("");
     setMessage("");
     setError("");
 
@@ -168,22 +170,26 @@ export function AdminImageLibrary() {
     };
 
     if (selectedAsset) {
-      const response = await fetch(`/api/admin/images/${selectedAsset.id}`, {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload)
-      }).catch(() => null);
-      const result = response ? ((await response.json()) as { asset?: ImageAsset; error?: string }) : null;
+      try {
+        const response = await fetch(`/api/admin/images/${selectedAsset.id}`, {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const result = (await response.json()) as { asset?: ImageAsset; error?: string };
 
-      if (!response?.ok || !result?.asset) {
-        setError(result?.error ?? "Could not update image metadata.");
+        if (!response.ok || !result.asset) {
+          setError(result.error ?? "Could not update image metadata.");
+          return;
+        }
+
+        setAssets((current) => current.map((asset) => (asset.id === result.asset?.id ? result.asset : asset)));
+        setMessage("Metadata saved.");
+      } catch {
+        setError("Could not update image metadata.");
+      } finally {
         setSaving(false);
-        return;
       }
-
-      setAssets((current) => current.map((asset) => (asset.id === result.asset?.id ? result.asset : asset)));
-      setMessage("Metadata saved.");
-      setSaving(false);
       return;
     }
 
@@ -193,26 +199,71 @@ export function AdminImageLibrary() {
       return;
     }
 
-    const formData = new FormData();
-    formData.set("file", file);
-    Object.entries(form).forEach(([key, value]) => formData.set(key, value));
+    try {
+      setUploadStage("Preparing private R2 upload...");
+      const prepareResponse = await fetch("/api/admin/images/upload-url", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type || "application/octet-stream",
+          sizeBytes: file.size
+        })
+      });
+      const prepareResult = (await prepareResponse.json()) as {
+        id?: string;
+        originalStorageKey?: string;
+        uploadUrl?: string;
+        contentType?: string;
+        error?: string;
+      };
 
-    const response = await fetch("/api/admin/images", {
-      method: "POST",
-      body: formData
-    }).catch(() => null);
-    const result = response ? ((await response.json()) as { asset?: ImageAsset; error?: string }) : null;
+      if (!prepareResponse.ok || !prepareResult.id || !prepareResult.originalStorageKey || !prepareResult.uploadUrl) {
+        setError(prepareResult.error ?? "Could not prepare image upload.");
+        return;
+      }
 
-    if (!response?.ok || !result?.asset) {
-      setError(result?.error ?? "Could not upload image asset.");
+      setUploadStage("Uploading original directly to private R2...");
+      const uploadResponse = await fetch(prepareResult.uploadUrl, {
+        method: "PUT",
+        headers: { "content-type": prepareResult.contentType ?? file.type ?? "application/octet-stream" },
+        body: file
+      });
+
+      if (!uploadResponse.ok) {
+        setError("R2 rejected the original image upload. Check bucket CORS and token access.");
+        return;
+      }
+
+      setUploadStage("Generating web derivatives...");
+      const completeResponse = await fetch("/api/admin/images/complete-upload", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          ...payload,
+          id: prepareResult.id,
+          originalStorageKey: prepareResult.originalStorageKey,
+          originalFilename: file.name,
+          originalContentType: prepareResult.contentType ?? file.type ?? "application/octet-stream",
+          originalSizeBytes: file.size
+        })
+      });
+      const result = (await completeResponse.json()) as { asset?: ImageAsset; error?: string };
+
+      if (!completeResponse.ok || !result.asset) {
+        setError(result.error ?? "Could not process uploaded image asset.");
+        return;
+      }
+
+      setAssets((current) => [result.asset as ImageAsset, ...current]);
+      selectAsset(result.asset);
+      setMessage("Image uploaded and web derivatives generated.");
+    } catch {
+      setError("Could not upload image asset.");
+    } finally {
+      setUploadStage("");
       setSaving(false);
-      return;
     }
-
-    setAssets((current) => [result.asset as ImageAsset, ...current]);
-    selectAsset(result.asset);
-    setMessage("Image uploaded and web derivatives generated.");
-    setSaving(false);
   }
 
   async function archiveSelected() {
@@ -320,6 +371,7 @@ export function AdminImageLibrary() {
           </div>
 
           {message ? <p className="status-message">{message}</p> : null}
+          {uploadStage ? <p className="status-message">{uploadStage}</p> : null}
           {error ? <p className="admin-launcher-error">{error}</p> : null}
           <button type="button" className="secondary-button" disabled={saving} onClick={seedCuratedSamples}>
             Seed bundled samples
@@ -435,7 +487,7 @@ export function AdminImageLibrary() {
           ) : null}
 
           <button type="submit" className="primary-button" disabled={saving}>
-            {saving ? "Saving..." : selectedAsset ? "Save metadata" : "Upload image"}
+            {saving ? uploadStage || "Saving..." : selectedAsset ? "Save metadata" : "Upload image"}
           </button>
           {selectedAsset ? (
             <button type="button" className="secondary-button" disabled={saving} onClick={archiveSelected}>

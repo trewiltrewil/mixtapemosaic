@@ -1,6 +1,6 @@
 import sharp from "sharp";
 import { getSupabaseAdminClient } from "./supabase";
-import { getR2BucketNames, getR2PublicUrl, uploadR2Object } from "./r2";
+import { downloadR2ObjectBuffer, getR2BucketNames, getR2PublicUrl, uploadR2Object } from "./r2";
 
 export type ImageAssetStatus = "draft" | "active" | "archived" | "processing" | "failed";
 
@@ -127,7 +127,7 @@ export function metadataFromFormData(formData: FormData): AssetMetadataInput {
   };
 }
 
-function extensionForContentType(contentType: string, filename: string) {
+export function extensionForContentType(contentType: string, filename: string) {
   if (contentType === "image/png") {
     return "png";
   }
@@ -258,16 +258,12 @@ export async function archiveImageAsset(id: string) {
 }
 
 export async function createImageAssetFromUpload(file: File, metadata: AssetMetadataInput) {
-  const supabase = requireSupabaseAdmin();
   const id = crypto.randomUUID();
   const contentType = file.type || "application/octet-stream";
   const originalBuffer = Buffer.from(await file.arrayBuffer());
   const ext = extensionForContentType(contentType, file.name);
   const originalStorageKey = `originals/${id}/source.${ext}`;
   const buckets = getR2BucketNames();
-  const baseSharp = sharp(originalBuffer, { failOn: "none" });
-  const [imageMetadata, stats] = await Promise.all([baseSharp.metadata(), sharp(originalBuffer).stats()]);
-  const dominantColor = dominantColorFromStats(stats);
 
   await uploadR2Object({
     bucket: buckets.originals,
@@ -275,6 +271,68 @@ export async function createImageAssetFromUpload(file: File, metadata: AssetMeta
     body: originalBuffer,
     contentType
   });
+
+  return createImageAssetFromOriginalBuffer({
+    id,
+    originalBuffer,
+    originalStorageKey,
+    originalFilename: file.name,
+    originalContentType: contentType,
+    metadata
+  });
+}
+
+export async function createImageAssetFromR2Original({
+  id,
+  originalStorageKey,
+  originalFilename,
+  originalContentType,
+  originalSizeBytes,
+  metadata
+}: {
+  id: string;
+  originalStorageKey: string;
+  originalFilename: string;
+  originalContentType: string;
+  originalSizeBytes?: number | null;
+  metadata: AssetMetadataInput;
+}) {
+  const buckets = getR2BucketNames();
+  const originalBuffer = await downloadR2ObjectBuffer({ bucket: buckets.originals, key: originalStorageKey });
+
+  return createImageAssetFromOriginalBuffer({
+    id,
+    originalBuffer,
+    originalStorageKey,
+    originalFilename,
+    originalContentType,
+    originalSizeBytes,
+    metadata
+  });
+}
+
+async function createImageAssetFromOriginalBuffer({
+  id,
+  originalBuffer,
+  originalStorageKey,
+  originalFilename,
+  originalContentType,
+  originalSizeBytes,
+  metadata
+}: {
+  id: string;
+  originalBuffer: Buffer;
+  originalStorageKey: string;
+  originalFilename: string;
+  originalContentType: string;
+  originalSizeBytes?: number | null;
+  metadata: AssetMetadataInput;
+}) {
+  const supabase = requireSupabaseAdmin();
+  const buckets = getR2BucketNames();
+  const baseSharp = sharp(originalBuffer, { failOn: "none" });
+  const [imageMetadata, stats] = await Promise.all([baseSharp.metadata(), sharp(originalBuffer).stats()]);
+  const dominantColor = dominantColorFromStats(stats);
 
   const derivativeKeys: Record<keyof typeof derivativeTargets, string> = {
     thumb: `derivatives/${id}/thumb.webp`,
@@ -305,11 +363,11 @@ export async function createImageAssetFromUpload(file: File, metadata: AssetMeta
         title: metadata.title,
         source_type: metadata.source_type ?? "manual_upload",
         original_storage_key: originalStorageKey,
-        original_filename: file.name,
-        original_content_type: contentType,
+        original_filename: originalFilename,
+        original_content_type: originalContentType,
         original_width: imageMetadata.width ?? null,
         original_height: imageMetadata.height ?? null,
-        original_size_bytes: originalBuffer.byteLength,
+        original_size_bytes: originalSizeBytes ?? originalBuffer.byteLength,
         status: "failed",
         updated_at: new Date().toISOString()
       });
@@ -329,11 +387,11 @@ export async function createImageAssetFromUpload(file: File, metadata: AssetMeta
     source_license: metadata.source_license ?? null,
     source_downloaded_at: metadata.source_downloaded_at || null,
     original_storage_key: originalStorageKey,
-    original_filename: file.name,
-    original_content_type: contentType,
+    original_filename: originalFilename,
+    original_content_type: originalContentType,
     original_width: imageMetadata.width ?? null,
     original_height: imageMetadata.height ?? null,
-    original_size_bytes: originalBuffer.byteLength,
+    original_size_bytes: originalSizeBytes ?? originalBuffer.byteLength,
     thumb_storage_key: derivativeKeys.thumb,
     card_storage_key: derivativeKeys.card,
     preview_storage_key: derivativeKeys.preview,

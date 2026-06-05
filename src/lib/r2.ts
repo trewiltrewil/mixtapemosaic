@@ -1,4 +1,5 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 type UploadObjectInput = {
   bucket: string;
@@ -86,4 +87,46 @@ export async function uploadR2Object({ bucket, key, body, contentType }: UploadO
       CacheControl: bucket === getR2BucketNames().derivatives ? "public, max-age=31536000, immutable" : undefined
     })
   );
+}
+
+export async function createR2PutUploadUrl({
+  bucket,
+  key,
+  contentType,
+  expiresInSeconds = 600
+}: {
+  bucket: string;
+  key: string;
+  contentType: string;
+  expiresInSeconds?: number;
+}) {
+  const client = requireR2Client();
+  const command = new PutObjectCommand({
+    Bucket: bucket,
+    Key: key,
+    ContentType: contentType
+  });
+
+  return getSignedUrl(client, command, { expiresIn: expiresInSeconds });
+}
+
+export async function downloadR2ObjectBuffer({ bucket, key }: { bucket: string; key: string }) {
+  const client = requireR2Client();
+  const response = await client.send(
+    new GetObjectCommand({
+      Bucket: bucket,
+      Key: key
+    })
+  );
+
+  if (!response.Body) {
+    throw new Error(`R2 object ${key} was empty or unavailable.`);
+  }
+
+  const chunks: Buffer[] = [];
+  for await (const chunk of response.Body as AsyncIterable<Uint8Array>) {
+    chunks.push(Buffer.from(chunk));
+  }
+
+  return Buffer.concat(chunks);
 }
