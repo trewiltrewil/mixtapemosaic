@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { artworkOptions, getProductPhoto, type ProductLayoutKey } from "@/lib/assets";
+import { getProductPhoto, type ProductLayoutKey } from "@/lib/assets";
 import { useCart } from "@/components/CartProvider";
 import { createPrototypeCalibration, normalizeCalibration } from "@/lib/calibration";
 import { defaultProductionConfig } from "@/lib/geometry";
@@ -11,13 +11,16 @@ import { loadImage, type LoadedImage } from "@/lib/image";
 import { drawRealisticPreview } from "@/lib/preview-renderer";
 import type { ArtworkOption, ProductCalibration } from "@/lib/types";
 
-type ArtworkSource = "curated" | "upload" | "unsplash";
+type ArtworkSource = "curated" | "upload";
+type ArtworkPanel = "curated" | "upload" | "search";
 
 type PublicImageAsset = {
   id: string;
   title: string;
   description: string | null;
   alt_text: string | null;
+  source_author: string | null;
+  source_name: string | null;
   thumb_url: string | null;
   card_url: string | null;
   preview_url: string | null;
@@ -26,6 +29,13 @@ type PublicImageAsset = {
   blurhash: string | null;
   tags: string[];
   categories: string[];
+};
+
+type CustomerUploadResult = {
+  upload?: {
+    id: string;
+  };
+  error?: string;
 };
 
 const sizes: Array<{
@@ -41,24 +51,60 @@ const sizes: Array<{
   { id: "portrait", label: 'Portrait (27"x45")', layout: "square", columns: 6, rows: 9, aspectRatio: "1 / 1" }
 ];
 
+function artistLabel(asset: PublicImageAsset) {
+  return asset.source_author || asset.source_name || "Mixtape Mosaic";
+}
+
+function displayTags(asset: PublicImageAsset) {
+  return [...(asset.tags ?? []), ...(asset.categories ?? [])].filter((tag) => tag.toLowerCase() !== "curated");
+}
+
+function assetCredit(asset: PublicImageAsset) {
+  const parts = [artistLabel(asset), ...displayTags(asset).slice(0, 2)];
+  return parts.join(" / ");
+}
+
+function assetToOption(asset: PublicImageAsset): ArtworkOption | null {
+  const src = asset.preview_url ?? asset.large_url ?? asset.card_url ?? asset.thumb_url;
+  if (!src) {
+    return null;
+  }
+
+  return {
+    id: `asset-${asset.id}`,
+    name: asset.title,
+    src,
+    thumbSrc: asset.thumb_url ?? asset.card_url ?? src,
+    credit: assetCredit(asset),
+    artist: artistLabel(asset),
+    tags: asset.tags ?? [],
+    categories: asset.categories ?? []
+  };
+}
+
 export function Customizer() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { addItem } = useCart();
   const [calibration, setCalibration] = useState<ProductCalibration>(() => createPrototypeCalibration());
-  const [artworkSrc, setArtworkSrc] = useState(artworkOptions[0].src);
-  const [artworkName, setArtworkName] = useState(artworkOptions[0].name);
+  const [artworkSrc, setArtworkSrc] = useState("");
+  const [artworkName, setArtworkName] = useState("Choose artwork");
   const [artworkSource, setArtworkSource] = useState<ArtworkSource>("curated");
+  const [artworkPanel, setArtworkPanel] = useState<ArtworkPanel>("curated");
   const [libraryOptions, setLibraryOptions] = useState<ArtworkOption[]>([]);
+  const [searchResults, setSearchResults] = useState<ArtworkOption[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOffset, setSearchOffset] = useState(0);
+  const [searchHasMore, setSearchHasMore] = useState(false);
+  const [searchStatus, setSearchStatus] = useState("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [customerArtworkUploadId, setCustomerArtworkUploadId] = useState<string | null>(null);
   const [selectedSizeId, setSelectedSizeId] = useState(sizes[0].id);
   const [artwork, setArtwork] = useState<LoadedImage | null>(null);
   const [photo, setPhoto] = useState<LoadedImage | null>(null);
   const [cartStatus, setCartStatus] = useState("");
   const selectedSize = sizes.find((size) => size.id === selectedSizeId) ?? sizes[0];
   const selectedLayout = selectedSize.layout;
-  const allArtworkOptions = useMemo(
-    () => [...libraryOptions, ...artworkOptions],
-    [libraryOptions]
-  );
+  const allArtworkOptions = useMemo(() => [...libraryOptions, ...searchResults], [libraryOptions, searchResults]);
   const previewConfig = useMemo(
     () => ({
       ...defaultProductionConfig,
@@ -70,7 +116,7 @@ export function Customizer() {
 
   useEffect(() => {
     let active = true;
-    fetch("/api/images", { cache: "no-store" })
+    fetch("/api/images?curatedOnly=true&limit=6&offset=0", { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) {
           return [];
@@ -84,32 +130,15 @@ export function Customizer() {
           return;
         }
 
-        setLibraryOptions(
-          assets
-            .map((asset): ArtworkOption | null => {
-              const src = asset.preview_url ?? asset.large_url ?? asset.card_url ?? asset.thumb_url;
-              if (!src) {
-                return null;
-              }
-
-              const creditParts = [
-                asset.categories?.[0],
-                asset.tags?.[0]
-              ].filter(Boolean);
-
-              return {
-                id: `asset-${asset.id}`,
-                name: asset.title,
-                src,
-                credit: creditParts.length ? creditParts.join(" / ") : "Mixtape Mosaic library"
-              };
-            })
-            .filter((asset): asset is ArtworkOption => Boolean(asset))
-        );
+        const options = assets.map(assetToOption).filter((asset): asset is ArtworkOption => Boolean(asset));
+        setLibraryOptions(options);
+        if (!artworkSrc && options[0]) {
+          setArtworkSrc(options[0].src);
+          setArtworkName(options[0].name);
+          setArtworkSource("curated");
+        }
       })
-      .catch(() => {
-        // The bundled samples keep the customizer usable when the R2-backed artwork library is unavailable.
-      });
+      .catch(() => undefined);
 
     return () => {
       active = false;
@@ -155,6 +184,11 @@ export function Customizer() {
   }, [selectedLayout]);
 
   useEffect(() => {
+    if (!artworkSrc) {
+      setArtwork(null);
+      return;
+    }
+
     let active = true;
     loadImage(artworkSrc).then((image) => {
       if (active) {
@@ -202,38 +236,149 @@ export function Customizer() {
     if (!file) {
       return;
     }
-    setArtworkSrc(URL.createObjectURL(file));
+    const previousObjectUrl = artworkSource === "upload" && artworkSrc.startsWith("blob:") ? artworkSrc : null;
+    const objectUrl = URL.createObjectURL(file);
+    setUploadedFile(file);
+    setCustomerArtworkUploadId(null);
+    setArtworkSrc(objectUrl);
     setArtworkName(file.name);
     setArtworkSource("upload");
+    setArtworkPanel("upload");
+    if (previousObjectUrl) {
+      URL.revokeObjectURL(previousObjectUrl);
+    }
+  }
+
+  async function searchArtwork(nextOffset = 0) {
+    const query = searchQuery.trim();
+    setArtworkPanel("search");
+    setSearchStatus(query ? "Digging through the crates..." : "Loading artwork...");
+
+    const params = new URLSearchParams({
+      limit: "6",
+      offset: String(nextOffset)
+    });
+    if (query) {
+      params.set("q", query);
+    }
+
+    const response = await fetch(`/api/images?${params.toString()}`, { cache: "no-store" }).catch(() => null);
+    const payload = response?.ok ? ((await response.json()) as { assets?: PublicImageAsset[] }) : null;
+    const options = (payload?.assets ?? []).map(assetToOption).filter((asset): asset is ArtworkOption => Boolean(asset));
+
+    setSearchResults((current) => (nextOffset === 0 ? options : [...current, ...options]));
+    setSearchOffset(nextOffset + options.length);
+    setSearchHasMore(options.length === 6);
+    setSearchStatus(options.length ? "" : "No matches yet. Try a color, mood, place, or subject.");
+  }
+
+  async function saveCustomerArtworkIfNeeded() {
+    if (artworkSource !== "upload" || !uploadedFile) {
+      return customerArtworkUploadId;
+    }
+
+    if (customerArtworkUploadId) {
+      return customerArtworkUploadId;
+    }
+
+    setCartStatus("Uploading your original artwork...");
+    const prepareResponse = await fetch("/api/customer-artwork/upload-url", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        filename: uploadedFile.name,
+        contentType: uploadedFile.type || "application/octet-stream",
+        sizeBytes: uploadedFile.size
+      })
+    });
+    const prepare = (await prepareResponse.json()) as {
+      id?: string;
+      originalStorageKey?: string;
+      uploadUrl?: string;
+      contentType?: string;
+      error?: string;
+    };
+
+    if (!prepareResponse.ok || !prepare.id || !prepare.originalStorageKey || !prepare.uploadUrl) {
+      throw new Error(prepare.error ?? "Could not prepare your artwork upload.");
+    }
+
+    const uploadResponse = await fetch(prepare.uploadUrl, {
+      method: "PUT",
+      headers: { "content-type": prepare.contentType ?? uploadedFile.type ?? "application/octet-stream" },
+      body: uploadedFile
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error("Could not upload your original artwork.");
+    }
+
+    setCartStatus("Saving your artwork for proofing...");
+    const completeResponse = await fetch("/api/customer-artwork/complete-upload", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        id: prepare.id,
+        originalStorageKey: prepare.originalStorageKey,
+        originalFilename: uploadedFile.name,
+        originalContentType: prepare.contentType ?? uploadedFile.type ?? "application/octet-stream",
+        originalSizeBytes: uploadedFile.size
+      })
+    });
+    const complete = (await completeResponse.json()) as CustomerUploadResult;
+
+    if (!completeResponse.ok || !complete.upload?.id) {
+      throw new Error(complete.error ?? "Could not save your artwork upload.");
+    }
+
+    setCustomerArtworkUploadId(complete.upload.id);
+    return complete.upload.id;
   }
 
   async function addCurrentToCart() {
-    setCartStatus("Saving your mix...");
-    const response = await fetch("/api/customizations", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json"
-      },
-      body: JSON.stringify({
-        selectedSize: selectedSize.label,
-        artworkSource,
-        artworkName: selectedLabel,
-        state: {
-          artworkSrc,
-          selectedSize: selectedSize.label
-        }
-      })
-    }).catch(() => null);
-    const result = response?.ok ? ((await response.json()) as { id?: string }) : null;
+    if (!artworkSrc) {
+      setCartStatus("Choose or upload artwork first.");
+      return;
+    }
 
-    addItem({
-      size: selectedSize.label,
-      artworkName: selectedLabel,
-      artworkSource,
-      priceCents: 139500,
-      customizationSessionId: result?.id
-    });
-    setCartStatus("Added to cart.");
+    try {
+      const uploadId = await saveCustomerArtworkIfNeeded();
+      setCartStatus("Saving your mix...");
+      const response = await fetch("/api/customizations", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          selectedSize: selectedSize.label,
+          artworkSource,
+          artworkName: selectedLabel,
+          artworkUrl: artworkSource === "curated" ? artworkSrc : null,
+          customerArtworkUploadId: uploadId,
+          state: {
+            artworkSrc: artworkSource === "curated" ? artworkSrc : null,
+            selectedSize: selectedSize.label
+          },
+          metadata: {
+            customerArtworkUploadId: uploadId,
+            originalFilename: artworkSource === "upload" ? uploadedFile?.name ?? null : null
+          }
+        })
+      }).catch(() => null);
+      const result = response?.ok ? ((await response.json()) as { id?: string }) : null;
+
+      addItem({
+        size: selectedSize.label,
+        artworkName: selectedLabel,
+        artworkSource,
+        priceCents: 139500,
+        customizationSessionId: result?.id,
+        customerArtworkUploadId: uploadId ?? undefined
+      });
+      setCartStatus("Added to cart.");
+    } catch (error) {
+      setCartStatus(error instanceof Error ? error.message : "Could not save your artwork.");
+    }
   }
 
   const selectedOption = allArtworkOptions.find((option) => option.src === artworkSrc);
@@ -302,22 +447,22 @@ export function Customizer() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => setArtworkSource("curated")}
+                    onClick={() => setArtworkPanel("curated")}
                     className={`flex items-center gap-3 px-4 py-3 border-2 border-border font-bold uppercase tracking-wider transition-all ${
-                      artworkSource === "curated" ? "bg-card shadow-[4px_4px_0_0_#292929]" : "bg-transparent hover:bg-card"
+                      artworkPanel === "curated" ? "bg-card shadow-[4px_4px_0_0_#292929]" : "bg-transparent hover:bg-card"
                     }`}
                   >
-                    <div className={`w-6 h-6 border-2 border-border ${artworkSource === "curated" ? "bg-secondary" : "bg-transparent"}`} />
+                    <div className={`w-6 h-6 border-2 border-border ${artworkPanel === "curated" ? "bg-secondary" : "bg-transparent"}`} />
                     Curated Artist
                   </button>
                   <button
                     type="button"
-                    onClick={() => setArtworkSource("upload")}
+                    onClick={() => setArtworkPanel("upload")}
                     className={`flex items-center gap-3 px-4 py-3 border-2 border-border font-bold uppercase tracking-wider transition-all ${
-                      artworkSource === "upload" ? "bg-card shadow-[4px_4px_0_0_#292929]" : "bg-transparent hover:bg-card"
+                      artworkPanel === "upload" ? "bg-card shadow-[4px_4px_0_0_#292929]" : "bg-transparent hover:bg-card"
                     }`}
                   >
-                    <div className={`w-6 h-6 border-2 border-border ${artworkSource === "upload" ? "bg-primary" : "bg-transparent"}`} />
+                    <div className={`w-6 h-6 border-2 border-border ${artworkPanel === "upload" ? "bg-primary" : "bg-transparent"}`} />
                     Upload my Own
                   </button>
                 </div>
@@ -329,9 +474,14 @@ export function Customizer() {
                   3. Curated Art
                 </h3>
 
-                {artworkSource === "curated" ? (
+                {artworkPanel === "curated" ? (
                   <div className="grid sm:grid-cols-2 gap-3">
-                    {allArtworkOptions.map((option, index) => (
+                    {libraryOptions.length ? null : (
+                      <div className="sm:col-span-2 bg-card border-2 border-border p-4 font-mono font-bold uppercase text-sm">
+                        No curated artwork is active yet. Add the curated tag in the admin image library.
+                      </div>
+                    )}
+                    {libraryOptions.map((option, index) => (
                       <button
                         key={option.id}
                         type="button"
@@ -339,6 +489,7 @@ export function Customizer() {
                           setArtworkSrc(option.src);
                           setArtworkName(option.name);
                           setArtworkSource("curated");
+                          setArtworkPanel("curated");
                         }}
                         className={`relative min-h-[72px] border-2 border-border px-4 py-3 text-left transition-all ${
                           artworkSrc === option.src
@@ -356,7 +507,7 @@ export function Customizer() {
                   </div>
                 ) : null}
 
-                {artworkSource === "upload" ? (
+                {artworkPanel === "upload" ? (
                   <label className="bg-card h-[64px] relative w-full border-2 border-border flex items-center px-4 py-3 cursor-pointer">
                     <span className="font-mono font-bold text-muted-foreground uppercase whitespace-nowrap">
                       Upload an image
@@ -364,22 +515,64 @@ export function Customizer() {
                     <input className="sr-only" type="file" accept="image/*" onChange={(event) => handleUpload(event.target.files?.[0])} />
                   </label>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => setArtworkSource("unsplash")}
-                    className="bg-card h-[52px] relative w-full border-2 border-border flex items-center gap-3 px-4 py-3"
-                  >
-                    <Search className="w-4 h-4" />
-                    <span className="font-mono font-bold text-muted-foreground uppercase whitespace-nowrap">
-                      Search for more
-                    </span>
-                  </button>
+                  <div className="bg-card relative w-full border-2 border-border flex items-center gap-3 px-4 py-3">
+                    <Search className="w-4 h-4 shrink-0" />
+                    <input
+                      className="w-full bg-transparent font-mono font-bold text-muted-foreground uppercase outline-none placeholder:text-muted-foreground"
+                      value={searchQuery}
+                      onChange={(event) => setSearchQuery(event.target.value)}
+                      onFocus={() => setArtworkPanel("search")}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          void searchArtwork(0);
+                        }
+                      }}
+                      placeholder="Search for more"
+                    />
+                    <button
+                      type="button"
+                      className="font-mono font-black uppercase text-xs"
+                      onClick={() => void searchArtwork(0)}
+                    >
+                      Go
+                    </button>
+                  </div>
                 )}
               </div>
 
-              {artworkSource === "unsplash" ? (
-                <div className="bg-card border-2 border-border p-4 font-mono font-bold uppercase text-sm">
-                  Unsplash search is wired for the next phase. Curated and upload already update the live preview.
+              {artworkPanel === "search" ? (
+                <div className="bg-card border-2 border-border p-3 space-y-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {searchResults.map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => {
+                          setArtworkSrc(option.src);
+                          setArtworkName(option.name);
+                          setArtworkSource("curated");
+                        }}
+                        className={`border-2 border-border bg-background text-left transition-all ${
+                          artworkSrc === option.src ? "shadow-[4px_4px_0_0_#292929]" : "hover:bg-card"
+                        }`}
+                      >
+                        {option.thumbSrc ? (
+                          <img src={option.thumbSrc} alt={option.name} className="aspect-square w-full object-cover border-b-2 border-border" />
+                        ) : null}
+                        <span className="block p-2">
+                          <strong className="block font-heading text-sm uppercase leading-4">{option.name}</strong>
+                          <small className="block font-mono text-[10px] uppercase leading-3 text-muted-foreground">{option.credit}</small>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  {searchStatus ? <p className="font-mono font-bold uppercase text-xs">{searchStatus}</p> : null}
+                  {searchHasMore ? (
+                    <button type="button" className="secondary-button w-full" onClick={() => void searchArtwork(searchOffset)}>
+                      Load more
+                    </button>
+                  ) : null}
                 </div>
               ) : null}
 

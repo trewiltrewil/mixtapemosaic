@@ -6,9 +6,10 @@ export type CartItem = {
   id: string;
   size: string;
   artworkName: string;
-  artworkSource: "curated" | "upload" | "unsplash";
+  artworkSource: "curated" | "upload";
   priceCents: number;
   customizationSessionId?: string;
+  customerArtworkUploadId?: string;
   previewSnapshotPath?: string;
 };
 

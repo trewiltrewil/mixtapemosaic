@@ -107,6 +107,10 @@ export type ArtworkOption = {
   name: string;
   src: string;
   credit: string;
+  thumbSrc?: string;
+  artist?: string;
+  tags?: string[];
+  categories?: string[];
 };
 
 export type GangSegment = {

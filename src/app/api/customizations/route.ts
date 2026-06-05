@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase";
+import { linkCustomerArtworkToSession } from "@/lib/customer-artwork";
 
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as {
@@ -8,6 +9,7 @@ export async function POST(request: Request) {
     artworkName?: string;
     artworkUrl?: string;
     previewSnapshotPath?: string;
+    customerArtworkUploadId?: string;
     state?: Record<string, unknown>;
     metadata?: Record<string, unknown>;
   } | null;
@@ -28,6 +30,7 @@ export async function POST(request: Request) {
       artwork_name: body?.artworkName ?? null,
       artwork_url: body?.artworkUrl ?? null,
       preview_snapshot_path: body?.previewSnapshotPath ?? null,
+      customer_artwork_upload_id: body?.customerArtworkUploadId ?? null,
       state: body?.state ?? {},
       metadata: body?.metadata ?? {}
     })
@@ -36,6 +39,10 @@ export async function POST(request: Request) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  if (body?.customerArtworkUploadId) {
+    await linkCustomerArtworkToSession(body.customerArtworkUploadId, data.id);
   }
 
   return NextResponse.json({ ok: true, id: data.id });

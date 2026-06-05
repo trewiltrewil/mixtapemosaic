@@ -46,6 +46,8 @@ export type PublicImageAsset = Pick<
   | "title"
   | "description"
   | "alt_text"
+  | "source_author"
+  | "source_name"
   | "thumb_url"
   | "card_url"
   | "preview_url"
@@ -147,6 +149,8 @@ function toPublicAsset(record: ImageAssetRecord): PublicImageAsset {
     title: record.title,
     description: record.description,
     alt_text: record.alt_text,
+    source_author: record.source_author,
+    source_name: record.source_name,
     thumb_url: record.thumb_url,
     card_url: record.card_url,
     preview_url: record.preview_url,
@@ -184,14 +188,27 @@ export async function listAdminImageAssets() {
 }
 
 export async function listPublicImageAssets() {
+  return searchPublicImageAssets({ curatedOnly: false, limit: 24, offset: 0 });
+}
+
+export async function searchPublicImageAssets({
+  query,
+  curatedOnly = false,
+  limit = 24,
+  offset = 0
+}: {
+  query?: string | null;
+  curatedOnly?: boolean;
+  limit?: number;
+  offset?: number;
+}) {
   const supabase = requireSupabaseAdmin();
-  const { data, error } = await supabase
-    .from("image_assets")
-    .select(
-      "id,title,description,alt_text,thumb_url,card_url,preview_url,large_url,dominant_color,blurhash,tags,categories"
-    )
-    .eq("status", "active")
-    .order("created_at", { ascending: false });
+  const { data, error } = await supabase.rpc("search_public_image_assets", {
+    p_query: query?.trim() || null,
+    p_curated_only: curatedOnly,
+    p_limit: limit,
+    p_offset: offset
+  });
 
   if (error) {
     throw error;

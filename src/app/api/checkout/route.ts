@@ -8,6 +8,7 @@ type CheckoutItem = {
   artworkSource?: string;
   priceCents?: number;
   customizationSessionId?: string;
+  customerArtworkUploadId?: string;
   previewSnapshotPath?: string;
 };
 
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
       artwork_name: item.artworkName ?? "",
       artwork_source: item.artworkSource ?? "",
       customization_session_id: item.customizationSessionId ?? "",
+      customer_artwork_upload_id: item.customerArtworkUploadId ?? "",
       preview_snapshot_path: item.previewSnapshotPath ?? ""
     },
     success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,

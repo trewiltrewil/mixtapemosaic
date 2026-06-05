@@ -63,7 +63,11 @@ export function requireR2Client() {
 export function getR2BucketNames() {
   return {
     originals: process.env.R2_ORIGINALS_BUCKET_NAME ?? "mixtape-mosaic-artwork-originals",
-    derivatives: process.env.R2_DERIVATIVES_BUCKET_NAME ?? "mixtape-mosaic-artwork-images"
+    derivatives: process.env.R2_DERIVATIVES_BUCKET_NAME ?? "mixtape-mosaic-artwork-images",
+    customerUploads:
+      process.env.R2_CUSTOMER_UPLOADS_BUCKET_NAME ??
+      process.env.R2_ORIGINALS_BUCKET_NAME ??
+      "mixtape-mosaic-artwork-originals"
   };
 }
 
