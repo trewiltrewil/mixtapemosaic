@@ -3,28 +3,28 @@ import type { ReactNode } from "react";
 
 export const galleryItems = [
   {
-    title: "Red Diner Wall",
+    title: "Arcade Afterglow",
     size: "Installed piece",
-    src: "/assets/story/exhibition-red-mosaic.jpg",
-    alt: "Large red and yellow cassette mosaic installed on a restaurant wall"
+    src: "/assets/story/arcade-room-cassette-wall.webp",
+    alt: "Cassette mosaic wall art installed in a retro arcade room"
   },
   {
-    title: "Zebra Lightbox",
-    size: "Archive study",
-    src: "/assets/story/zebra-tape-wall.jpg",
-    alt: "Cassette wall art showing a zebra image across a tape grid"
+    title: "Brick Room Statement",
+    size: "Home install",
+    src: "/assets/story/brick-room-cassette-wall.webp",
+    alt: "Large cassette mosaic wall art installed above a brick fireplace"
   },
   {
-    title: "Tape Archive Wall",
-    size: "Material wall",
-    src: "/assets/story/cassette-wall-archive.jpg",
-    alt: "Wall of clear cassette tapes with vintage labels"
+    title: "Coffee & Vinyl",
+    size: "Retail install",
+    src: "/assets/story/coffee-vinyl-cassette-wall.webp",
+    alt: "Cassette wall art installed in a coffee and vinyl shop"
   },
   {
-    title: "Green Wall Proof",
-    size: "Prototype",
-    src: "/product/prototype-wall-unit.jpg",
-    alt: "Prototype cassette wall art on a green wall"
+    title: "Wedding Memory",
+    size: "Photo mosaic",
+    src: "/assets/story/wedding-memory-cassette-wall.webp",
+    alt: "Wedding photo cassette mosaic displayed in a dining room"
   },
   {
     title: "Blue Food Truck",
@@ -69,21 +69,21 @@ export const journalPosts = [
   {
     volume: "Vol. 05",
     title: "Why We Don't Use Blanks",
-    src: "/assets/story/cassette-wall-archive.jpg",
+    src: "/assets/story/arcade-room-cassette-wall.webp",
     color: "bg-secondary",
     href: "/journal/maxell-ur90"
   },
   {
     volume: "Vol. 04",
     title: "Restoring the Boombox Aesthetic",
-    src: "/assets/story/cassette-pile-warm.jpg",
+    src: "/assets/story/coffee-vinyl-cassette-wall.webp",
     color: "bg-accent",
     href: "/journal/maxell-ur90"
   },
   {
     volume: "Vol. 03",
     title: "When the Grid Becomes a Picture",
-    src: "/assets/story/exhibition-red-mosaic.jpg",
+    src: "/assets/story/brick-room-cassette-wall.webp",
     color: "bg-primary",
     href: "/journal/maxell-ur90"
   },
