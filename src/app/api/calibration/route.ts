@@ -26,6 +26,10 @@ function getSettingsKey(layout: ProductLayoutKey) {
     : "prototype_wall_unit_calibration";
 }
 
+function isMissingTableError(error: { code?: string; message?: string } | null) {
+  return error?.code === "42P01" || Boolean(error?.message?.toLowerCase().includes("does not exist"));
+}
+
 function isCalibrationPayload(value: unknown) {
   if (!value || typeof value !== "object") {
     return false;
@@ -53,18 +57,40 @@ export async function GET(request: Request) {
   const supabase = getSupabaseAdminClient();
 
   if (supabase) {
-    const { data } = await supabase
+    const { data: calibrationData, error: calibrationError } = await supabase
+      .from("product_calibrations")
+      .select("calibration")
+      .eq("layout", layout)
+      .maybeSingle();
+
+    if (calibrationData?.calibration && isCalibrationPayload(calibrationData.calibration)) {
+      return NextResponse.json(calibrationData.calibration, {
+        headers: {
+          "cache-control": "no-store"
+        }
+      });
+    }
+
+    if (calibrationError && !isMissingTableError(calibrationError)) {
+      return NextResponse.json({ error: calibrationError.message }, { status: 500 });
+    }
+
+    const { data: legacyData, error: legacyError } = await supabase
       .from("site_settings")
       .select("value")
       .eq("key", getSettingsKey(layout))
       .maybeSingle();
 
-    if (data?.value && isCalibrationPayload(data.value)) {
-      return NextResponse.json(data.value, {
+    if (legacyData?.value && isCalibrationPayload(legacyData.value)) {
+      return NextResponse.json(legacyData.value, {
         headers: {
           "cache-control": "no-store"
         }
       });
+    }
+
+    if (legacyError && !isMissingTableError(legacyError)) {
+      return NextResponse.json({ error: legacyError.message }, { status: 500 });
     }
   }
 
@@ -92,10 +118,30 @@ export async function POST(request: Request) {
 
   const supabase = getSupabaseAdminClient();
   if (supabase) {
-    await supabase.from("site_settings").upsert({
-      key: getSettingsKey(layout),
-      value: body,
-      updated_at: new Date().toISOString()
+    const updatedAt = new Date().toISOString();
+    const { data, error } = await supabase
+      .from("product_calibrations")
+      .upsert({
+        layout,
+        calibration: body,
+        source: "admin",
+        updated_at: updatedAt
+      })
+      .select("updated_at")
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        { error: `Supabase calibration save failed: ${error.message}` },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      source: "supabase",
+      path: `supabase:product_calibrations/${layout}`,
+      updated_at: data?.updated_at ?? updatedAt
     });
   }
 
@@ -108,8 +154,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    path: supabase
-      ? `supabase:site_settings/${getSettingsKey(layout)}`
-      : `/calibration/${calibrationFiles[layout]}`
+    source: "filesystem",
+    path: `/calibration/${calibrationFiles[layout]}`
   });
 }

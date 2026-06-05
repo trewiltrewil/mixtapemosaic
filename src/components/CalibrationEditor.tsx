@@ -597,7 +597,17 @@ export function CalibrationEditor() {
       return;
     }
 
-    setStatus(`Saved ${layoutKey} calibration JSON.`);
+    const result = (await response.json().catch(() => null)) as {
+      source?: string;
+      path?: string;
+      updated_at?: string;
+    } | null;
+    const savedAt = result?.updated_at ? new Date(result.updated_at).toLocaleTimeString() : "";
+    setStatus(
+      `Saved ${layoutKey} calibration${result?.source ? ` to ${result.source}` : ""}${
+        savedAt ? ` at ${savedAt}` : ""
+      }.`
+    );
   }
 
   function updatePreviewFrame(
