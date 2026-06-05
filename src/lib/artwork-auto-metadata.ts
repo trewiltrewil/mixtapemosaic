@@ -74,7 +74,8 @@ Rules:
 - Description should be one sentence, under 160 characters, with strong visual language.
 - Alt text should be factual and accessible, not marketing copy.
 - Tags must be lowercase, no hashtags, no duplicates, 1 to 3 words each.
-- Categories must be broad lowercase buckets. Always include "curated".
+- Categories must be broad lowercase buckets, like food and drink, gaming, landscape, music, city, nature, retro, abstract, or pop art.
+- Do not add "curated" unless it was explicitly supplied by the admin. Curated is an intentional merchandising flag, not a default.
 - Include visible subjects, color words, mood words, composition/style words, and search terms.
 - Avoid naming brands, copyrighted characters, or private people unless the supplied filename/metadata clearly provides that context.
 - Do not invent photographer names, source URLs, licenses, locations, or ownership claims.`;
@@ -187,7 +188,7 @@ export function mergeMetadata({
     source_author: submitted.source_author?.trim() || filenameDefaults?.source_author || null,
     source_license: submitted.source_license?.trim() || filenameDefaults?.source_license || null,
     tags: uniqueCleanList([...(submitted.tags ?? []), ...generatedTags], 64),
-    categories: uniqueCleanList([...(submitted.categories ?? []), ...generatedCategories, "curated"], 16),
+    categories: uniqueCleanList([...(submitted.categories ?? []), ...generatedCategories], 16),
     status: submitted.status ?? "active"
   };
 }

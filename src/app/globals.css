@@ -1460,6 +1460,15 @@ p {
   text-transform: uppercase;
 }
 
+.image-admin-actions .image-admin-new-button {
+  border-width: 4px;
+  box-shadow: 5px 5px 0 var(--ink);
+  font-family: "Bricolage Grotesque", Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  min-width: 96px;
+  padding: 12px 18px;
+}
+
 .image-admin-form {
   gap: 14px;
 }
