@@ -11,7 +11,7 @@ export default function HomePage() {
     <main>
       <section className="bg-primary border-b-4 border-border relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-28 grid lg:grid-cols-2 gap-10 lg:gap-12 items-center relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-28 grid lg:grid-cols-2 gap-10 lg:gap-10 items-center relative z-10">
           <div className="space-y-7 max-w-full min-w-0">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -24,7 +24,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="font-heading font-black text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem] leading-[0.92] uppercase tracking-tighter max-w-full break-words"
+              className="font-heading font-black text-5xl sm:text-6xl lg:text-7xl xl:text-[5.35rem] leading-[0.92] uppercase tracking-tighter max-w-full break-words"
             >
               Your <br />
               Mixtape,
