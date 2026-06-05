@@ -65,8 +65,8 @@ export default function HomePage() {
           >
             <div className="aspect-[4/3] sm:aspect-square bg-accent border-4 border-border shadow-[8px_8px_0_0_#292929] sm:shadow-[12px_12px_0_0_#292929] relative z-10 overflow-hidden group">
               <img
-                src="/assets/story/exhibition-red-mosaic.jpg"
-                alt="Finished cassette mosaic wall art installed in a restaurant"
+                src="/assets/story/hero-cassette-wall-art.webp"
+                alt="Mixtape Mosaic cassette wall art installed above a lounge chair"
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute top-4 left-4 bg-primary border-2 border-border p-2 shadow-[4px_4px_0_0_#292929]">
