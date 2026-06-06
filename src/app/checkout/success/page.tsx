@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { CheckoutSuccessClient } from "@/components/CheckoutSuccessClient";
 import { SiteFooter } from "@/components/PublicChrome";
 
 export default function CheckoutSuccessPage() {
   return (
     <main>
+      <CheckoutSuccessClient />
       <section className="bg-primary border-b-4 border-border py-24 lg:py-36">
         <div className="max-w-4xl mx-auto px-6 text-center space-y-8">
           <p className="font-mono font-bold uppercase tracking-[0.25em]">Order received</p>

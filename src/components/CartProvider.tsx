@@ -4,13 +4,16 @@ import { createContext, ReactNode, useContext, useEffect, useMemo, useState } fr
 
 export type CartItem = {
   id: string;
+  productVariantId?: string;
   size: string;
   artworkName: string;
   artworkSource: "curated" | "upload";
   priceCents: number;
   customizationSessionId?: string;
   customerArtworkUploadId?: string;
+  previewSnapshotKey?: string;
   previewSnapshotPath?: string;
+  previewImageDataUrl?: string;
 };
 
 type CartContextValue = {

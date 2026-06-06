@@ -8,6 +8,7 @@ export async function POST(request: Request) {
     artworkSource?: string;
     artworkName?: string;
     artworkUrl?: string;
+    previewSnapshotKey?: string;
     previewSnapshotPath?: string;
     customerArtworkUploadId?: string;
     state?: Record<string, unknown>;
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
       artwork_source: body?.artworkSource ?? null,
       artwork_name: body?.artworkName ?? null,
       artwork_url: body?.artworkUrl ?? null,
-      preview_snapshot_path: body?.previewSnapshotPath ?? null,
+      preview_snapshot_path: body?.previewSnapshotKey ?? body?.previewSnapshotPath ?? null,
       customer_artwork_upload_id: body?.customerArtworkUploadId ?? null,
       state: body?.state ?? {},
       metadata: body?.metadata ?? {}

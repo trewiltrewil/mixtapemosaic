@@ -46,7 +46,7 @@ const sizes: Array<{
   rows: number;
   aspectRatio: string;
 }> = [
-  { id: "square", label: 'Square (27"x27")', layout: "square", columns: 6, rows: 9, aspectRatio: "1 / 1" },
+  { id: "square", label: '9 Panel Square (28"x28")', layout: "square", columns: 6, rows: 9, aspectRatio: "1 / 1" },
   { id: "landscape", label: 'Landscape (45"x24")', layout: "landscape", columns: 8, rows: 9, aspectRatio: "1630 / 1254" },
   { id: "portrait", label: 'Portrait (27"x45")', layout: "square", columns: 6, rows: 9, aspectRatio: "1 / 1" }
 ];
@@ -80,6 +80,25 @@ function assetToOption(asset: PublicImageAsset): ArtworkOption | null {
     tags: asset.tags ?? [],
     categories: asset.categories ?? []
   };
+}
+
+function canvasToDataUrl(canvas: HTMLCanvasElement, maxSize = 900) {
+  const scale = Math.min(1, maxSize / Math.max(canvas.width, canvas.height));
+  const output = document.createElement("canvas");
+  output.width = Math.max(1, Math.round(canvas.width * scale));
+  output.height = Math.max(1, Math.round(canvas.height * scale));
+  const context = output.getContext("2d");
+  if (!context) {
+    return canvas.toDataURL("image/webp", 0.82);
+  }
+
+  context.drawImage(canvas, 0, 0, output.width, output.height);
+  return output.toDataURL("image/webp", 0.82);
+}
+
+async function dataUrlToBlob(dataUrl: string) {
+  const response = await fetch(dataUrl);
+  return response.blob();
 }
 
 export function Customizer() {
@@ -335,6 +354,51 @@ export function Customizer() {
     return complete.upload.id;
   }
 
+  async function savePreviewSnapshotIfPossible() {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return null;
+    }
+
+    const previewImageDataUrl = canvasToDataUrl(canvas);
+    const blob = await dataUrlToBlob(previewImageDataUrl);
+    setCartStatus("Saving your preview...");
+
+    const prepareResponse = await fetch("/api/preview-snapshots/upload-url", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        contentType: blob.type || "image/webp",
+        sizeBytes: blob.size
+      })
+    });
+    const prepare = (await prepareResponse.json()) as {
+      previewSnapshotKey?: string;
+      uploadUrl?: string;
+      contentType?: string;
+      error?: string;
+    };
+
+    if (!prepareResponse.ok || !prepare.uploadUrl || !prepare.previewSnapshotKey) {
+      throw new Error(prepare.error ?? "Could not prepare preview snapshot.");
+    }
+
+    const uploadResponse = await fetch(prepare.uploadUrl, {
+      method: "PUT",
+      headers: { "content-type": prepare.contentType ?? blob.type ?? "image/webp" },
+      body: blob
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error("Could not save preview snapshot.");
+    }
+
+    return {
+      previewSnapshotKey: prepare.previewSnapshotKey,
+      previewImageDataUrl
+    };
+  }
+
   async function addCurrentToCart() {
     if (!artworkSrc) {
       setCartStatus("Choose or upload artwork first.");
@@ -343,6 +407,7 @@ export function Customizer() {
 
     try {
       const uploadId = await saveCustomerArtworkIfNeeded();
+      const previewSnapshot = await savePreviewSnapshotIfPossible();
       setCartStatus("Saving your mix...");
       const response = await fetch("/api/customizations", {
         method: "POST",
@@ -354,13 +419,17 @@ export function Customizer() {
           artworkSource,
           artworkName: selectedLabel,
           artworkUrl: artworkSource === "curated" ? artworkSrc : null,
+          previewSnapshotKey: previewSnapshot?.previewSnapshotKey,
+          previewSnapshotPath: previewSnapshot?.previewSnapshotKey,
           customerArtworkUploadId: uploadId,
           state: {
             artworkSrc: artworkSource === "curated" ? artworkSrc : null,
-            selectedSize: selectedSize.label
+            selectedSize: selectedSize.label,
+            productVariantId: selectedSize.id
           },
           metadata: {
             customerArtworkUploadId: uploadId,
+            previewSnapshotKey: previewSnapshot?.previewSnapshotKey,
             originalFilename: artworkSource === "upload" ? uploadedFile?.name ?? null : null
           }
         })
@@ -368,12 +437,16 @@ export function Customizer() {
       const result = response?.ok ? ((await response.json()) as { id?: string }) : null;
 
       addItem({
+        productVariantId: selectedSize.id,
         size: selectedSize.label,
         artworkName: selectedLabel,
         artworkSource,
         priceCents: 139500,
         customizationSessionId: result?.id,
-        customerArtworkUploadId: uploadId ?? undefined
+        customerArtworkUploadId: uploadId ?? undefined,
+        previewSnapshotKey: previewSnapshot?.previewSnapshotKey,
+        previewSnapshotPath: previewSnapshot?.previewSnapshotKey,
+        previewImageDataUrl: previewSnapshot?.previewImageDataUrl
       });
       setCartStatus("Added to cart.");
     } catch (error) {
