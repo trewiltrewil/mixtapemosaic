@@ -129,6 +129,10 @@ export function AdminLauncher() {
               <strong>Sanity content studio</strong>
               <span>Edit pages, journal posts, FAQ, gallery items, and live product variants.</span>
             </Link>
+            <a href="/api/admin/sanity/status" target="_blank" rel="noreferrer">
+              <strong>Sanity connection status</strong>
+              <span>Check deployed CMS env vars and published starter content counts.</span>
+            </a>
             <button type="button" onClick={seedSanity}>
               <strong>Seed Sanity starter content</strong>
               <span>Populate Studio with the current starter pages, posts, FAQs, gallery items, and product variants.</span>
