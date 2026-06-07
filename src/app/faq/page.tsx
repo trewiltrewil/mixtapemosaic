@@ -2,6 +2,9 @@ import { FaqAccordion, type FaqItem } from "@/components/FaqAccordion";
 import { SiteFooter } from "@/components/PublicChrome";
 import { getFaqItems } from "@/lib/cms";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 export default async function FaqPage() {
   const faqItems: FaqItem[] = await getFaqItems();
 

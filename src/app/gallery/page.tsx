@@ -1,6 +1,9 @@
 import { GalleryCard, SiteFooter } from "@/components/PublicChrome";
 import { getGalleryItems } from "@/lib/cms";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 export default async function GalleryPage() {
   const galleryItems = await getGalleryItems();
 

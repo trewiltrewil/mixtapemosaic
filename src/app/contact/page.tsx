@@ -2,6 +2,9 @@ import { CmsSections } from "@/components/CmsSections";
 import { SiteFooter } from "@/components/PublicChrome";
 import { getPageBySlug } from "@/lib/cms";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 export default async function ContactPage() {
   const page = await getPageBySlug("contact");
   if (page?.sections?.length) {

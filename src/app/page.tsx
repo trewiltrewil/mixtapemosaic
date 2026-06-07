@@ -5,6 +5,9 @@ import { Customizer } from "@/components/Customizer";
 import { GalleryCard, JournalCard, SiteFooter } from "@/components/PublicChrome";
 import { getGalleryItems, getJournalPosts, getPageBySlug } from "@/lib/cms";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 export default async function HomePage() {
   const [homePage, galleryItems, journalPosts] = await Promise.all([getPageBySlug("home"), getGalleryItems(), getJournalPosts()]);
 
