@@ -7,7 +7,7 @@ import { getFaqItems, getGalleryItems, getJournalPosts } from "@/lib/cms";
 import { sanityImageUrl } from "@/lib/sanity";
 import { MdxContent } from "./MdxContent";
 
-type CmsSection = Record<string, unknown> & { _type: string };
+export type CmsSection = Record<string, unknown> & { _type: string };
 
 function text(value: unknown, fallback = "") {
   return typeof value === "string" ? value : fallback;
@@ -131,6 +131,46 @@ export async function CmsSections({ sections }: { sections?: CmsSection[] | null
                       </article>
                     );
                   })}
+                </div>
+              </section>
+            );
+          }
+
+          if (section._type === "wallPresenceSection") {
+            const tallImage = sanityImageUrl(section.tallImage, 1200) ?? "/assets/story/arcade-room-cassette-wall.webp";
+            const topImage = sanityImageUrl(section.topImage, 900) ?? "/assets/story/coffee-vinyl-cassette-wall.webp";
+            const bottomImage = sanityImageUrl(section.bottomImage, 900) ?? "/assets/story/brick-room-cassette-wall.webp";
+            return (
+              <section key={index} className="bg-foreground text-background border-b-4 border-border py-16 lg:py-24">
+                <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-[0.9fr_1.1fr] gap-12 items-center">
+                  <div className="space-y-5">
+                    {section.kicker ? (
+                      <div className="inline-block border-2 border-background bg-secondary text-background px-4 py-1 font-mono font-bold text-sm shadow-[4px_4px_0_0_#FEB93C] uppercase tracking-widest">
+                        {text(section.kicker)}
+                      </div>
+                    ) : null}
+                    <h2 className="font-heading font-black text-5xl lg:text-7xl uppercase tracking-tighter leading-none">
+                      {text(section.title, "More than a print.")}
+                    </h2>
+                    {section.body ? (
+                      <p className="text-lg lg:text-xl font-medium text-background/80 max-w-xl">
+                        {text(section.body)}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="border-4 border-background bg-primary shadow-[8px_8px_0_0_#FEB93C] overflow-hidden -rotate-2">
+                      <img src={tallImage} alt={text(section.tallImageAlt, "Cassette mosaic wall art installed in a retro arcade room")} className="h-[360px] w-full object-cover" />
+                    </div>
+                    <div className="space-y-4 pt-8">
+                      <div className="border-4 border-background bg-card shadow-[8px_8px_0_0_#6B8F8B] overflow-hidden rotate-2">
+                        <img src={topImage} alt={text(section.topImageAlt, "Cassette wall art installed in a coffee and vinyl shop")} className="h-[170px] w-full object-cover" />
+                      </div>
+                      <div className="border-4 border-background bg-card shadow-[8px_8px_0_0_#F66630] overflow-hidden -rotate-1">
+                        <img src={bottomImage} alt={text(section.bottomImageAlt, "Large cassette wall art installed above a brick fireplace")} className="h-[170px] w-full object-cover" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </section>
             );

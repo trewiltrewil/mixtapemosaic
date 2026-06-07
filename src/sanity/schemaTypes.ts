@@ -74,6 +74,22 @@ const sectionMembers = [
     ]
   }),
   defineArrayMember({
+    name: "wallPresenceSection",
+    title: "Wall presence image collage",
+    type: "object",
+    fields: [
+      defineField({ name: "kicker", type: "string", initialValue: "Wall Presence" }),
+      defineField({ name: "title", type: "string", initialValue: "More than a print." }),
+      defineField({ name: "body", type: "text", rows: 4 }),
+      defineField({ name: "tallImage", type: "image", options: { hotspot: true } }),
+      defineField({ name: "tallImageAlt", title: "Tall image alt text", type: "string" }),
+      defineField({ name: "topImage", type: "image", options: { hotspot: true } }),
+      defineField({ name: "topImageAlt", title: "Top image alt text", type: "string" }),
+      defineField({ name: "bottomImage", type: "image", options: { hotspot: true } }),
+      defineField({ name: "bottomImageAlt", title: "Bottom image alt text", type: "string" })
+    ]
+  }),
+  defineArrayMember({
     name: "galleryPreviewSection",
     title: "Gallery preview",
     type: "object",

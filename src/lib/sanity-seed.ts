@@ -136,6 +136,14 @@ export async function seedSanityStarterContent() {
           ctaLabel: "See the Process",
           ctaHref: "/process"
         },
+        {
+          _key: "wall-presence",
+          _type: "wallPresenceSection",
+          kicker: "Wall Presence",
+          title: "More than a print.",
+          body:
+            "The image breaks across real cassette shells, label windows, shadows, and uneven vintage details. Up close it reads like an archive. Across the room it lands like a single bold artwork."
+        },
         { _key: "customizer", _type: "customizerSection", title: "Build Your Mosaic", subtitle: "Design a one-of-a-kind masterpiece." },
         { _key: "gallery", _type: "galleryPreviewSection", title: "Installed Stories", body: "See how cassette mosaics live in different rooms.", limit: 3 },
         { _key: "journal", _type: "journalPreviewSection", title: "Liner Notes", body: "Studio notes, material stories, and analog obsessions.", limit: 3 },

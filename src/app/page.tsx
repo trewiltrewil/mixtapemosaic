@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
-import { CmsSections } from "@/components/CmsSections";
+import { CmsSections, type CmsSection } from "@/components/CmsSections";
 import { Customizer } from "@/components/Customizer";
 import { GalleryCard, JournalCard, SiteFooter } from "@/components/PublicChrome";
 import { getGalleryItems, getJournalPosts, getPageBySlug } from "@/lib/cms";
@@ -8,13 +8,32 @@ import { getGalleryItems, getJournalPosts, getPageBySlug } from "@/lib/cms";
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
+const defaultWallPresenceSection: CmsSection = {
+  _key: "wall-presence-default",
+  _type: "wallPresenceSection",
+  kicker: "Wall Presence",
+  title: "More than a print.",
+  body:
+    "The image breaks across real cassette shells, label windows, shadows, and uneven vintage details. Up close it reads like an archive. Across the room it lands like a single bold artwork."
+};
+
+function withDefaultHomeSections(sections: CmsSection[]) {
+  if (sections.some((section) => section._type === "wallPresenceSection")) {
+    return sections;
+  }
+
+  const storyIndex = sections.findIndex((section) => section._type === "copyBandSection");
+  const insertAt = storyIndex >= 0 ? storyIndex + 1 : Math.min(2, sections.length);
+  return [...sections.slice(0, insertAt), defaultWallPresenceSection, ...sections.slice(insertAt)];
+}
+
 export default async function HomePage() {
   const [homePage, galleryItems, journalPosts] = await Promise.all([getPageBySlug("home"), getGalleryItems(), getJournalPosts()]);
 
   if (homePage?.sections?.length) {
     return (
       <main>
-        <CmsSections sections={homePage.sections} />
+        <CmsSections sections={withDefaultHomeSections(homePage.sections as CmsSection[])} />
         <SiteFooter />
       </main>
     );
