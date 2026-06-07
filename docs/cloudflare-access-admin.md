@@ -1,8 +1,8 @@
 # Cloudflare Access Admin Gate
 
-Use Cloudflare Access as the public production gate for Mixtape Mosaic internal tools. This protects admin routes before they reach Vercel.
+Mixtape Mosaic uses Cloudflare Access as the production admin identity layer. Admin pages do not use an in-app password. The app verifies Cloudflare's signed Access JWT before serving admin routes or admin APIs.
 
-## Routes To Protect
+## Routes To Protect In Cloudflare
 
 Create a self-hosted Access application for `www.mixtapemosaic.com` and protect:
 
@@ -11,9 +11,7 @@ Create a self-hosted Access application for `www.mixtapemosaic.com` and protect:
 - `/api/admin/*`
 - `/api/calibration`
 
-Keep the existing in-app admin password enabled as a second lock and as a fallback for direct Vercel preview testing.
-
-## Policy
+## Access Policy
 
 Create an allow policy:
 
@@ -21,19 +19,33 @@ Create an allow policy:
 - Include: `Emails`
 - Email: `trevin@mixtapemosaic.com`
 
-For the identity provider, Cloudflare One-Time PIN is enough for V1. It sends a login code to the allowed email address and avoids building our own authentication flow.
+For the identity provider, Cloudflare One-Time PIN is enough for V1. It sends a login code to the allowed email address.
 
 ## Vercel Env Vars
 
 Set these in Vercel for Production and Preview:
 
-- `ADMIN_PASSWORD`: a strong password for the in-app secondary lock.
-- `ADMIN_SESSION_SECRET`: a long random string used to sign the admin cookie.
+- `CLOUDFLARE_ACCESS_TEAM_DOMAIN`: your Zero Trust team domain, for example `https://your-team.cloudflareaccess.com`.
+- `CLOUDFLARE_ACCESS_AUD`: the Access application's Audience Tag / AUD value.
+- `CLOUDFLARE_ACCESS_ALLOWED_EMAILS`: `trevin@mixtapemosaic.com`.
 
-Do not leave either value empty in production. The app now fails closed if `ADMIN_PASSWORD` is missing.
+Optional local development value:
+
+- `ALLOW_LOCAL_ADMIN=true`
+
+Local development is allowed by default unless `ALLOW_LOCAL_ADMIN=false`. Production always requires a valid Cloudflare Access JWT.
+
+## Where To Find The Values
+
+In Cloudflare Zero Trust:
+
+1. Open **Access > Applications**.
+2. Open the Mixtape Mosaic admin application.
+3. Copy the **Application Audience (AUD) Tag** into `CLOUDFLARE_ACCESS_AUD`.
+4. Use your team domain as `CLOUDFLARE_ACCESS_TEAM_DOMAIN`.
 
 ## Important Notes
 
-- Cloudflare Access only protects traffic that comes through the Cloudflare-managed domain.
-- Keep the app's password gate because direct Vercel URLs and preview deployments can still exist outside Cloudflare Access.
-- If we later want no password prompt after Cloudflare login, add server-side validation for Cloudflare Access JWTs instead of trusting request headers directly.
+- Do not trust request headers alone. The app validates the JWT signature against Cloudflare's Access certs.
+- Direct Vercel URLs and preview deployments will not pass production admin checks unless they come with a valid Cloudflare Access token.
+- If a new admin is added later, add their email to both the Cloudflare Access policy and `CLOUDFLARE_ACCESS_ALLOWED_EMAILS`.

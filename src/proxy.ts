@@ -1,24 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isValidAdminToken } from "@/lib/admin-auth";
+import { isAdminAccessAllowed } from "@/lib/cloudflare-access";
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const protectsAdminPage = pathname.startsWith("/admin") || pathname.startsWith("/studio");
   const protectsCalibrationWrite = pathname === "/api/calibration" && request.method !== "GET";
-  const protectsAdminApi = pathname.startsWith("/api/admin") && pathname !== "/api/admin/login";
+  const protectsAdminApi = pathname.startsWith("/api/admin");
 
   if (!protectsAdminPage && !protectsCalibrationWrite && !protectsAdminApi) {
     return NextResponse.next();
   }
 
-  const isAdmin = await isValidAdminToken(request.cookies.get("mtm_admin")?.value);
+  const isAdmin = await isAdminAccessAllowed({
+    headers: request.headers,
+    cookies: request.cookies
+  });
 
   if (isAdmin) {
     return NextResponse.next();
   }
 
   if (pathname.startsWith("/api/")) {
-    return NextResponse.json({ error: "Admin password required." }, { status: 401 });
+    return NextResponse.json({ error: "Cloudflare Access admin login required." }, { status: 401 });
   }
 
   const url = request.nextUrl.clone();

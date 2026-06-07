@@ -1,13 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export function AdminLauncher() {
   const [open, setOpen] = useState(false);
-  const [unlocked, setUnlocked] = useState(false);
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [seedStatus, setSeedStatus] = useState("");
 
   useEffect(() => {
@@ -34,26 +31,6 @@ export function AdminLauncher() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError("");
-
-    fetch("/api/admin/login", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json"
-      },
-      body: JSON.stringify({ password })
-    }).then((response) => {
-      if (response.ok) {
-        setUnlocked(true);
-        return;
-      }
-
-      setError("Wrong password.");
-    }).catch(() => setError("Could not unlock admin."));
-  }
 
   function seedSanity() {
     setSeedStatus("Seeding starter content...");
@@ -91,55 +68,35 @@ export function AdminLauncher() {
           </button>
         </div>
 
-        {!unlocked ? (
-          <form onSubmit={submit}>
-            <h2>Admin access</h2>
-            <p>Enter the admin password to choose a production mode.</p>
-            <label>
-              Password
-              <input
-                autoFocus
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Password"
-              />
-            </label>
-            {error ? <p className="admin-launcher-error">{error}</p> : null}
-            <button type="submit" className="primary-button">
-              Unlock
-            </button>
-          </form>
-        ) : (
-          <div className="admin-launcher-options">
-            <h2>Choose admin mode</h2>
-            <Link href="/admin/production" onClick={() => setOpen(false)}>
-              <strong>Decal PDF production</strong>
-              <span>Export transparent artwork and optimized gang-sheet PDFs.</span>
-            </Link>
-            <Link href="/admin/calibrate" onClick={() => setOpen(false)}>
-              <strong>Photo mapping editor</strong>
-              <span>Align tape polygons, holes, raised sections, and public preview crop.</span>
-            </Link>
-            <Link href="/admin/images" onClick={() => setOpen(false)}>
-              <strong>Customizer artwork library</strong>
-              <span>Upload approved cassette-configurator artwork and web preview derivatives.</span>
-            </Link>
-            <Link href="/studio" onClick={() => setOpen(false)}>
-              <strong>Sanity content studio</strong>
-              <span>Edit pages, journal posts, FAQ, gallery items, and live product variants.</span>
-            </Link>
-            <a href="/api/admin/sanity/status" target="_blank" rel="noreferrer">
-              <strong>Sanity connection status</strong>
-              <span>Check deployed CMS env vars and published starter content counts.</span>
-            </a>
-            <button type="button" onClick={seedSanity}>
-              <strong>Seed Sanity starter content</strong>
-              <span>Populate Studio with the current starter pages, posts, FAQs, gallery items, and product variants.</span>
-            </button>
-            {seedStatus ? <p className="admin-launcher-error">{seedStatus}</p> : null}
-          </div>
-        )}
+        <div className="admin-launcher-options">
+          <h2>Choose admin mode</h2>
+          <p>Production admin routes are protected by Cloudflare Access.</p>
+          <Link href="/admin/production" onClick={() => setOpen(false)}>
+            <strong>Decal PDF production</strong>
+            <span>Export transparent artwork and optimized gang-sheet PDFs.</span>
+          </Link>
+          <Link href="/admin/calibrate" onClick={() => setOpen(false)}>
+            <strong>Photo mapping editor</strong>
+            <span>Align tape polygons, holes, raised sections, and public preview crop.</span>
+          </Link>
+          <Link href="/admin/images" onClick={() => setOpen(false)}>
+            <strong>Customizer artwork library</strong>
+            <span>Upload approved cassette-configurator artwork and web preview derivatives.</span>
+          </Link>
+          <Link href="/studio" onClick={() => setOpen(false)}>
+            <strong>Sanity content studio</strong>
+            <span>Edit pages, journal posts, FAQ, gallery items, and live product variants.</span>
+          </Link>
+          <a href="/api/admin/sanity/status" target="_blank" rel="noreferrer">
+            <strong>Sanity connection status</strong>
+            <span>Check deployed CMS env vars and published starter content counts.</span>
+          </a>
+          <button type="button" onClick={seedSanity}>
+            <strong>Seed Sanity starter content</strong>
+            <span>Populate Studio with the current starter pages, posts, FAQs, gallery items, and product variants.</span>
+          </button>
+          {seedStatus ? <p className="admin-launcher-error">{seedStatus}</p> : null}
+        </div>
       </div>
     </div>
   );

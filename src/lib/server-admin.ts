@@ -1,8 +1,12 @@
-import { cookies } from "next/headers";
-import { isValidAdminToken } from "./admin-auth";
+import { cookies, headers } from "next/headers";
+import { isAdminAccessAllowed } from "./cloudflare-access";
 
 export async function isAdminRequest() {
   const cookieStore = await cookies();
-  return isValidAdminToken(cookieStore.get("mtm_admin")?.value);
-}
+  const headerStore = await headers();
 
+  return isAdminAccessAllowed({
+    headers: headerStore,
+    cookies: cookieStore
+  });
+}
