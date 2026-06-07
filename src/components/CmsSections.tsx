@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 import { Customizer } from "@/components/Customizer";
 import { FaqAccordion } from "@/components/FaqAccordion";
 import { GalleryCard, JournalCard } from "@/components/PublicChrome";
@@ -17,6 +17,26 @@ function number(value: unknown, fallback: number) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+function localImageForSection(section: CmsSection) {
+  const key = text(section._key);
+  if (section._type === "heroSection") {
+    if (key === "hero" || text(section.title).toLowerCase().includes("mixtape")) {
+      return "/assets/story/hero-cassette-wall-art.webp";
+    }
+    return "/assets/story/brick-room-cassette-wall.webp";
+  }
+
+  if (section._type === "copyBandSection") {
+    return "/assets/story/cassette-closeup-grid.jpg";
+  }
+
+  return null;
+}
+
+function imageForSection(section: CmsSection, width: number) {
+  return sanityImageUrl(section.image, width) ?? localImageForSection(section);
+}
+
 export async function CmsSections({ sections }: { sections?: CmsSection[] | null }) {
   if (!sections?.length) {
     return null;
@@ -27,29 +47,38 @@ export async function CmsSections({ sections }: { sections?: CmsSection[] | null
       {await Promise.all(
         sections.map(async (section, index) => {
           if (section._type === "heroSection") {
-            const image = sanityImageUrl(section.image, 1400);
+            const image = imageForSection(section, 1400);
             return (
-              <section key={index} className="bg-primary border-b-4 border-border py-20 lg:py-32">
-                <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-                  <div className="space-y-7">
+              <section key={index} className="bg-primary border-b-4 border-border relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay" />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-28 grid lg:grid-cols-2 gap-10 lg:gap-10 items-center relative z-10">
+                  <div className="space-y-7 max-w-full min-w-0">
                     {section.kicker ? (
                       <div className="inline-block border-2 border-border bg-background px-4 py-1 font-mono font-bold text-sm shadow-[4px_4px_0_0_#292929] uppercase tracking-widest">
                         {text(section.kicker)}
                       </div>
                     ) : null}
-                    <h1 className="font-heading font-black text-6xl lg:text-8xl uppercase tracking-tighter leading-[0.9]">
+                    <h1 className="font-heading font-black text-5xl sm:text-6xl lg:text-7xl xl:text-[5.35rem] uppercase tracking-tighter leading-[0.92] max-w-full break-words">
                       {text(section.title)}
                     </h1>
-                    {section.body ? <p className="text-xl font-medium border-l-4 border-border pl-6">{text(section.body)}</p> : null}
+                    {section.body ? <p className="text-lg sm:text-xl lg:text-[1.35rem] font-medium max-w-[34rem] border-l-4 border-border pl-4">{text(section.body)}</p> : null}
                     {section.ctaHref && section.ctaLabel ? (
-                      <Link href={text(section.ctaHref)} className="inline-flex items-center gap-2 bg-foreground text-background border-2 border-border px-6 py-4 font-heading font-black uppercase shadow-[5px_5px_0_0_#6B8F8B]">
+                      <Link href={text(section.ctaHref)} className="inline-flex items-center justify-center gap-2 bg-foreground text-background border-2 border-border px-6 sm:px-8 py-4 font-heading font-bold text-lg sm:text-xl shadow-[6px_6px_0_0_#6B8F8B] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_0_#6B8F8B] transition-all uppercase tracking-wider">
                         {text(section.ctaLabel)} <ArrowRight className="w-5 h-5" />
                       </Link>
                     ) : null}
                   </div>
                   {image ? (
-                    <div className="bg-accent border-4 border-border shadow-[10px_10px_0_0_#292929] p-2">
-                      <img src={image} alt={text(section.imageAlt, text(section.title))} className="w-full h-[520px] object-cover border-2 border-border" />
+                    <div className="relative w-full max-w-[620px] mx-auto lg:max-w-none">
+                      <div className="aspect-[4/3] sm:aspect-square bg-accent border-4 border-border shadow-[8px_8px_0_0_#292929] sm:shadow-[12px_12px_0_0_#292929] relative z-10 overflow-hidden group">
+                        <img src={image} alt={text(section.imageAlt, text(section.title))} className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" />
+                        <div className="absolute top-4 left-4 bg-primary border-2 border-border p-2 shadow-[4px_4px_0_0_#292929]">
+                          <Play className="fill-current w-6 h-6" />
+                        </div>
+                        <div className="absolute bottom-4 right-4 left-4 sm:left-auto bg-background border-2 border-border px-3 sm:px-4 py-2 font-mono font-bold text-xs sm:text-base shadow-[4px_4px_0_0_#292929] uppercase text-center">
+                          Handmade in Studio
+                        </div>
+                      </div>
                     </div>
                   ) : null}
                 </div>
@@ -58,7 +87,7 @@ export async function CmsSections({ sections }: { sections?: CmsSection[] | null
           }
 
           if (section._type === "copyBandSection") {
-            const image = sanityImageUrl(section.image, 1200);
+            const image = imageForSection(section, 1200);
             return (
               <section key={index} className="bg-background border-b-4 border-border py-20 lg:py-32">
                 <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 lg:gap-24 items-center">
