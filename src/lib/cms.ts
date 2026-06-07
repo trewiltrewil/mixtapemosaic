@@ -2,7 +2,7 @@ import { cache } from "react";
 import { fallbackFaqItems, fallbackGalleryItems, fallbackJournalPosts, fallbackProductVariantList } from "./fallback-content";
 import { sanityConfigured, sanityImageUrl, sanityServerClient } from "./sanity";
 
-export const cmsRevalidateSeconds = 300;
+export const cmsRevalidateSeconds = 86400;
 
 export type CmsGalleryItem = (typeof fallbackGalleryItems)[number];
 export type CmsJournalPost = (typeof fallbackJournalPosts)[number] & {

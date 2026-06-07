@@ -1,8 +1,7 @@
 import { JournalCard, SiteFooter } from "@/components/PublicChrome";
 import { getJournalPosts } from "@/lib/cms";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 60;
+export const revalidate = 86400;
 
 export default async function JournalPage() {
   const journalPosts = await getJournalPosts();

@@ -6,8 +6,7 @@ import { GalleryCard, JournalCard, SiteFooter } from "@/components/PublicChrome"
 import { getGalleryItems, getJournalPosts, getPageBySlug } from "@/lib/cms";
 import { sanityImageUrl } from "@/lib/sanity";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 60;
+export const revalidate = 86400;
 
 const defaultWallPresenceSection: CmsSection = {
   _key: "wall-presence-default",

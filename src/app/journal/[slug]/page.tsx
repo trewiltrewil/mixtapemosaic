@@ -5,8 +5,7 @@ import { MdxContent } from "@/components/MdxContent";
 import { JournalCard, SiteFooter } from "@/components/PublicChrome";
 import { getJournalPostBySlug, getJournalPosts } from "@/lib/cms";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 60;
+export const revalidate = 86400;
 
 export default async function JournalPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
