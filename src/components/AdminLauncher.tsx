@@ -94,7 +94,7 @@ export function AdminLauncher() {
         {!unlocked ? (
           <form onSubmit={submit}>
             <h2>Admin access</h2>
-            <p>Enter the local admin password to choose a production mode.</p>
+            <p>Enter the admin password to choose a production mode.</p>
             <label>
               Password
               <input
@@ -102,7 +102,7 @@ export function AdminLauncher() {
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                placeholder="admin"
+                placeholder="Password"
               />
             </label>
             {error ? <p className="admin-launcher-error">{error}</p> : null}

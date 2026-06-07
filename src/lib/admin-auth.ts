@@ -7,10 +7,18 @@ function bytesToHex(bytes: Uint8Array) {
 }
 
 export function adminPassword() {
-  return process.env.ADMIN_PASSWORD ?? "admin";
+  return process.env.ADMIN_PASSWORD ?? "";
 }
 
-export async function adminToken(secret = adminPassword()) {
+function adminSessionSecret() {
+  return process.env.ADMIN_SESSION_SECRET || adminPassword();
+}
+
+export async function adminToken(secret = adminSessionSecret()) {
+  if (!secret) {
+    return "";
+  }
+
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(secret),
