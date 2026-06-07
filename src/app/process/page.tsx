@@ -1,4 +1,6 @@
+import { CmsSections } from "@/components/CmsSections";
 import { SiteFooter } from "@/components/PublicChrome";
+import { getPageBySlug } from "@/lib/cms";
 
 const steps = [
   {
@@ -27,7 +29,17 @@ const steps = [
   }
 ];
 
-export default function ProcessPage() {
+export default async function ProcessPage() {
+  const page = await getPageBySlug("process");
+  if (page?.sections?.length) {
+    return (
+      <main>
+        <CmsSections sections={page.sections} />
+        <SiteFooter />
+      </main>
+    );
+  }
+
   return (
     <main>
       <section className="min-h-screen bg-background pb-32">

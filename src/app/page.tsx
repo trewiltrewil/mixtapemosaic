@@ -1,68 +1,53 @@
-"use client";
-
 import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
-import { motion } from "motion/react";
+import { CmsSections } from "@/components/CmsSections";
 import { Customizer } from "@/components/Customizer";
-import { GalleryCard, JournalCard, SiteFooter, galleryItems, journalPosts } from "@/components/PublicChrome";
+import { GalleryCard, JournalCard, SiteFooter } from "@/components/PublicChrome";
+import { getGalleryItems, getJournalPosts, getPageBySlug } from "@/lib/cms";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [homePage, galleryItems, journalPosts] = await Promise.all([getPageBySlug("home"), getGalleryItems(), getJournalPosts()]);
+
+  if (homePage?.sections?.length) {
+    return (
+      <main>
+        <CmsSections sections={homePage.sections} />
+        <SiteFooter />
+      </main>
+    );
+  }
+
   return (
     <main>
       <section className="bg-primary border-b-4 border-border relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-28 grid lg:grid-cols-2 gap-10 lg:gap-10 items-center relative z-10">
           <div className="space-y-7 max-w-full min-w-0">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-block border-2 border-border bg-background px-4 py-1 font-mono font-bold text-sm shadow-[4px_4px_0_0_#292929] uppercase tracking-widest"
-            >
+            <div className="inline-block border-2 border-border bg-background px-4 py-1 font-mono font-bold text-sm shadow-[4px_4px_0_0_#292929] uppercase tracking-widest">
               Side A / Track 01
-            </motion.div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="font-heading font-black text-5xl sm:text-6xl lg:text-7xl xl:text-[5.35rem] leading-[0.92] uppercase tracking-tighter max-w-full break-words"
-            >
+            </div>
+            <h1 className="font-heading font-black text-5xl sm:text-6xl lg:text-7xl xl:text-[5.35rem] leading-[0.92] uppercase tracking-tighter max-w-full break-words">
               Your <br />
               Mixtape,
               <br />
               Reimagined.
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-lg sm:text-xl lg:text-[1.35rem] font-medium max-w-[34rem] border-l-4 border-border pl-4"
-            >
+            </h1>
+            <p className="text-lg sm:text-xl lg:text-[1.35rem] font-medium max-w-[34rem] border-l-4 border-border pl-4">
               Handcrafted wall art made from real vintage cassette tapes. Customize your own mosaic to tell your
               unique story.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-wrap gap-4"
-            >
-              <button
-                type="button"
-                onClick={() => document.getElementById("customizer")?.scrollIntoView({ behavior: "smooth" })}
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link
+                href="#customizer"
                 className="inline-flex items-center justify-center gap-2 bg-foreground text-background border-2 border-border px-6 sm:px-8 py-4 font-heading font-bold text-lg sm:text-xl shadow-[6px_6px_0_0_#6B8F8B] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_0_#6B8F8B] transition-all uppercase tracking-wider"
               >
                 Start Customizing
                 <ArrowRight className="w-6 h-6" />
-              </button>
-            </motion.div>
+              </Link>
+            </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="relative w-full max-w-[620px] mx-auto lg:max-w-none"
-          >
+          <div className="relative w-full max-w-[620px] mx-auto lg:max-w-none">
             <div className="aspect-[4/3] sm:aspect-square bg-accent border-4 border-border shadow-[8px_8px_0_0_#292929] sm:shadow-[12px_12px_0_0_#292929] relative z-10 overflow-hidden group">
               <img
                 src="/assets/story/hero-cassette-wall-art.webp"
@@ -76,7 +61,7 @@ export default function HomePage() {
                 Handmade in Studio
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 

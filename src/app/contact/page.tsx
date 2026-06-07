@@ -1,6 +1,18 @@
+import { CmsSections } from "@/components/CmsSections";
 import { SiteFooter } from "@/components/PublicChrome";
+import { getPageBySlug } from "@/lib/cms";
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const page = await getPageBySlug("contact");
+  if (page?.sections?.length) {
+    return (
+      <main>
+        <CmsSections sections={page.sections} />
+        <SiteFooter />
+      </main>
+    );
+  }
+
   return (
     <main>
       <section className="bg-background py-20 lg:py-32">

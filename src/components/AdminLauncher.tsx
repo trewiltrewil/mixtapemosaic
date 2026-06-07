@@ -8,6 +8,7 @@ export function AdminLauncher() {
   const [unlocked, setUnlocked] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [seedStatus, setSeedStatus] = useState("");
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -52,6 +53,22 @@ export function AdminLauncher() {
 
       setError("Wrong password.");
     }).catch(() => setError("Could not unlock admin."));
+  }
+
+  function seedSanity() {
+    setSeedStatus("Seeding starter content...");
+    fetch("/api/admin/sanity/seed", { method: "POST" })
+      .then(async (response) => {
+        const payload = await response.json().catch(() => null);
+        if (!response.ok) {
+          throw new Error(payload?.error || "Seed failed.");
+        }
+
+        setSeedStatus(`Seed complete: ${payload.created} created, ${payload.skipped} already existed.`);
+      })
+      .catch((seedError) => {
+        setSeedStatus(seedError instanceof Error ? seedError.message : "Could not seed Sanity.");
+      });
   }
 
   if (!open) {
@@ -108,6 +125,15 @@ export function AdminLauncher() {
               <strong>Customizer artwork library</strong>
               <span>Upload approved cassette-configurator artwork and web preview derivatives.</span>
             </Link>
+            <Link href="/studio" onClick={() => setOpen(false)}>
+              <strong>Sanity content studio</strong>
+              <span>Edit pages, journal posts, FAQ, gallery items, and live product variants.</span>
+            </Link>
+            <button type="button" onClick={seedSanity}>
+              <strong>Seed Sanity starter content</strong>
+              <span>Populate Studio with the current starter pages, posts, FAQs, gallery items, and product variants.</span>
+            </button>
+            {seedStatus ? <p className="admin-launcher-error">{seedStatus}</p> : null}
           </div>
         )}
       </div>

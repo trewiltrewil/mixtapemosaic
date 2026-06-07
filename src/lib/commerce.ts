@@ -29,6 +29,12 @@ export const productVariants = {
 } as const;
 
 export type ProductVariantId = keyof typeof productVariants;
+export type ProductVariant = {
+  id: string;
+  label: string;
+  productType: string;
+  priceCents: number;
+};
 
 export type CheckoutItemInput = {
   productVariantId?: string;
@@ -58,8 +64,8 @@ export function getProductVariant(input?: CheckoutItemInput | null) {
   return productVariants.square;
 }
 
-export function metadataFromCheckoutItem(input: CheckoutItemInput | null | undefined) {
-  const variant = getProductVariant(input);
+export function metadataFromCheckoutItem(input: CheckoutItemInput | null | undefined, trustedVariant?: ProductVariant) {
+  const variant = trustedVariant ?? getProductVariant(input);
   return {
     brand_id: mixtapeBrand.id,
     brand: mixtapeBrand.name,

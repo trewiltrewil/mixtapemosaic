@@ -148,7 +148,8 @@ a {
 }
 
 .admin-launcher-header button,
-.admin-launcher-options a {
+.admin-launcher-options a,
+.admin-launcher-options button {
   background: var(--paper);
   border: 3px solid var(--ink);
   color: var(--ink);
@@ -164,11 +165,17 @@ a {
   text-transform: uppercase;
 }
 
-.admin-launcher-options a {
+.admin-launcher-options a,
+.admin-launcher-options button {
   box-shadow: 5px 5px 0 var(--ink);
   display: grid;
   gap: 6px;
   padding: 16px;
+}
+
+.admin-launcher-options button {
+  cursor: pointer;
+  text-align: left;
 }
 
 .admin-launcher-options strong {

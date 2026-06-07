@@ -9,6 +9,7 @@ import { createPrototypeCalibration, normalizeCalibration } from "@/lib/calibrat
 import { defaultProductionConfig } from "@/lib/geometry";
 import { loadImage, type LoadedImage } from "@/lib/image";
 import { drawRealisticPreview } from "@/lib/preview-renderer";
+import { fallbackProductVariantList } from "@/lib/fallback-content";
 import type { ArtworkOption, ProductCalibration } from "@/lib/types";
 
 type ArtworkSource = "curated" | "upload";
@@ -38,18 +39,29 @@ type CustomerUploadResult = {
   error?: string;
 };
 
-const sizes: Array<{
+type ProductSizeOption = {
   id: string;
   label: string;
   layout: ProductLayoutKey;
   columns: number;
   rows: number;
   aspectRatio: string;
-}> = [
-  { id: "square", label: '9 Panel Square (28"x28")', layout: "square", columns: 6, rows: 9, aspectRatio: "1 / 1" },
-  { id: "landscape", label: 'Landscape (45"x24")', layout: "landscape", columns: 8, rows: 9, aspectRatio: "1630 / 1254" },
-  { id: "portrait", label: 'Portrait (27"x45")', layout: "square", columns: 6, rows: 9, aspectRatio: "1 / 1" }
-];
+  priceCents: number;
+  productType: string;
+  productionEstimate: string;
+};
+
+const fallbackSizes: ProductSizeOption[] = fallbackProductVariantList.map((variant) => ({
+  id: variant.id,
+  label: variant.label,
+  layout: variant.layout as ProductLayoutKey,
+  columns: variant.columns,
+  rows: variant.rows,
+  aspectRatio: variant.aspectRatio,
+  priceCents: variant.priceCents,
+  productType: variant.productType,
+  productionEstimate: variant.productionEstimate
+}));
 
 function artistLabel(asset: PublicImageAsset) {
   return asset.source_author || asset.source_name || "Mixtape Mosaic";
@@ -117,11 +129,12 @@ export function Customizer() {
   const [searchStatus, setSearchStatus] = useState("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [customerArtworkUploadId, setCustomerArtworkUploadId] = useState<string | null>(null);
-  const [selectedSizeId, setSelectedSizeId] = useState(sizes[0].id);
+  const [sizes, setSizes] = useState<ProductSizeOption[]>(fallbackSizes);
+  const [selectedSizeId, setSelectedSizeId] = useState(fallbackSizes[0].id);
   const [artwork, setArtwork] = useState<LoadedImage | null>(null);
   const [photo, setPhoto] = useState<LoadedImage | null>(null);
   const [cartStatus, setCartStatus] = useState("");
-  const selectedSize = sizes.find((size) => size.id === selectedSizeId) ?? sizes[0];
+  const selectedSize = sizes.find((size) => size.id === selectedSizeId) ?? sizes[0] ?? fallbackSizes[0];
   const selectedLayout = selectedSize.layout;
   const allArtworkOptions = useMemo(() => [...libraryOptions, ...searchResults], [libraryOptions, searchResults]);
   const previewConfig = useMemo(
@@ -132,6 +145,36 @@ export function Customizer() {
     }),
     [selectedSize.columns, selectedSize.rows]
   );
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/products/variants", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) {
+          return null;
+        }
+        return (await response.json()) as { variants?: Array<ProductSizeOption & { layout?: string }> };
+      })
+      .then((payload) => {
+        if (!active || !payload?.variants?.length) {
+          return;
+        }
+
+        const nextSizes = payload.variants.map((variant) => ({
+          ...variant,
+          layout: variant.layout === "landscape" ? "landscape" : "square"
+        })) as ProductSizeOption[];
+        setSizes(nextSizes);
+        if (!nextSizes.some((size) => size.id === selectedSizeId)) {
+          setSelectedSizeId(nextSizes[0].id);
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, [selectedSizeId]);
 
   useEffect(() => {
     let active = true;
@@ -416,6 +459,7 @@ export function Customizer() {
         },
         body: JSON.stringify({
           selectedSize: selectedSize.label,
+          productVariantId: selectedSize.id,
           artworkSource,
           artworkName: selectedLabel,
           artworkUrl: artworkSource === "curated" ? artworkSrc : null,
@@ -441,7 +485,7 @@ export function Customizer() {
         size: selectedSize.label,
         artworkName: selectedLabel,
         artworkSource,
-        priceCents: 139500,
+        priceCents: selectedSize.priceCents,
         customizationSessionId: result?.id,
         customerArtworkUploadId: uploadId ?? undefined,
         previewSnapshotKey: previewSnapshot?.previewSnapshotKey,
@@ -652,7 +696,9 @@ export function Customizer() {
               <div className="border-t-4 border-border pt-9 space-y-4">
                 <div className="flex h-12 items-end justify-between">
                   <span className="font-heading font-bold text-xl uppercase">Total</span>
-                  <span className="font-heading font-black text-5xl tracking-tighter">$1395</span>
+                  <span className="font-heading font-black text-5xl tracking-tighter">
+                    ${Math.round(selectedSize.priceCents / 100).toLocaleString("en-US")}
+                  </span>
                 </div>
                 <Link
                   href="/checkout"
@@ -665,7 +711,7 @@ export function Customizer() {
                   Add to Cart
                 </Link>
                 <p className="font-mono font-bold text-sm uppercase text-center">
-                  {cartStatus || "Free US shipping. Ships in 2-3 weeks."}
+                  {cartStatus || `Free US shipping. ${selectedSize.productionEstimate}.`}
                 </p>
               </div>
             </div>

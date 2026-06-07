@@ -1,5 +1,5 @@
 import type Stripe from "stripe";
-import { getProductVariant, isUuid, metadataFromCheckoutItem, mixtapeBrand, type CheckoutItemInput } from "./commerce";
+import { getProductVariant, isUuid, metadataFromCheckoutItem, mixtapeBrand, type CheckoutItemInput, type ProductVariant } from "./commerce";
 import { getStripe } from "./stripe";
 import { getSupabaseAdminClient } from "./supabase";
 
@@ -99,6 +99,7 @@ export async function getOrCreateBrandStripeCustomer(email: string) {
 export function checkoutOrderPayload({
   item,
   paymentIntent,
+  variant,
   email,
   shipping,
   status,
@@ -106,13 +107,14 @@ export function checkoutOrderPayload({
 }: {
   item: CheckoutItemInput;
   paymentIntent: Stripe.PaymentIntent;
+  variant?: ProductVariant;
   email?: string | null;
   shipping?: Stripe.PaymentIntentCreateParams.Shipping | null;
   status: string;
   failureMessage?: string | null;
 }) {
-  const variant = getProductVariant(item);
-  const metadata = metadataFromCheckoutItem(item);
+  const trustedVariant = variant ?? getProductVariant(item);
+  const metadata = metadataFromCheckoutItem(item, trustedVariant);
 
   return {
     brand_id: mixtapeBrand.id,
@@ -123,7 +125,7 @@ export function checkoutOrderPayload({
     customer_artwork_upload_id: isUuid(item.customerArtworkUploadId) ? item.customerArtworkUploadId : null,
     preview_snapshot_key: item.previewSnapshotKey ?? item.previewSnapshotPath ?? null,
     email: normalizeEmail(email) ?? paymentIntent.receipt_email ?? null,
-    amount_total: variant.priceCents,
+    amount_total: trustedVariant.priceCents,
     currency: "usd",
     status,
     shipping_address: shipping ?? {},

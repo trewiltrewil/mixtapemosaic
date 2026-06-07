@@ -17,6 +17,7 @@
     "@next/mdx": "^16.2.6",
     "@sanity/client": "^7.22.0",
     "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^5.30.0",
     "@stripe/react-stripe-js": "^6.6.0",
     "@stripe/stripe-js": "^9.7.0",
     "@supabase/supabase-js": "^2.106.1",
@@ -24,8 +25,11 @@
     "lucide-react": "^1.16.0",
     "motion": "^12.40.0",
     "next": "^16.2.6",
+    "next-mdx-remote": "^6.0.0",
+    "next-sanity": "^13.0.11",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "sanity": "^5.30.0",
     "sharp": "^0.34.5",
     "stripe": "^22.1.1",
     "tailwindcss": "^4.3.0"
@@ -37,6 +41,8 @@
     "typescript": "5.9.3"
   },
   "overrides": {
-    "postcss": "8.5.10"
+    "postcss": "8.5.10",
+    "js-yaml": "^4.1.0",
+    "uuid": "^11.1.1"
   }
 }

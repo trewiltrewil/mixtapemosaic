@@ -1,6 +1,9 @@
-import { JournalCard, SiteFooter, journalPosts } from "@/components/PublicChrome";
+import { JournalCard, SiteFooter } from "@/components/PublicChrome";
+import { getJournalPosts } from "@/lib/cms";
 
-export default function JournalPage() {
+export default async function JournalPage() {
+  const journalPosts = await getJournalPosts();
+
   return (
     <main>
       <section className="min-h-screen bg-muted pb-32">

@@ -1,6 +1,9 @@
-import { GalleryCard, SiteFooter, galleryItems } from "@/components/PublicChrome";
+import { GalleryCard, SiteFooter } from "@/components/PublicChrome";
+import { getGalleryItems } from "@/lib/cms";
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const galleryItems = await getGalleryItems();
+
   return (
     <main>
       <section className="bg-accent text-foreground border-b-4 border-border py-20 lg:py-32">

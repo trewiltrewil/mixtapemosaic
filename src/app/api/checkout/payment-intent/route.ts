@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { checkoutOrderPayload, getOrCreateBrandStripeCustomer, normalizeEmail, normalizeShippingAddress, assertUsShipping } from "@/lib/checkout";
-import { getProductVariant, metadataFromCheckoutItem, type CheckoutItemInput } from "@/lib/commerce";
+import { metadataFromCheckoutItem, type CheckoutItemInput, type ProductVariant } from "@/lib/commerce";
+import { getActiveProductVariantById } from "@/lib/cms";
 import { getStripe } from "@/lib/stripe";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 
@@ -14,7 +15,7 @@ type PaymentIntentRequest = {
   shippingAddress?: Parameters<typeof normalizeShippingAddress>[0];
 };
 
-function publicVariant(variant: ReturnType<typeof getProductVariant>) {
+function publicVariant(variant: ProductVariant) {
   return {
     id: variant.id,
     label: variant.label,
@@ -27,19 +28,21 @@ async function savePendingOrder({
   item,
   paymentIntent,
   email,
-  shipping
+  shipping,
+  variant
 }: {
   item: CheckoutItemInput;
   paymentIntent: Stripe.PaymentIntent;
   email?: string | null;
   shipping?: Stripe.PaymentIntentCreateParams.Shipping | null;
+  variant: ProductVariant;
 }) {
   const supabase = getSupabaseAdminClient();
   if (!supabase) {
     return;
   }
 
-  await supabase.from("orders").upsert(checkoutOrderPayload({ item, paymentIntent, email, shipping, status: "pending" }), {
+  await supabase.from("orders").upsert(checkoutOrderPayload({ item, paymentIntent, email, shipping, status: "pending", variant }), {
     onConflict: "stripe_payment_intent_id"
   });
 }
@@ -60,7 +63,16 @@ export async function POST(request: Request) {
     );
   }
 
-  const variant = getProductVariant(item);
+  const requestedVariantId = item.productVariantId;
+  if (!requestedVariantId) {
+    return NextResponse.json({ error: "Product variant is required." }, { status: 400 });
+  }
+
+  const variant = await getActiveProductVariantById(requestedVariantId);
+  if (!variant || !Number.isFinite(variant.priceCents) || variant.priceCents <= 0) {
+    return NextResponse.json({ error: "This product variant is not available." }, { status: 400 });
+  }
+
   const email = normalizeEmail(body?.email);
   const shipping = normalizeShippingAddress(body?.shippingAddress);
 
@@ -72,7 +84,7 @@ export async function POST(request: Request) {
 
   const stripeCustomerId = email ? await getOrCreateBrandStripeCustomer(email) : null;
   const metadata = {
-    ...metadataFromCheckoutItem(item),
+    ...metadataFromCheckoutItem(item, variant),
     customer_email: email ?? ""
   };
 
@@ -104,7 +116,7 @@ export async function POST(request: Request) {
     });
   }
 
-  await savePendingOrder({ item, paymentIntent, email, shipping });
+  await savePendingOrder({ item, paymentIntent, email, shipping, variant });
 
   return NextResponse.json({
     clientSecret: paymentIntent.client_secret,
