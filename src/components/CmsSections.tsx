@@ -38,14 +38,16 @@ function imageForSection(section: CmsSection, width: number) {
 }
 
 export async function CmsSections({ sections }: { sections?: CmsSection[] | null }) {
-  if (!sections?.length) {
+  const visibleSections = sections?.filter((section) => section.enabled !== false);
+
+  if (!visibleSections?.length) {
     return null;
   }
 
   return (
     <>
       {await Promise.all(
-        sections.map(async (section, index) => {
+        visibleSections.map(async (section, index) => {
           if (section._type === "heroSection") {
             const image = imageForSection(section, 1400);
             return (

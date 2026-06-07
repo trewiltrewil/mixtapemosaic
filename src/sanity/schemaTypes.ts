@@ -14,12 +14,15 @@ const seoFields = [
   defineField({ name: "seoDescription", title: "SEO description", type: "text", rows: 3 })
 ];
 
+const enabledField = defineField({ name: "enabled", title: "Show section", type: "boolean", initialValue: true });
+
 const sectionMembers = [
   defineArrayMember({
     name: "heroSection",
     title: "Hero",
     type: "object",
     fields: [
+      enabledField,
       defineField({ name: "kicker", type: "string" }),
       defineField({ name: "title", type: "string", validation: (rule) => rule.required() }),
       defineField({ name: "body", type: "text", rows: 3 }),
@@ -40,6 +43,7 @@ const sectionMembers = [
     title: "Copy band",
     type: "object",
     fields: [
+      enabledField,
       defineField({ name: "kicker", type: "string" }),
       defineField({ name: "title", type: "string", validation: (rule) => rule.required() }),
       mdxField("bodyMdx", "Body"),
@@ -54,6 +58,7 @@ const sectionMembers = [
     title: "Process steps",
     type: "object",
     fields: [
+      enabledField,
       defineField({ name: "title", type: "string" }),
       defineField({
         name: "steps",
@@ -78,6 +83,7 @@ const sectionMembers = [
     title: "Wall presence image collage",
     type: "object",
     fields: [
+      enabledField,
       defineField({ name: "kicker", type: "string", initialValue: "Wall Presence" }),
       defineField({ name: "title", type: "string", initialValue: "More than a print." }),
       defineField({ name: "body", type: "text", rows: 4 }),
@@ -94,6 +100,7 @@ const sectionMembers = [
     title: "Gallery preview",
     type: "object",
     fields: [
+      enabledField,
       defineField({ name: "title", type: "string", initialValue: "Gallery" }),
       defineField({ name: "body", type: "string" }),
       defineField({ name: "limit", type: "number", initialValue: 3 })
@@ -104,6 +111,7 @@ const sectionMembers = [
     title: "Journal preview",
     type: "object",
     fields: [
+      enabledField,
       defineField({ name: "title", type: "string", initialValue: "Liner Notes" }),
       defineField({ name: "body", type: "string" }),
       defineField({ name: "limit", type: "number", initialValue: 3 })
@@ -114,6 +122,14 @@ const sectionMembers = [
     title: "FAQ preview",
     type: "object",
     fields: [
+      enabledField,
+      defineField({
+        name: "showOnHomepage",
+        title: "Show on homepage",
+        type: "boolean",
+        initialValue: false,
+        description: "Homepage add-on section. Off by default so the public homepage keeps the original launch structure."
+      }),
       defineField({ name: "title", type: "string", initialValue: "FAQ" }),
       defineField({ name: "limit", type: "number", initialValue: 6 })
     ]
@@ -123,6 +139,7 @@ const sectionMembers = [
     title: "Customizer embed",
     type: "object",
     fields: [
+      enabledField,
       defineField({ name: "title", type: "string", initialValue: "Build Your Mosaic" }),
       defineField({ name: "subtitle", type: "string", initialValue: "Design a one-of-a-kind masterpiece." })
     ]
@@ -132,6 +149,14 @@ const sectionMembers = [
     title: "CTA",
     type: "object",
     fields: [
+      enabledField,
+      defineField({
+        name: "showOnHomepage",
+        title: "Show on homepage",
+        type: "boolean",
+        initialValue: false,
+        description: "Homepage add-on section. Off by default so the public homepage keeps the original launch structure."
+      }),
       defineField({ name: "title", type: "string" }),
       defineField({ name: "body", type: "text", rows: 3 }),
       defineField({ name: "ctaLabel", title: "CTA label", type: "string" }),
