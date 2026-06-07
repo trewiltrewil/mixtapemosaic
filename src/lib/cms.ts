@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { fallbackFaqItems, fallbackGalleryItems, fallbackJournalPosts, fallbackProductVariantList } from "./fallback-content";
-import { sanityClient, sanityConfigured, sanityImageUrl } from "./sanity";
+import { sanityConfigured, sanityImageUrl, sanityServerClient } from "./sanity";
 
 export const cmsRevalidateSeconds = 300;
 
@@ -46,7 +46,7 @@ async function fetchSanity<T>(query: string, params: Record<string, unknown> = {
   }
 
   try {
-    return await sanityClient.fetch<T>(query, params, {
+    return await sanityServerClient.fetch<T>(query, params, {
       next: { revalidate: cmsRevalidateSeconds, tags: ["sanity"] }
     });
   } catch {

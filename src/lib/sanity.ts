@@ -19,6 +19,8 @@ export const sanityWriteClient = createClient({
   token: process.env.SANITY_API_TOKEN
 });
 
+export const sanityServerClient = process.env.SANITY_API_TOKEN ? sanityWriteClient : sanityClient;
+
 const builder = createImageUrlBuilder(sanityClient);
 
 export function sanityConfigured() {
