@@ -42,10 +42,6 @@ export default function AdminPage() {
             <span>{tool.description}</span>
           </Link>
         ))}
-        <a href="/api/admin/sanity/status" target="_blank" rel="noreferrer">
-          <strong>Sanity connection status</strong>
-          <span>Check deployed CMS env vars and published starter content counts.</span>
-        </a>
       </section>
     </main>
   );
