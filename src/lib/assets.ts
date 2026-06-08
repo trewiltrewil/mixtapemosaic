@@ -25,7 +25,7 @@ export const productPhotos: Record<ProductLayoutKey, {
   rows: number;
 }> = {
   square: {
-    src: "/product/cassette-grid-square.png",
+    src: "/product/cassette-grid-square-v2.png",
     width: 1254,
     height: 1254,
     columns: 6,
