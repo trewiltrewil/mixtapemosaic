@@ -1209,6 +1209,48 @@ p {
   text-transform: uppercase;
 }
 
+.admin-hub-shell {
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+}
+
+.admin-hub-intro p:not(.eyebrow),
+.admin-hub-tools span {
+  color: var(--muted);
+  font-family: "Courier New", monospace;
+  font-weight: 900;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.admin-hub-intro h1 {
+  font-size: clamp(3rem, 7vw, 6rem);
+  line-height: 0.92;
+}
+
+.admin-hub-tools {
+  align-content: start;
+}
+
+.admin-hub-tools a {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 rgba(40, 40, 40, 0.28);
+  color: var(--ink);
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  text-decoration: none;
+}
+
+.admin-hub-tools a:hover {
+  transform: translate(-2px, -2px);
+}
+
+.admin-hub-tools strong {
+  font-size: 1.15rem;
+  text-transform: uppercase;
+}
+
 .eyebrow {
   color: var(--orange);
   font-family: "Courier New", monospace;

@@ -6,10 +6,13 @@ Mixtape Mosaic uses Cloudflare Access as the production admin identity layer. Ad
 
 Create a self-hosted Access application for `www.mixtapemosaic.com` and protect:
 
+- `/admin`
 - `/admin/*`
 - `/studio/*`
 - `/api/admin/*`
 - `/api/calibration`
+
+The public site still has an `Esc` launcher, but that launcher does not authenticate by itself. It links to `/admin`. If Cloudflare Access is configured correctly and the browser does not already have a valid Access session, that navigation should show the Cloudflare Access one-time PIN screen.
 
 ## Access Policy
 
@@ -49,3 +52,5 @@ In Cloudflare Zero Trust:
 - Do not trust request headers alone. The app validates the JWT signature against Cloudflare's Access certs.
 - Direct Vercel URLs and preview deployments will not pass production admin checks unless they come with a valid Cloudflare Access token.
 - If a new admin is added later, add their email to both the Cloudflare Access policy and `CLOUDFLARE_ACCESS_ALLOWED_EMAILS`.
+- If incognito can open `/admin` without a Cloudflare screen, the Cloudflare Access application path/domain is not covering the request.
+- If incognito gets redirected back to the homepage with `?admin=locked`, Cloudflare Access did not run before the request reached Vercel or the Vercel env vars for JWT validation are missing/mismatched.

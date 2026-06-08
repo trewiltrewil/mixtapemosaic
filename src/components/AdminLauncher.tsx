@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 
 export function AdminLauncher() {
   const [open, setOpen] = useState(false);
-  const [seedStatus, setSeedStatus] = useState("");
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -32,22 +31,6 @@ export function AdminLauncher() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  function seedSanity() {
-    setSeedStatus("Seeding starter content...");
-    fetch("/api/admin/sanity/seed", { method: "POST" })
-      .then(async (response) => {
-        const payload = await response.json().catch(() => null);
-        if (!response.ok) {
-          throw new Error(payload?.error || "Seed failed.");
-        }
-
-        setSeedStatus(`Seed complete: ${payload.created} created, ${payload.skipped} already existed.`);
-      })
-      .catch((seedError) => {
-        setSeedStatus(seedError instanceof Error ? seedError.message : "Could not seed Sanity.");
-      });
-  }
-
   if (!open) {
     return null;
   }
@@ -69,33 +52,15 @@ export function AdminLauncher() {
         </div>
 
         <div className="admin-launcher-options">
-          <h2>Choose admin mode</h2>
-          <p>Production admin routes are protected by Cloudflare Access.</p>
-          <Link href="/admin/production" onClick={() => setOpen(false)}>
-            <strong>Decal PDF production</strong>
-            <span>Export transparent artwork and optimized gang-sheet PDFs.</span>
+          <h2>Admin access</h2>
+          <p>
+            Open the protected admin hub. If your Cloudflare Access session is not active, Cloudflare will
+            ask for an email code before the tools load.
+          </p>
+          <Link href="/admin" onClick={() => setOpen(false)}>
+            <strong>Open admin hub</strong>
+            <span>Authenticate with Cloudflare Access and choose a production mode.</span>
           </Link>
-          <Link href="/admin/calibrate" onClick={() => setOpen(false)}>
-            <strong>Photo mapping editor</strong>
-            <span>Align tape polygons, holes, raised sections, and public preview crop.</span>
-          </Link>
-          <Link href="/admin/images" onClick={() => setOpen(false)}>
-            <strong>Customizer artwork library</strong>
-            <span>Upload approved cassette-configurator artwork and web preview derivatives.</span>
-          </Link>
-          <Link href="/studio" onClick={() => setOpen(false)}>
-            <strong>Sanity content studio</strong>
-            <span>Edit pages, journal posts, FAQ, gallery items, and live product variants.</span>
-          </Link>
-          <a href="/api/admin/sanity/status" target="_blank" rel="noreferrer">
-            <strong>Sanity connection status</strong>
-            <span>Check deployed CMS env vars and published starter content counts.</span>
-          </a>
-          <button type="button" onClick={seedSanity}>
-            <strong>Seed Sanity starter content</strong>
-            <span>Populate Studio with the current starter pages, posts, FAQs, gallery items, and product variants.</span>
-          </button>
-          {seedStatus ? <p className="admin-launcher-error">{seedStatus}</p> : null}
         </div>
       </div>
     </div>
