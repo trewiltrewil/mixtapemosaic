@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminAccessAllowed } from "@/lib/cloudflare-access";
 
+function adminOrigin() {
+  return (process.env.NEXT_PUBLIC_ADMIN_ORIGIN || "https://admin.mixtapemosaic.com").replace(/\/+$/, "");
+}
+
+function requestHost(request: NextRequest) {
+  return request.headers.get("x-forwarded-host") || request.headers.get("host") || request.nextUrl.host;
+}
+
+function isAdminHost(request: NextRequest) {
+  try {
+    return requestHost(request).toLowerCase() === new URL(adminOrigin()).host.toLowerCase();
+  } catch {
+    return false;
+  }
+}
+
+function redirectToAdminOrigin(request: NextRequest) {
+  const url = new URL(request.nextUrl.pathname + request.nextUrl.search, adminOrigin());
+  return NextResponse.redirect(url);
+}
+
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const protectsAdminPage = pathname.startsWith("/admin") || pathname.startsWith("/studio");
@@ -9,6 +30,10 @@ export async function proxy(request: NextRequest) {
 
   if (!protectsAdminPage && !protectsCalibrationWrite && !protectsAdminApi) {
     return NextResponse.next();
+  }
+
+  if (protectsAdminPage && !isAdminHost(request)) {
+    return redirectToAdminOrigin(request);
   }
 
   const isAdmin = await isAdminAccessAllowed({
@@ -21,15 +46,17 @@ export async function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api/")) {
-    return NextResponse.json({ error: "Cloudflare Access admin login required." }, { status: 401 });
+    return NextResponse.json({ error: "Admin access required." }, { status: 401 });
   }
 
-  const url = request.nextUrl.clone();
-  url.pathname = "/";
-  url.searchParams.set("admin", "locked");
-  return NextResponse.redirect(url);
+  return new NextResponse("Admin access required.", {
+    status: 401,
+    headers: {
+      "content-type": "text/plain; charset=utf-8"
+    }
+  });
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/studio/:path*", "/api/calibration", "/api/admin/:path*"]
+  matcher: ["/admin", "/admin/:path*", "/studio", "/studio/:path*", "/api/calibration", "/api/admin/:path*"]
 };

@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 
+function adminHref() {
+  const origin = (process.env.NEXT_PUBLIC_ADMIN_ORIGIN || "https://admin.mixtapemosaic.com").replace(/\/+$/, "");
+  return `${origin}/admin`;
+}
+
 export function AdminLauncher() {
   const [open, setOpen] = useState(false);
 
@@ -53,7 +58,7 @@ export function AdminLauncher() {
         <div className="admin-launcher-options">
           <h2>Admin tools</h2>
           <p>Continue if your account has access.</p>
-          <a href="/admin" onClick={() => setOpen(false)}>
+          <a href={adminHref()} onClick={() => setOpen(false)}>
             <strong>Continue</strong>
             <span>Open internal tools.</span>
           </a>

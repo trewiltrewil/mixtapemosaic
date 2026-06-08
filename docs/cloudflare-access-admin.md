@@ -4,14 +4,12 @@ Mixtape Mosaic uses Cloudflare Access as the production admin identity layer. Ad
 
 ## Routes To Protect In Cloudflare
 
-Create a self-hosted Access application for `mixtapemosaic.com` and protect:
+Create a self-hosted Access application for the dedicated admin hostname:
 
-- `/admin*`
-- `/studio*`
-- `/api/admin/*`
-- `/api/calibration`
+- Hostname: `admin.mixtapemosaic.com`
+- Path: blank / entire hostname
 
-The public site still has an `Esc` launcher, but that launcher does not authenticate by itself. It links to `/admin`. If Cloudflare Access is configured correctly and the browser does not already have a valid Access session, that navigation should show the Cloudflare Access one-time PIN screen. Protecting only `/admin/*` can miss the exact `/admin` hub route.
+The public site still has an `Esc` launcher, but that launcher does not authenticate by itself. It links to `https://admin.mixtapemosaic.com/admin`. If Cloudflare Access is configured correctly and the browser does not already have a valid Access session, that navigation should show the Cloudflare Access one-time PIN screen.
 
 ## Access Policy
 
@@ -27,6 +25,7 @@ For the identity provider, Cloudflare One-Time PIN is enough for V1. It sends a 
 
 Set these in Vercel for Production and Preview:
 
+- `NEXT_PUBLIC_ADMIN_ORIGIN`: `https://admin.mixtapemosaic.com`.
 - `CLOUDFLARE_ACCESS_TEAM_DOMAIN`: your Zero Trust team domain, for example `https://your-team.cloudflareaccess.com`.
 - `CLOUDFLARE_ACCESS_AUD`: the Access application's Audience Tag / AUD value.
 - `CLOUDFLARE_ACCESS_ALLOWED_EMAILS`: `trevin@mixtapemosaic.com`.
@@ -42,14 +41,25 @@ Local development is allowed by default unless `ALLOW_LOCAL_ADMIN=false`. Produc
 In Cloudflare Zero Trust:
 
 1. Open **Access > Applications**.
-2. Open the Mixtape Mosaic admin application.
+2. Open the `admin.mixtapemosaic.com` admin application.
 3. Copy the **Application Audience (AUD) Tag** into `CLOUDFLARE_ACCESS_AUD`.
 4. Use your team domain as `CLOUDFLARE_ACCESS_TEAM_DOMAIN`.
+
+## DNS And Vercel
+
+Add `admin.mixtapemosaic.com` to the same Vercel project as the public site. This was added to the `mixtapemosaic` Vercel project on June 8, 2026.
+
+In Cloudflare DNS, create:
+
+- Type: `A`
+- Name: `admin`
+- Target: `76.76.21.21`
+- Proxy status: Proxied / orange cloud
 
 ## Important Notes
 
 - Do not trust request headers alone. The app validates the JWT signature against Cloudflare's Access certs.
 - Direct Vercel URLs and preview deployments will not pass production admin checks unless they come with a valid Cloudflare Access token.
 - If a new admin is added later, add their email to both the Cloudflare Access policy and `CLOUDFLARE_ACCESS_ALLOWED_EMAILS`.
-- If incognito can open `/admin` without a Cloudflare screen, the Cloudflare Access application path/domain is not covering the request.
-- If incognito gets redirected back to the homepage with `?admin=locked`, Cloudflare Access did not run before the request reached Vercel or the Vercel env vars for JWT validation are missing/mismatched.
+- If incognito can open `https://admin.mixtapemosaic.com/admin` without a Cloudflare screen, the admin DNS record is not proxied or the Access application is not covering the admin hostname.
+- If `https://www.mixtapemosaic.com/admin` does not redirect to `https://admin.mixtapemosaic.com/admin`, check `NEXT_PUBLIC_ADMIN_ORIGIN` and the deployed proxy.
