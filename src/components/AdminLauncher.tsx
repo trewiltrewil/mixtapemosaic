@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export function AdminLauncher() {
@@ -54,10 +53,10 @@ export function AdminLauncher() {
         <div className="admin-launcher-options">
           <h2>Admin tools</h2>
           <p>Continue if your account has access.</p>
-          <Link href="/admin" onClick={() => setOpen(false)}>
+          <a href="/admin" onClick={() => setOpen(false)}>
             <strong>Continue</strong>
             <span>Open internal tools.</span>
-          </Link>
+          </a>
         </div>
       </div>
     </div>
