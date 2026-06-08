@@ -4,15 +4,14 @@ Mixtape Mosaic uses Cloudflare Access as the production admin identity layer. Ad
 
 ## Routes To Protect In Cloudflare
 
-Create a self-hosted Access application for `www.mixtapemosaic.com` and protect:
+Create a self-hosted Access application for `mixtapemosaic.com` and protect:
 
-- `/admin`
-- `/admin/*`
-- `/studio/*`
+- `/admin*`
+- `/studio*`
 - `/api/admin/*`
 - `/api/calibration`
 
-The public site still has an `Esc` launcher, but that launcher does not authenticate by itself. It links to `/admin`. If Cloudflare Access is configured correctly and the browser does not already have a valid Access session, that navigation should show the Cloudflare Access one-time PIN screen.
+The public site still has an `Esc` launcher, but that launcher does not authenticate by itself. It links to `/admin`. If Cloudflare Access is configured correctly and the browser does not already have a valid Access session, that navigation should show the Cloudflare Access one-time PIN screen. Protecting only `/admin/*` can miss the exact `/admin` hub route.
 
 ## Access Policy
 

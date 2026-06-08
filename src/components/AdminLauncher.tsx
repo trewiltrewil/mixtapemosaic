@@ -52,14 +52,11 @@ export function AdminLauncher() {
         </div>
 
         <div className="admin-launcher-options">
-          <h2>Admin access</h2>
-          <p>
-            Open the protected admin hub. If your Cloudflare Access session is not active, Cloudflare will
-            ask for an email code before the tools load.
-          </p>
+          <h2>Admin tools</h2>
+          <p>Continue if your account has access.</p>
           <Link href="/admin" onClick={() => setOpen(false)}>
-            <strong>Open admin hub</strong>
-            <span>Authenticate with Cloudflare Access and choose a production mode.</span>
+            <strong>Continue</strong>
+            <span>Open internal tools.</span>
           </Link>
         </div>
       </div>
