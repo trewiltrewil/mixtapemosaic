@@ -33,6 +33,29 @@ type ImageAsset = {
   updated_at: string;
 };
 
+type AssetUploadPayload = {
+  title: string;
+  description: string | null;
+  alt_text: string | null;
+  source_type: string;
+  source_name: string | null;
+  source_url: string | null;
+  source_author: string | null;
+  source_license: string | null;
+  source_downloaded_at: string | null;
+  tags: string[];
+  categories: string[];
+  status: ImageAssetStatus;
+};
+
+type BulkUploadItem = {
+  id: string;
+  name: string;
+  size: number;
+  status: "queued" | "uploading" | "processing" | "done" | "failed";
+  detail: string;
+};
+
 const emptyForm = {
   title: "",
   description: "",
@@ -76,11 +99,18 @@ function dateInputValue(value: string | null) {
   return value.slice(0, 10);
 }
 
+function bulkItemId(file: File, index: number) {
+  return `${file.name}-${file.size}-${file.lastModified}-${index}`;
+}
+
 export function AdminImageLibrary() {
   const [assets, setAssets] = useState<ImageAsset[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [file, setFile] = useState<File | null>(null);
+  const [bulkMode, setBulkMode] = useState(false);
+  const [bulkFiles, setBulkFiles] = useState<File[]>([]);
+  const [bulkItems, setBulkItems] = useState<BulkUploadItem[]>([]);
   const [uploadPreview, setUploadPreview] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -128,6 +158,9 @@ export function AdminImageLibrary() {
   function selectAsset(asset: ImageAsset) {
     setSelectedId(asset.id);
     setFile(null);
+    setBulkMode(false);
+    setBulkFiles([]);
+    setBulkItems([]);
     setForm({
       title: asset.title,
       description: asset.description ?? "",
@@ -147,6 +180,20 @@ export function AdminImageLibrary() {
   function startNewUpload() {
     setSelectedId(null);
     setFile(null);
+    setBulkMode(false);
+    setBulkFiles([]);
+    setBulkItems([]);
+    setForm(emptyForm);
+    setMessage("");
+    setError("");
+  }
+
+  function startBulkUpload() {
+    setSelectedId(null);
+    setFile(null);
+    setBulkMode(true);
+    setBulkFiles([]);
+    setBulkItems([]);
     setForm(emptyForm);
     setMessage("");
     setError("");
@@ -156,6 +203,163 @@ export function AdminImageLibrary() {
     setForm((current) => ({ ...current, [name]: value }));
   }
 
+  function metadataPayload(): AssetUploadPayload {
+    return {
+      ...form,
+      description: form.description || null,
+      alt_text: form.alt_text || null,
+      source_name: form.source_name || null,
+      source_url: form.source_url || null,
+      source_author: form.source_author || null,
+      source_license: form.source_license || null,
+      source_downloaded_at: form.source_downloaded_at || null,
+      tags: textToList(form.tags),
+      categories: textToList(form.categories)
+    };
+  }
+
+  function chooseBulkFiles(fileList: FileList | null) {
+    const files = Array.from(fileList ?? []).filter((candidate) => candidate.type.startsWith("image/"));
+    setBulkFiles(files);
+    setBulkItems(
+      files.map((candidate, index) => ({
+        id: bulkItemId(candidate, index),
+        name: candidate.name,
+        size: candidate.size,
+        status: "queued",
+        detail: "Ready"
+      }))
+    );
+    setMessage(files.length ? `${files.length} image${files.length === 1 ? "" : "s"} queued.` : "");
+    setError(files.length ? "" : "Choose one or more image files.");
+  }
+
+  function updateBulkItem(id: string, patch: Partial<BulkUploadItem>) {
+    setBulkItems((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+  }
+
+  async function uploadImageFile({
+    imageFile,
+    payload,
+    onStage
+  }: {
+    imageFile: File;
+    payload: AssetUploadPayload;
+    onStage: (stage: "uploading" | "processing", detail: string) => void;
+  }) {
+    onStage("uploading", "Preparing private R2 upload...");
+    const prepareResponse = await fetch("/api/admin/images/upload-url", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        filename: imageFile.name,
+        contentType: imageFile.type || "application/octet-stream",
+        sizeBytes: imageFile.size
+      })
+    });
+    const prepareResult = (await prepareResponse.json()) as {
+      id?: string;
+      originalStorageKey?: string;
+      uploadUrl?: string;
+      contentType?: string;
+      error?: string;
+    };
+
+    if (!prepareResponse.ok || !prepareResult.id || !prepareResult.originalStorageKey || !prepareResult.uploadUrl) {
+      throw new Error(prepareResult.error ?? "Could not prepare image upload.");
+    }
+
+    onStage("uploading", "Uploading original directly to private R2...");
+    const uploadResponse = await fetch(prepareResult.uploadUrl, {
+      method: "PUT",
+      headers: { "content-type": prepareResult.contentType ?? imageFile.type ?? "application/octet-stream" },
+      body: imageFile
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error("R2 rejected the original image upload. Check bucket CORS and token access.");
+    }
+
+    onStage("processing", "Generating AI metadata and web derivatives...");
+    const completeResponse = await fetch("/api/admin/images/complete-upload", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        ...payload,
+        id: prepareResult.id,
+        originalStorageKey: prepareResult.originalStorageKey,
+        originalFilename: imageFile.name,
+        originalContentType: prepareResult.contentType ?? imageFile.type ?? "application/octet-stream",
+        originalSizeBytes: imageFile.size
+      })
+    });
+    const result = (await completeResponse.json()) as { asset?: ImageAsset; error?: string };
+
+    if (!completeResponse.ok || !result.asset) {
+      throw new Error(result.error ?? "Could not process uploaded image asset.");
+    }
+
+    return result.asset;
+  }
+
+  async function submitBulkUpload(payload: AssetUploadPayload) {
+    if (bulkFiles.length === 0) {
+      setError("Choose one or more image files before starting the bulk upload.");
+      return;
+    }
+
+    setSaving(true);
+    setUploadStage(`Uploading 0 of ${bulkFiles.length}...`);
+    setMessage("");
+    setError("");
+
+    const created: ImageAsset[] = [];
+    let completed = 0;
+    let failed = 0;
+    let nextIndex = 0;
+    const workerCount = Math.min(2, bulkFiles.length);
+
+    async function worker() {
+      while (nextIndex < bulkFiles.length) {
+        const index = nextIndex;
+        nextIndex += 1;
+        const imageFile = bulkFiles[index];
+        const itemId = bulkItemId(imageFile, index);
+
+        try {
+          const asset = await uploadImageFile({
+            imageFile,
+            payload,
+            onStage: (stage, detail) => updateBulkItem(itemId, { status: stage, detail })
+          });
+          created.push(asset);
+          completed += 1;
+          updateBulkItem(itemId, { status: "done", detail: asset.title });
+        } catch (uploadError) {
+          failed += 1;
+          updateBulkItem(itemId, {
+            status: "failed",
+            detail: uploadError instanceof Error ? uploadError.message : "Upload failed"
+          });
+        } finally {
+          setUploadStage(`Uploaded ${completed} of ${bulkFiles.length}${failed ? `, ${failed} failed` : ""}.`);
+        }
+      }
+    }
+
+    await Promise.all(Array.from({ length: workerCount }, () => worker()));
+
+    if (created.length) {
+      setAssets((current) => [...created, ...current]);
+    }
+
+    setMessage(
+      `${completed} image${completed === 1 ? "" : "s"} uploaded${failed ? `, ${failed} failed` : ""}.`
+    );
+    setUploadStage("");
+    setSaving(false);
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
@@ -163,11 +367,13 @@ export function AdminImageLibrary() {
     setMessage("");
     setError("");
 
-    const payload = {
-      ...form,
-      tags: textToList(form.tags),
-      categories: textToList(form.categories)
-    };
+    const payload = metadataPayload();
+
+    if (!selectedAsset && bulkMode) {
+      setSaving(false);
+      await submitBulkUpload(payload);
+      return;
+    }
 
     if (selectedAsset) {
       try {
@@ -200,66 +406,17 @@ export function AdminImageLibrary() {
     }
 
     try {
-      setUploadStage("Preparing private R2 upload...");
-      const prepareResponse = await fetch("/api/admin/images/upload-url", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          filename: file.name,
-          contentType: file.type || "application/octet-stream",
-          sizeBytes: file.size
-        })
-      });
-      const prepareResult = (await prepareResponse.json()) as {
-        id?: string;
-        originalStorageKey?: string;
-        uploadUrl?: string;
-        contentType?: string;
-        error?: string;
-      };
-
-      if (!prepareResponse.ok || !prepareResult.id || !prepareResult.originalStorageKey || !prepareResult.uploadUrl) {
-        setError(prepareResult.error ?? "Could not prepare image upload.");
-        return;
-      }
-
-      setUploadStage("Uploading original directly to private R2...");
-      const uploadResponse = await fetch(prepareResult.uploadUrl, {
-        method: "PUT",
-        headers: { "content-type": prepareResult.contentType ?? file.type ?? "application/octet-stream" },
-        body: file
+      const asset = await uploadImageFile({
+        imageFile: file,
+        payload,
+        onStage: (_stage, detail) => setUploadStage(detail)
       });
 
-      if (!uploadResponse.ok) {
-        setError("R2 rejected the original image upload. Check bucket CORS and token access.");
-        return;
-      }
-
-      setUploadStage("Generating AI metadata and web derivatives...");
-      const completeResponse = await fetch("/api/admin/images/complete-upload", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          ...payload,
-          id: prepareResult.id,
-          originalStorageKey: prepareResult.originalStorageKey,
-          originalFilename: file.name,
-          originalContentType: prepareResult.contentType ?? file.type ?? "application/octet-stream",
-          originalSizeBytes: file.size
-        })
-      });
-      const result = (await completeResponse.json()) as { asset?: ImageAsset; error?: string };
-
-      if (!completeResponse.ok || !result.asset) {
-        setError(result.error ?? "Could not process uploaded image asset.");
-        return;
-      }
-
-      setAssets((current) => [result.asset as ImageAsset, ...current]);
-      selectAsset(result.asset);
+      setAssets((current) => [asset, ...current]);
+      selectAsset(asset);
       setMessage("Image uploaded and web derivatives generated.");
-    } catch {
-      setError("Could not upload image asset.");
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Could not upload image asset.");
     } finally {
       setUploadStage("");
       setSaving(false);
@@ -343,6 +500,9 @@ export function AdminImageLibrary() {
             <button type="button" className="primary-button image-admin-new-button" onClick={startNewUpload}>
               New
             </button>
+            <button type="button" className="secondary-button image-admin-new-button" onClick={startBulkUpload}>
+              Bulk
+            </button>
           </div>
 
           {message ? <p className="status-message">{message}</p> : null}
@@ -351,7 +511,33 @@ export function AdminImageLibrary() {
         </div>
 
         <form className="panel image-admin-form" onSubmit={submit}>
-          {!selectedAsset ? (
+          {!selectedAsset && bulkMode ? (
+            <label className="image-admin-file">
+              <span>Bulk source images</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(event) => chooseBulkFiles(event.target.files)}
+              />
+              <small>
+                Uses the shared metadata below as defaults. Leave title, description, and alt text blank
+                to let AI generate them per image.
+              </small>
+              {bulkItems.length ? (
+                <div className="bulk-upload-list">
+                  {bulkItems.map((item) => (
+                    <div key={item.id} className={`bulk-upload-item bulk-upload-item-${item.status}`}>
+                      <span>{item.name}</span>
+                      <small>
+                        {bytesLabel(item.size)} / {item.status} / {item.detail}
+                      </small>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </label>
+          ) : !selectedAsset ? (
             <label className="image-admin-file">
               <span>Original source image</span>
               <input
@@ -463,7 +649,13 @@ export function AdminImageLibrary() {
           ) : null}
 
           <button type="submit" className="primary-button" disabled={saving}>
-            {saving ? uploadStage || "Saving..." : selectedAsset ? "Save metadata" : "Upload image"}
+            {saving
+              ? uploadStage || "Saving..."
+              : selectedAsset
+                ? "Save metadata"
+                : bulkMode
+                  ? "Start bulk upload"
+                  : "Upload image"}
           </button>
           {selectedAsset ? (
             <button type="button" className="secondary-button" disabled={saving} onClick={archiveSelected}>

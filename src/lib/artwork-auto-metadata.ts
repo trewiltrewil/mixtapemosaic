@@ -5,6 +5,10 @@ export type GeneratedArtworkMetadata = {
   title: string;
   description: string;
   alt_text: string;
+  source_type: string | null;
+  source_name: string | null;
+  source_author: string | null;
+  source_license: string | null;
   tags: string[];
   categories: string[];
   colors: string[];
@@ -15,7 +19,20 @@ export type GeneratedArtworkMetadata = {
 const metadataSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["title", "description", "alt_text", "tags", "categories", "colors", "moods", "subjects"],
+  required: [
+    "title",
+    "description",
+    "alt_text",
+    "source_type",
+    "source_name",
+    "source_author",
+    "source_license",
+    "tags",
+    "categories",
+    "colors",
+    "moods",
+    "subjects"
+  ],
   properties: {
     title: {
       type: "string",
@@ -28,6 +45,22 @@ const metadataSchema = {
     alt_text: {
       type: "string",
       description: "A factual accessibility description of the visible image."
+    },
+    source_type: {
+      type: ["string", "null"],
+      description: "Suggested source type inferred from filename/context only, such as licensed_upload or manual_upload."
+    },
+    source_name: {
+      type: ["string", "null"],
+      description: "Suggested source/platform name inferred from filename/context only, such as Unsplash."
+    },
+    source_author: {
+      type: ["string", "null"],
+      description: "Clean photographer/artist name inferred from filename/context only. Null if uncertain."
+    },
+    source_license: {
+      type: ["string", "null"],
+      description: "Suggested license/source label inferred from filename/context only. Null if uncertain."
     },
     tags: {
       type: "array",
@@ -78,7 +111,10 @@ Rules:
 - Do not add "curated" unless it was explicitly supplied by the admin. Curated is an intentional merchandising flag, not a default.
 - Include visible subjects, color words, mood words, composition/style words, and search terms.
 - Avoid naming brands, copyrighted characters, or private people unless the supplied filename/metadata clearly provides that context.
-- Do not invent photographer names, source URLs, licenses, locations, or ownership claims.`;
+- Do not invent photographer names, source URLs, licenses, locations, or ownership claims.
+- Use the filename only as a clue for source metadata. If the filename looks like "joanna-stolowicz-4xddEsQRUUU-unsplash.jpg", source_author should be "Joanna Stolowicz", source_name/source_license should be "Unsplash", and source_type should be "licensed_upload".
+- Strip random IDs, camera suffixes, dimensions, extensions, "unsplash", "source", and extra separators from source_author.
+- If the filename does not clearly identify an artist/photographer/source, return null for source_author/source_name/source_license and "manual_upload" for source_type.`;
 
 function titleCase(value: string) {
   return value
@@ -174,6 +210,7 @@ export function mergeMetadata({
     ? uniqueCleanList([...generated.tags, ...generated.colors, ...generated.moods, ...generated.subjects], 48)
     : [];
   const generatedCategories = generated ? uniqueCleanList(generated.categories, 12) : [];
+  const submittedSourceType = submitted.source_type?.trim();
 
   return {
     ...submitted,
@@ -183,10 +220,15 @@ export function mergeMetadata({
         : generated?.title?.trim() || "Untitled image",
     description: submitted.description?.trim() || generated?.description?.trim() || null,
     alt_text: submitted.alt_text?.trim() || generated?.alt_text?.trim() || generated?.title?.trim() || null,
-    source_type: submitted.source_type?.trim() || filenameDefaults?.source_type || "manual_upload",
-    source_name: submitted.source_name?.trim() || filenameDefaults?.source_name || null,
-    source_author: submitted.source_author?.trim() || filenameDefaults?.source_author || null,
-    source_license: submitted.source_license?.trim() || filenameDefaults?.source_license || null,
+    source_type:
+      submittedSourceType && submittedSourceType !== "manual_upload"
+        ? submittedSourceType
+        : generated?.source_type?.trim() || filenameDefaults?.source_type || submittedSourceType || "manual_upload",
+    source_name: submitted.source_name?.trim() || generated?.source_name?.trim() || filenameDefaults?.source_name || null,
+    source_author:
+      submitted.source_author?.trim() || generated?.source_author?.trim() || filenameDefaults?.source_author || null,
+    source_license:
+      submitted.source_license?.trim() || generated?.source_license?.trim() || filenameDefaults?.source_license || null,
     tags: uniqueCleanList([...(submitted.tags ?? []), ...generatedTags], 64),
     categories: uniqueCleanList([...(submitted.categories ?? []), ...generatedCategories], 16),
     status: submitted.status ?? "active"
@@ -276,6 +318,10 @@ export async function generateArtworkMetadata({
       title: parsed.title?.trim() || "Untitled image",
       description: parsed.description?.trim() || "",
       alt_text: parsed.alt_text?.trim() || "",
+      source_type: parsed.source_type?.trim() || null,
+      source_name: parsed.source_name?.trim() || null,
+      source_author: parsed.source_author?.trim() || null,
+      source_license: parsed.source_license?.trim() || null,
       tags: uniqueCleanList(parsed.tags ?? [], 32),
       categories: uniqueCleanList(parsed.categories ?? [], 8),
       colors: uniqueCleanList(parsed.colors ?? [], 8),

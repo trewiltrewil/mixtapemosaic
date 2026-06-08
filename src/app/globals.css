@@ -1538,6 +1538,66 @@ p {
   width: 100%;
 }
 
+.image-admin-file small {
+  color: var(--muted);
+  font-family: "Courier New", monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.bulk-upload-list {
+  display: grid;
+  gap: 8px;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.bulk-upload-item {
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+}
+
+.bulk-upload-item span {
+  font-family: "Bricolage Grotesque", Arial, Helvetica, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 900;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.bulk-upload-item small {
+  color: var(--muted);
+}
+
+.bulk-upload-item-uploading,
+.bulk-upload-item-processing {
+  background: var(--yellow);
+}
+
+.bulk-upload-item-done {
+  background: var(--teal);
+}
+
+.bulk-upload-item-done small,
+.bulk-upload-item-done span {
+  color: var(--paper);
+}
+
+.bulk-upload-item-failed {
+  background: var(--orange);
+}
+
+.bulk-upload-item-failed small,
+.bulk-upload-item-failed span {
+  color: var(--paper);
+}
+
 .image-admin-original {
   font-family: "Courier New", monospace;
   font-size: 0.78rem;
