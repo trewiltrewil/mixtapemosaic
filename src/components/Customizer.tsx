@@ -145,7 +145,7 @@ function PanelDiagram({ size }: { size: ProductSizeOption }) {
     <span
       className="mtm-panel-diagram"
       aria-label={`${size.panelColumns} by ${size.panelRows} panel layout`}
-      style={{ gridTemplateColumns: `repeat(${size.panelColumns}, 1fr)` }}
+      style={{ gridTemplateColumns: `repeat(${size.panelColumns}, 14px)` }}
     >
       {Array.from({ length: size.panelColumns * size.panelRows }, (_, index) => (
         <span key={index} />
@@ -867,15 +867,15 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                   <div className="w-3 h-3 bg-secondary border border-border shadow-[1px_1px_0_0_#292929]" />
                   1. Select Size
                 </h3>
-                  <div className="grid gap-4">
+                <div className="grid gap-4">
                   {sizes.map((size) => (
                     <button
                       key={size.id}
                       type="button"
                       onClick={() => setSelectedSizeId(size.id)}
-                        className={`mtm-size-card text-left border-2 border-border font-bold uppercase tracking-wider transition-all ${
+                      className={`mtm-size-card text-left border-2 border-border font-bold uppercase tracking-wider transition-all ${
                         selectedSizeId === size.id
-                          ? "bg-card shadow-[4px_4px_0_0_#292929]"
+                          ? "is-selected bg-background shadow-[4px_4px_0_0_#292929]"
                           : "bg-card hover:bg-muted"
                       }`}
                     >

@@ -2350,13 +2350,13 @@ p {
 .mtm-panel-diagram {
   display: grid;
   gap: 2px;
-  justify-content: end;
-  min-width: 72px;
+  justify-self: end;
 }
 
 .mtm-panel-diagram span {
   aspect-ratio: 1 / 1;
   background: var(--ink);
+  display: block;
   width: 14px;
 }
 
