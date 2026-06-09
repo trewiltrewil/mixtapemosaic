@@ -14,7 +14,9 @@ type PageProps = {
 
 export async function generateStaticParams() {
   const pages = await getArtworkCollectionPages();
-  return pages.filter((page) => page.slug !== "all").map((page) => ({ categorySlug: page.slug }));
+  return pages
+    .filter((page) => page.slug !== "all" && page.slug !== "artwork")
+    .map((page) => ({ categorySlug: page.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -33,7 +35,10 @@ function dailyArtworkSeed() {
 
 export default async function ArtworkCategoryPage({ params, searchParams }: PageProps) {
   const [{ categorySlug }, queryParams] = await Promise.all([params, searchParams]);
-  const page = await getArtworkCollectionPageBySlug(categorySlug);
+  const [page, collections] = await Promise.all([
+    getArtworkCollectionPageBySlug(categorySlug),
+    getArtworkCollectionPages()
+  ]);
   if (!page) {
     notFound();
   }
@@ -66,6 +71,10 @@ export default async function ArtworkCategoryPage({ params, searchParams }: Page
         initialQuery={query}
         initialSeed={seed}
         category={page.categoryKey}
+        activeCollectionSlug={page.slug}
+        collections={collections}
+        storyHeading={page.contentHeading ?? page.seoTitle ?? null}
+        storyBody={page.contentBody ?? page.seoDescription ?? null}
         featuredTags={page.featuredTags ?? []}
       />
       <SiteFooter />

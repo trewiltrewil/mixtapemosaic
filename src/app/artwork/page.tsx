@@ -11,7 +11,9 @@ type PageProps = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const page = (await getArtworkCollectionPages()).find((collection) => collection.slug === "all");
+  const page = (await getArtworkCollectionPages()).find(
+    (collection) => collection.slug === "all" || collection.slug === "artwork"
+  );
   return {
     title: page?.seoTitle ?? "Artwork Library | Mixtape Mosaic",
     description: page?.seoDescription ?? page?.intro ?? "Browse approved artwork for custom cassette mosaic wall art.",
@@ -23,9 +25,14 @@ function dailyArtworkSeed() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function isMainArtworkPage(slug: string) {
+  return slug === "all" || slug === "artwork";
+}
+
 export default async function ArtworkPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const page = (await getArtworkCollectionPages()).find((collection) => collection.slug === "all");
+  const collections = await getArtworkCollectionPages();
+  const page = collections.find((collection) => isMainArtworkPage(collection.slug));
   const query = params?.q ?? "";
   const seed = dailyArtworkSeed();
   const result = await searchPublicImageAssets({ query, tag: params?.tag, seed, limit: 24, offset: 0 }).catch(() => ({
@@ -49,6 +56,10 @@ export default async function ArtworkPage({ searchParams }: PageProps) {
         initialNextOffset={result.nextOffset}
         initialQuery={query}
         initialSeed={seed}
+        activeCollectionSlug={page?.slug ?? "all"}
+        collections={collections}
+        storyHeading={page?.contentHeading ?? page?.seoTitle ?? null}
+        storyBody={page?.contentBody ?? page?.seoDescription ?? null}
         featuredTags={page?.featuredTags ?? []}
       />
       <SiteFooter />

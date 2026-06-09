@@ -34,6 +34,8 @@ export type CmsArtworkCollectionPage = {
   categoryKey?: string;
   eyebrow?: string;
   intro?: string;
+  contentHeading?: string;
+  contentBody?: string;
   featuredTags?: string[];
   seoTitle?: string;
   seoDescription?: string;
@@ -233,7 +235,7 @@ export async function getActiveProductVariantById(id: string) {
 export const getArtworkCollectionPages = cache(async (): Promise<CmsArtworkCollectionPage[]> => {
   const pages = await fetchSanity<CmsArtworkCollectionPage[]>(
     `*[_type == "artworkCollectionPage" && active == true && !(_id in path("drafts.**"))] | order(title asc){
-      title, "slug": slug.current, categoryKey, eyebrow, intro, featuredTags, seoTitle, seoDescription
+      title, "slug": slug.current, categoryKey, eyebrow, intro, contentHeading, contentBody, featuredTags, seoTitle, seoDescription
     }`
   );
 
@@ -246,6 +248,9 @@ export const getArtworkCollectionPages = cache(async (): Promise<CmsArtworkColle
           eyebrow: "Artwork Library",
           intro:
             "Discover approved artwork built for Mixtape Mosaic. Search by mood, theme, artist, color, and collection.",
+          contentHeading: "Curated Wall Art For The Analog Soul",
+          contentBody:
+            "Our artwork library represents hundreds of hours of curation, collaboration, and exploration. Filter by collection, search by mood, and find the visual anchor for your custom cassette mosaic.",
           featuredTags: ["retro", "music", "color", "landscape"],
           seoTitle: "Artwork Library | Mixtape Mosaic",
           seoDescription: "Browse cassette mosaic artwork options by collection, mood, and theme."
@@ -256,6 +261,8 @@ export const getArtworkCollectionPages = cache(async (): Promise<CmsArtworkColle
           categoryKey: "curated",
           eyebrow: "Collection",
           intro: "A rotating set of studio-selected artwork ready to customize into a cassette mosaic.",
+          contentHeading: "Studio Picks Ready For The Wall",
+          contentBody: "These are the pieces we keep coming back to: strong color, clear composition, and enough analog character to feel alive across real cassette tapes.",
           featuredTags: ["vintage", "music", "color"]
         },
         {
@@ -265,6 +272,9 @@ export const getArtworkCollectionPages = cache(async (): Promise<CmsArtworkColle
           eyebrow: "Collection",
           intro:
             "Artwork designed to let the cassette shells, holes, labels, and analog texture remain part of the final piece.",
+          contentHeading: "Let The Tapes Stay In The Story",
+          contentBody:
+            "Analog reveal artwork is tuned so the cassette grid remains visible through the final image, giving each piece a raw, material-forward look.",
           featuredTags: ["transparent", "texture", "cassette"]
         },
         {
@@ -273,6 +283,8 @@ export const getArtworkCollectionPages = cache(async (): Promise<CmsArtworkColle
           categoryKey: "retro",
           eyebrow: "Collection",
           intro: "Bold, nostalgic artwork with color, shape, and visual rhythm built for tape-grid wall art.",
+          contentHeading: "Color, Rhythm, And Throwback Energy",
+          contentBody: "Retro artwork leans into graphic shapes, saturated palettes, and visual references that feel right at home on a wall of vintage tapes.",
           featuredTags: ["neon", "arcade", "pop"]
         },
         {
@@ -281,6 +293,8 @@ export const getArtworkCollectionPages = cache(async (): Promise<CmsArtworkColle
           categoryKey: "1of1s",
           eyebrow: "Collection",
           intro: "Limited-run artwork drops for collectors who want something with a little more rarity.",
+          contentHeading: "Small Runs With Collector Energy",
+          contentBody: "One-of-one and limited pieces are built for people who want the artwork to feel less like a catalog choice and more like a find.",
           featuredTags: ["limited", "artist", "drop"]
         }
       ];

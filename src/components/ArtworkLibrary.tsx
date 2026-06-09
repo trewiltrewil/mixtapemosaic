@@ -26,6 +26,12 @@ type ArtworkResponse = {
   nextOffset?: number;
 };
 
+type ArtworkCollectionLink = {
+  title: string;
+  slug: string;
+  categoryKey?: string;
+};
+
 function artist(asset: ArtworkLibraryAsset) {
   return asset.source_author || asset.source_name || "Mixtape Mosaic";
 }
@@ -43,6 +49,15 @@ function uniqueTags(assets: ArtworkLibraryAsset[], featured: string[]) {
   ).slice(0, 14);
 }
 
+function collectionRank(collection: ArtworkCollectionLink) {
+  if (collection.slug === "all" || collection.slug === "artwork") return 0;
+  if (collection.slug === "curated") return 1;
+  if (collection.slug === "analog-reveal") return 2;
+  if (collection.slug === "retro") return 3;
+  if (collection.slug === "limited-runs") return 4;
+  return 20;
+}
+
 export function ArtworkLibrary({
   initialAssets,
   initialHasMore,
@@ -50,6 +65,10 @@ export function ArtworkLibrary({
   initialQuery = "",
   initialSeed,
   category,
+  activeCollectionSlug = "all",
+  collections = [],
+  storyHeading,
+  storyBody,
   featuredTags = []
 }: {
   initialAssets: ArtworkLibraryAsset[];
@@ -58,6 +77,10 @@ export function ArtworkLibrary({
   initialQuery?: string;
   initialSeed: string;
   category?: string | null;
+  activeCollectionSlug?: string;
+  collections?: ArtworkCollectionLink[];
+  storyHeading?: string | null;
+  storyBody?: string | null;
   featuredTags?: string[];
 }) {
   const [assets, setAssets] = useState(initialAssets);
@@ -69,6 +92,9 @@ export function ArtworkLibrary({
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const tags = uniqueTags(assets, featuredTags);
+  const collectionLinks = [...collections].sort(
+    (a, b) => collectionRank(a) - collectionRank(b) || a.title.localeCompare(b.title)
+  );
 
   async function fetchAssets({ reset = false, nextOffset = offset, nextQuery = query, nextTag = activeTag } = {}) {
     setLoading(true);
@@ -113,29 +139,51 @@ export function ArtworkLibrary({
   return (
     <section className="artwork-library-section">
       <div className="artwork-library-tools">
-        <div className="artwork-search-field">
-          <Search className="w-5 h-5" />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search themes, artists..."
-            aria-label="Search artwork"
-          />
-        </div>
-        <div className="artwork-tag-row" aria-label="Artwork filters">
-          <button type="button" className={!activeTag ? "selected" : ""} onClick={() => setActiveTag("")}>
-            All
-          </button>
-          {tags.map((tag) => (
-            <button key={tag} type="button" className={activeTag === tag ? "selected" : ""} onClick={() => setActiveTag(tag)}>
-              {tag}
+        <div className="artwork-library-filter-row">
+          <div className="artwork-tag-row" aria-label="Artwork collections">
+            {collectionLinks.length ? (
+              collectionLinks.map((collection) => (
+                <Link
+                  key={collection.slug}
+                  href={collection.slug === "all" || collection.slug === "artwork" ? "/artwork" : `/artwork/${collection.slug}`}
+                  className={activeCollectionSlug === collection.slug ? "selected" : ""}
+                >
+                  {collection.slug === "all" || collection.slug === "artwork" ? "All" : collection.title}
+                </Link>
+              ))
+            ) : (
+              <button type="button" className={!activeTag ? "selected" : ""} onClick={() => setActiveTag("")}>
+                All
+              </button>
+            )}
+            {tags.map((tag) => (
+              <button key={tag} type="button" className={activeTag === tag ? "selected" : ""} onClick={() => setActiveTag(tag)}>
+                {tag}
+              </button>
+            ))}
+          </div>
+          <div className="artwork-library-search-actions">
+            <div className="artwork-search-field">
+              <Search className="w-5 h-5" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search themes, artists..."
+                aria-label="Search artwork"
+              />
+            </div>
+            <button type="button" className="artwork-shuffle-button" onClick={shuffleArtwork}>
+              <Shuffle className="w-4 h-4" />
+              Shuffle the Stack
             </button>
-          ))}
+          </div>
         </div>
-        <button type="button" className="artwork-shuffle-button" onClick={shuffleArtwork}>
-          <Shuffle className="w-4 h-4" />
-          Shuffle the Stack
-        </button>
+        {storyHeading || storyBody ? (
+          <div className="artwork-library-story">
+            {storyHeading ? <h2>{storyHeading}</h2> : null}
+            {storyBody ? <p>{storyBody}</p> : null}
+          </div>
+        ) : null}
       </div>
 
       <div className="artwork-library-grid">
@@ -157,7 +205,9 @@ export function ArtworkLibrary({
                   <span key={tag}>{tag}</span>
                 ))}
               </div>
-              <Link href={`/customize?artwork=${asset.id}`}>Customize This Design</Link>
+              <Link className="artwork-library-cta" href={`/customize?artwork=${asset.id}`}>
+                Customize This Design →
+              </Link>
             </div>
           </article>
         ))}

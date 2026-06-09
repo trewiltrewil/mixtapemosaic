@@ -298,6 +298,19 @@ export const schemaTypes = [
       defineField({ name: "eyebrow", type: "string", initialValue: "Artwork Library" }),
       defineField({ name: "intro", type: "text", rows: 5 }),
       defineField({
+        name: "contentHeading",
+        title: "Story section heading",
+        type: "string",
+        description: "Optional heading for the editorial copy below the artwork filters."
+      }),
+      defineField({
+        name: "contentBody",
+        title: "Story section body",
+        type: "text",
+        rows: 7,
+        description: "Optional supporting copy below the filters/search area."
+      }),
+      defineField({
         name: "featuredTags",
         title: "Featured tag filters",
         type: "array",
