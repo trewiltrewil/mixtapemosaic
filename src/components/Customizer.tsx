@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import type { PointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getProductPhoto, type ProductLayoutKey } from "@/lib/assets";
 import { useCart } from "@/components/CartProvider";
@@ -26,6 +28,7 @@ type PublicImageAsset = {
   card_url: string | null;
   preview_url: string | null;
   large_url: string | null;
+  cassette_thumb_url: string | null;
   dominant_color: string | null;
   blurhash: string | null;
   tags: string[];
@@ -45,10 +48,18 @@ type ProductSizeOption = {
   layout: ProductLayoutKey;
   columns: number;
   rows: number;
+  panelColumns: number;
+  panelRows: number;
+  panelCount: number;
+  tapeCountLabel: string;
   aspectRatio: string;
   priceCents: number;
   productType: string;
   productionEstimate: string;
+};
+
+type ProductSizePayload = Omit<ProductSizeOption, "layout"> & {
+  layout?: string;
 };
 
 const fallbackSizes: ProductSizeOption[] = fallbackProductVariantList.map((variant) => ({
@@ -57,6 +68,10 @@ const fallbackSizes: ProductSizeOption[] = fallbackProductVariantList.map((varia
   layout: variant.layout as ProductLayoutKey,
   columns: variant.columns,
   rows: variant.rows,
+  panelColumns: variant.panelColumns,
+  panelRows: variant.panelRows,
+  panelCount: variant.panelCount,
+  tapeCountLabel: variant.tapeCountLabel,
   aspectRatio: variant.aspectRatio,
   priceCents: variant.priceCents,
   productType: variant.productType,
@@ -86,7 +101,7 @@ function assetToOption(asset: PublicImageAsset): ArtworkOption | null {
     id: `asset-${asset.id}`,
     name: asset.title,
     src,
-    thumbSrc: asset.thumb_url ?? asset.card_url ?? src,
+    thumbSrc: asset.cassette_thumb_url ?? asset.thumb_url ?? asset.card_url ?? src,
     credit: assetCredit(asset),
     artist: artistLabel(asset),
     tags: asset.tags ?? [],
@@ -113,8 +128,183 @@ async function dataUrlToBlob(dataUrl: string) {
   return response.blob();
 }
 
-export function Customizer() {
+function aspectRatioNumber(value: string) {
+  const [left, right] = value.split("/").map((part) => Number(part.trim()));
+  if (Number.isFinite(left) && Number.isFinite(right) && right > 0) {
+    return left / right;
+  }
+  return 1;
+}
+
+function panelLabel(size: ProductSizeOption) {
+  return `${size.panelCount} Panel - ${size.tapeCountLabel}`;
+}
+
+function PanelDiagram({ size }: { size: ProductSizeOption }) {
+  return (
+    <span
+      className="mtm-panel-diagram"
+      aria-label={`${size.panelColumns} by ${size.panelRows} panel layout`}
+      style={{ gridTemplateColumns: `repeat(${size.panelColumns}, 1fr)` }}
+    >
+      {Array.from({ length: size.panelColumns * size.panelRows }, (_, index) => (
+        <span key={index} />
+      ))}
+    </span>
+  );
+}
+
+type CropState = {
+  x: number;
+  y: number;
+  zoom: number;
+};
+
+function UploadCropModal({
+  file,
+  url,
+  aspectRatio,
+  onClose,
+  onChooseDifferent,
+  onApply
+}: {
+  file: File;
+  url: string;
+  aspectRatio: string;
+  onClose: () => void;
+  onChooseDifferent: () => void;
+  onApply: (dataUrl: string, crop: CropState) => void;
+}) {
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
+  const dragRef = useRef<{ pointerId: number; startX: number; startY: number; cropX: number; cropY: number } | null>(null);
+  const [crop, setCrop] = useState<CropState>({ x: 0, y: 0, zoom: 1 });
+  const numericAspect = aspectRatioNumber(aspectRatio);
+
+  function pointerDown(event: PointerEvent<HTMLDivElement>) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, cropX: crop.x, cropY: crop.y };
+  }
+
+  function pointerMove(event: PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    setCrop((current) => ({
+      ...current,
+      x: drag.cropX + event.clientX - drag.startX,
+      y: drag.cropY + event.clientY - drag.startY
+    }));
+  }
+
+  function pointerUp(event: PointerEvent<HTMLDivElement>) {
+    if (dragRef.current?.pointerId === event.pointerId) {
+      dragRef.current = null;
+    }
+  }
+
+  function saveCrop() {
+    const image = imageRef.current;
+    const viewport = viewportRef.current;
+    if (!image || !viewport) {
+      return;
+    }
+
+    const outputWidth = numericAspect >= 1 ? 1400 : Math.max(900, Math.round(1400 * numericAspect));
+    const outputHeight = numericAspect >= 1 ? Math.round(1400 / numericAspect) : 1400;
+    const canvas = document.createElement("canvas");
+    canvas.width = outputWidth;
+    canvas.height = outputHeight;
+    const context = canvas.getContext("2d");
+    if (!context) {
+      return;
+    }
+
+    context.fillStyle = "#f0f0f0";
+    context.fillRect(0, 0, outputWidth, outputHeight);
+
+    const viewportWidth = viewport.clientWidth || outputWidth;
+    const viewportHeight = viewport.clientHeight || outputHeight;
+    const coverScale = Math.max(viewportWidth / image.naturalWidth, viewportHeight / image.naturalHeight);
+    const drawScale = coverScale * crop.zoom * (outputWidth / viewportWidth);
+    const drawWidth = image.naturalWidth * drawScale;
+    const drawHeight = image.naturalHeight * drawScale;
+    const drawX = outputWidth / 2 - drawWidth / 2 + crop.x * (outputWidth / viewportWidth);
+    const drawY = outputHeight / 2 - drawHeight / 2 + crop.y * (outputHeight / viewportHeight);
+
+    context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+    onApply(canvas.toDataURL("image/webp", 0.9), crop);
+  }
+
+  return (
+    <div className="mtm-crop-backdrop" role="dialog" aria-modal="true" aria-label="Crop uploaded artwork">
+      <div className="mtm-crop-modal">
+        <header>
+          <div>
+            <p className="eyebrow">Uploaded artwork</p>
+            <h2>Crop & Adjust</h2>
+          </div>
+          <button type="button" aria-label="Close crop modal" onClick={onClose}>
+            <X size={22} />
+          </button>
+        </header>
+        <div className="mtm-crop-body">
+          <div>
+            <div
+              ref={viewportRef}
+              className="mtm-crop-viewport"
+              style={{ aspectRatio }}
+              onPointerDown={pointerDown}
+              onPointerMove={pointerMove}
+              onPointerUp={pointerUp}
+              onPointerCancel={pointerUp}
+            >
+              <img
+                ref={imageRef}
+                src={url}
+                alt={file.name}
+                draggable={false}
+                style={{ transform: `translate(${crop.x}px, ${crop.y}px) scale(${crop.zoom})` }}
+              />
+              <span className="mtm-crop-grid" />
+            </div>
+            <label className="mtm-crop-slider">
+              Zoom
+              <input
+                type="range"
+                min="1"
+                max="3"
+                step="0.01"
+                value={crop.zoom}
+                onChange={(event) => setCrop((current) => ({ ...current, zoom: Number(event.target.value) }))}
+              />
+            </label>
+          </div>
+          <aside>
+            <h3>Fit the story inside the frame.</h3>
+            <p>Drag to reposition. Use zoom to keep the important parts inside the selected mosaic shape.</p>
+            <p className="font-mono text-xs uppercase">Current file: {file.name}</p>
+          </aside>
+        </div>
+        <footer>
+          <button type="button" className="secondary-button" onClick={onChooseDifferent}>
+            Choose different file
+          </button>
+          <button type="button" className="primary-button" onClick={saveCrop}>
+            Save & apply
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+export function Customizer({ initialArtworkId }: { initialArtworkId?: string | null } = {}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const uploadInputRef = useRef<HTMLInputElement | null>(null);
+  const router = useRouter();
   const { addItem } = useCart();
   const [calibration, setCalibration] = useState<ProductCalibration>(() => createPrototypeCalibration());
   const [artworkSrc, setArtworkSrc] = useState("");
@@ -127,7 +317,10 @@ export function Customizer() {
   const [searchOffset, setSearchOffset] = useState(0);
   const [searchHasMore, setSearchHasMore] = useState(false);
   const [searchStatus, setSearchStatus] = useState("");
+  const [searchLoadCount, setSearchLoadCount] = useState(0);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadObjectUrl, setUploadObjectUrl] = useState("");
+  const [cropState, setCropState] = useState<CropState | null>(null);
   const [customerArtworkUploadId, setCustomerArtworkUploadId] = useState<string | null>(null);
   const [sizes, setSizes] = useState<ProductSizeOption[]>(fallbackSizes);
   const [selectedSizeId, setSelectedSizeId] = useState(fallbackSizes[0].id);
@@ -153,7 +346,7 @@ export function Customizer() {
         if (!response.ok) {
           return null;
         }
-        return (await response.json()) as { variants?: Array<ProductSizeOption & { layout?: string }> };
+        return (await response.json()) as { variants?: ProductSizePayload[] };
       })
       .then((payload) => {
         if (!active || !payload?.variants?.length) {
@@ -162,7 +355,11 @@ export function Customizer() {
 
         const nextSizes = payload.variants.map((variant) => ({
           ...variant,
-          layout: variant.layout === "landscape" ? "landscape" : "square"
+          layout: variant.layout === "landscape" ? "landscape" : "square",
+          panelColumns: variant.panelColumns ?? (variant.layout === "landscape" ? 4 : 3),
+          panelRows: variant.panelRows ?? (variant.layout === "portrait" ? 4 : 3),
+          panelCount: variant.panelCount ?? ((variant.layout === "landscape" || variant.layout === "portrait") ? 12 : 9),
+          tapeCountLabel: variant.tapeCountLabel ?? `${variant.columns * variant.rows} tapes`
         })) as ProductSizeOption[];
         setSizes(nextSizes);
         if (!nextSizes.some((size) => size.id === selectedSizeId)) {
@@ -206,6 +403,44 @@ export function Customizer() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!initialArtworkId) {
+      return;
+    }
+
+    let active = true;
+    fetch(`/api/images?id=${encodeURIComponent(initialArtworkId)}`, { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) {
+          return null;
+        }
+
+        const payload = (await response.json()) as { assets?: PublicImageAsset[] };
+        return payload.assets?.[0] ?? null;
+      })
+      .then((asset) => {
+        if (!active || !asset) {
+          return;
+        }
+
+        const option = assetToOption(asset);
+        if (!option) {
+          return;
+        }
+
+        setLibraryOptions((current) => (current.some((item) => item.id === option.id) ? current : [option, ...current]));
+        setArtworkSrc(option.src);
+        setArtworkName(option.name);
+        setArtworkSource("curated");
+        setArtworkPanel("curated");
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, [initialArtworkId]);
 
   useEffect(() => {
     let active = true;
@@ -263,6 +498,27 @@ export function Customizer() {
   }, [artworkSrc]);
 
   useEffect(() => {
+    if (artworkPanel !== "search") {
+      return;
+    }
+
+    const query = searchQuery.trim();
+    const handle = window.setTimeout(() => {
+      void searchArtwork(0, query);
+    }, 280);
+
+    return () => window.clearTimeout(handle);
+  }, [searchQuery, artworkPanel]);
+
+  useEffect(() => {
+    return () => {
+      if (uploadObjectUrl) {
+        URL.revokeObjectURL(uploadObjectUrl);
+      }
+    };
+  }, [uploadObjectUrl]);
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) {
       return;
@@ -298,11 +554,12 @@ export function Customizer() {
     if (!file) {
       return;
     }
-    const previousObjectUrl = artworkSource === "upload" && artworkSrc.startsWith("blob:") ? artworkSrc : null;
+    const previousObjectUrl = uploadObjectUrl;
     const objectUrl = URL.createObjectURL(file);
     setUploadedFile(file);
+    setUploadObjectUrl(objectUrl);
+    setCropState(null);
     setCustomerArtworkUploadId(null);
-    setArtworkSrc(objectUrl);
     setArtworkName(file.name);
     setArtworkSource("upload");
     setArtworkPanel("upload");
@@ -311,13 +568,28 @@ export function Customizer() {
     }
   }
 
-  async function searchArtwork(nextOffset = 0) {
-    const query = searchQuery.trim();
+  function applyUploadedCrop(dataUrl: string, crop: CropState) {
+    setArtworkSrc(dataUrl);
+    setCropState(crop);
+    setArtworkSource("upload");
+    setArtworkPanel("upload");
+  }
+
+  function closeUploadCrop() {
+    if (uploadObjectUrl && !artworkSrc.startsWith("data:")) {
+      URL.revokeObjectURL(uploadObjectUrl);
+      setUploadObjectUrl("");
+      setUploadedFile(null);
+    }
+  }
+
+  async function searchArtwork(nextOffset = 0, queryOverride?: string) {
+    const query = (queryOverride ?? searchQuery).trim();
     setArtworkPanel("search");
     setSearchStatus(query ? "Digging through the crates..." : "Loading artwork...");
 
     const params = new URLSearchParams({
-      limit: "6",
+      limit: "9",
       offset: String(nextOffset)
     });
     if (query) {
@@ -325,13 +597,27 @@ export function Customizer() {
     }
 
     const response = await fetch(`/api/images?${params.toString()}`, { cache: "no-store" }).catch(() => null);
-    const payload = response?.ok ? ((await response.json()) as { assets?: PublicImageAsset[] }) : null;
+    const payload = response?.ok ? ((await response.json()) as { assets?: PublicImageAsset[]; hasMore?: boolean; nextOffset?: number }) : null;
     const options = (payload?.assets ?? []).map(assetToOption).filter((asset): asset is ArtworkOption => Boolean(asset));
 
     setSearchResults((current) => (nextOffset === 0 ? options : [...current, ...options]));
-    setSearchOffset(nextOffset + options.length);
-    setSearchHasMore(options.length === 6);
+    setSearchOffset(payload?.nextOffset ?? nextOffset + options.length);
+    setSearchHasMore(Boolean(payload?.hasMore));
+    setSearchLoadCount((current) => (nextOffset === 0 ? 1 : current + 1));
     setSearchStatus(options.length ? "" : "No matches yet. Try a color, mood, place, or subject.");
+  }
+
+  function loadMoreSearch() {
+    if (searchLoadCount >= 3 && searchHasMore) {
+      const params = new URLSearchParams();
+      if (searchQuery.trim()) {
+        params.set("q", searchQuery.trim());
+      }
+      router.push(`/artwork${params.toString() ? `?${params.toString()}` : ""}`);
+      return;
+    }
+
+    void searchArtwork(searchOffset);
   }
 
   async function saveCustomerArtworkIfNeeded() {
@@ -469,12 +755,14 @@ export function Customizer() {
           state: {
             artworkSrc: artworkSource === "curated" ? artworkSrc : null,
             selectedSize: selectedSize.label,
-            productVariantId: selectedSize.id
+            productVariantId: selectedSize.id,
+            crop: cropState
           },
           metadata: {
             customerArtworkUploadId: uploadId,
             previewSnapshotKey: previewSnapshot?.previewSnapshotKey,
-            originalFilename: artworkSource === "upload" ? uploadedFile?.name ?? null : null
+            originalFilename: artworkSource === "upload" ? uploadedFile?.name ?? null : null,
+            crop: cropState
           }
         })
       }).catch(() => null);
@@ -544,13 +832,17 @@ export function Customizer() {
                       key={size.id}
                       type="button"
                       onClick={() => setSelectedSizeId(size.id)}
-                      className={`text-left px-6 py-4 border-2 border-border font-bold uppercase tracking-wider transition-all ${
+                      className={`mtm-size-card text-left px-6 py-4 border-2 border-border font-bold uppercase tracking-wider transition-all ${
                         selectedSizeId === size.id
                           ? "bg-card shadow-[4px_4px_0_0_#292929]"
                           : "bg-card hover:bg-muted"
                       }`}
                     >
-                      {size.label}
+                      <span>
+                        <strong>{size.label}</strong>
+                        <small>{panelLabel(size)}</small>
+                      </span>
+                      <PanelDiagram size={size} />
                     </button>
                   ))}
                 </div>
@@ -608,7 +900,7 @@ export function Customizer() {
                           setArtworkSource("curated");
                           setArtworkPanel("curated");
                         }}
-                        className={`relative min-h-[72px] border-2 border-border px-4 py-3 text-left transition-all ${
+                        className={`mtm-curated-card relative min-h-[76px] border-2 border-border px-4 py-3 text-left transition-all ${
                           artworkSrc === option.src
                             ? "bg-card shadow-[4px_4px_0_0_#292929]"
                             : "bg-background hover:bg-card"
@@ -619,6 +911,7 @@ export function Customizer() {
                           <p className="leading-4 text-base mb-0">{option.name}</p>
                           <p className="leading-4 text-[13px] font-mono text-muted-foreground">{option.credit}</p>
                         </div>
+                        {option.thumbSrc ? <img src={option.thumbSrc} alt="" loading="lazy" /> : null}
                       </button>
                     ))}
                   </div>
@@ -629,7 +922,13 @@ export function Customizer() {
                     <span className="font-mono font-bold text-muted-foreground uppercase whitespace-nowrap">
                       Upload an image
                     </span>
-                    <input className="sr-only" type="file" accept="image/*" onChange={(event) => handleUpload(event.target.files?.[0])} />
+                    <input
+                      ref={uploadInputRef}
+                      className="sr-only"
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => handleUpload(event.target.files?.[0])}
+                    />
                   </label>
                 ) : (
                   <div className="bg-card relative w-full border-2 border-border flex items-center gap-3 px-4 py-3">
@@ -647,13 +946,6 @@ export function Customizer() {
                       }}
                       placeholder="Search for more"
                     />
-                    <button
-                      type="button"
-                      className="font-mono font-black uppercase text-xs"
-                      onClick={() => void searchArtwork(0)}
-                    >
-                      Go
-                    </button>
                   </div>
                 )}
               </div>
@@ -686,8 +978,8 @@ export function Customizer() {
                   </div>
                   {searchStatus ? <p className="font-mono font-bold uppercase text-xs">{searchStatus}</p> : null}
                   {searchHasMore ? (
-                    <button type="button" className="secondary-button w-full" onClick={() => void searchArtwork(searchOffset)}>
-                      Load more
+                    <button type="button" className="secondary-button w-full" onClick={loadMoreSearch}>
+                      {searchLoadCount >= 3 ? "Open artwork library" : "Load 9 more"}
                     </button>
                   ) : null}
                 </div>
@@ -718,6 +1010,16 @@ export function Customizer() {
           </div>
         </div>
       </div>
+      {uploadedFile && uploadObjectUrl && artworkSource === "upload" && !artworkSrc.startsWith("data:") ? (
+        <UploadCropModal
+          file={uploadedFile}
+          url={uploadObjectUrl}
+          aspectRatio={selectedSize.aspectRatio}
+          onClose={closeUploadCrop}
+          onChooseDifferent={() => uploadInputRef.current?.click()}
+          onApply={applyUploadedCrop}
+        />
+      ) : null}
     </section>
   );
 }

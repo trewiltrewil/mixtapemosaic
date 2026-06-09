@@ -37,7 +37,13 @@ function imageForSection(section: CmsSection, width: number) {
   return sanityImageUrl(section.image, width) ?? localImageForSection(section);
 }
 
-export async function CmsSections({ sections }: { sections?: CmsSection[] | null }) {
+export async function CmsSections({
+  sections,
+  initialArtworkId
+}: {
+  sections?: CmsSection[] | null;
+  initialArtworkId?: string | null;
+}) {
   const visibleSections = sections?.filter((section) => section.enabled !== false);
 
   if (!visibleSections?.length) {
@@ -212,7 +218,7 @@ export async function CmsSections({ sections }: { sections?: CmsSection[] | null
           }
 
           if (section._type === "customizerSection") {
-            return <Customizer key={index} />;
+            return <Customizer key={index} initialArtworkId={initialArtworkId} />;
           }
 
           if (section._type === "ctaSection") {

@@ -296,9 +296,82 @@ export async function seedSanityStarterContent() {
         customizerLayoutKey: variant.layout,
         columns: variant.columns,
         rows: variant.rows,
+        panelColumns: variant.panelColumns,
+        panelRows: variant.panelRows,
+        panelCount: variant.panelCount,
+        tapeCountLabel: variant.tapeCountLabel,
         aspectRatio: variant.aspectRatio,
         sortOrder: index,
         active: true
+      })
+    );
+  }
+
+  const artworkCollections = [
+    {
+      id: "artwork-collection.all",
+      title: "Artwork Library",
+      slug: "all",
+      categoryKey: "",
+      eyebrow: "Artwork Library",
+      intro:
+        "Discover the perfect piece for your mosaic. Browse hundreds of curated prints, limited drops, and analog reveals.",
+      featuredTags: ["retro", "music", "vintage", "color"],
+      seoTitle: "Artwork Library | Mixtape Mosaic",
+      seoDescription: "Browse artwork options for custom cassette mosaic wall art."
+    },
+    {
+      id: "artwork-collection.curated",
+      title: "Curated",
+      slug: "curated",
+      categoryKey: "curated",
+      eyebrow: "Collection",
+      intro: "Studio-selected artwork that is ready to become a custom Mixtape Mosaic.",
+      featuredTags: ["vintage", "music", "color"]
+    },
+    {
+      id: "artwork-collection.analog-reveal",
+      title: "Analog Reveal",
+      slug: "analog-reveal",
+      categoryKey: "analog reveal",
+      eyebrow: "Collection",
+      intro:
+        "Artwork designed to reveal the cassette shells, reels, holes, labels, and analog texture beneath the image.",
+      featuredTags: ["transparent", "cassette", "texture"]
+    },
+    {
+      id: "artwork-collection.retro",
+      title: "Retro",
+      slug: "retro",
+      categoryKey: "retro",
+      eyebrow: "Collection",
+      intro: "Bold, nostalgic artwork with color, shape, and room-filling analog energy.",
+      featuredTags: ["arcade", "neon", "pop"]
+    },
+    {
+      id: "artwork-collection.limited-runs",
+      title: "1 of 1s",
+      slug: "limited-runs",
+      categoryKey: "1of1s",
+      eyebrow: "Collection",
+      intro: "Limited artwork drops for collectors and one-off custom wall-art runs.",
+      featuredTags: ["limited", "artist", "drop"]
+    }
+  ];
+
+  for (const collection of artworkCollections) {
+    results.push(
+      await createIfMissing(collection.id, {
+        _type: "artworkCollectionPage",
+        title: collection.title,
+        slug: { _type: "slug", current: collection.slug },
+        categoryKey: collection.categoryKey,
+        eyebrow: collection.eyebrow,
+        intro: collection.intro,
+        featuredTags: collection.featuredTags,
+        active: true,
+        seoTitle: collection.seoTitle ?? `${collection.title} | Mixtape Mosaic`,
+        seoDescription: collection.seoDescription ?? collection.intro
       })
     );
   }

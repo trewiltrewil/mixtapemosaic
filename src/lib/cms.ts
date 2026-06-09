@@ -21,8 +21,22 @@ export type CmsProductVariant = {
   layout: string;
   columns: number;
   rows: number;
+  panelColumns: number;
+  panelRows: number;
+  panelCount: number;
+  tapeCountLabel: string;
   aspectRatio: string;
   sortOrder: number;
+};
+export type CmsArtworkCollectionPage = {
+  title: string;
+  slug: string;
+  categoryKey?: string;
+  eyebrow?: string;
+  intro?: string;
+  featuredTags?: string[];
+  seoTitle?: string;
+  seoDescription?: string;
 };
 export type CmsPage = {
   title: string;
@@ -171,12 +185,17 @@ export const getActiveProductVariants = cache(async (): Promise<CmsProductVarian
       customizerLayoutKey?: string;
       columns?: number;
       rows?: number;
+      panelColumns?: number;
+      panelRows?: number;
+      panelCount?: number;
+      tapeCountLabel?: string;
       aspectRatio?: string;
       sortOrder?: number;
     }>
   >(
     `*[_type == "productVariant" && active == true && !(_id in path("drafts.**"))] | order(sortOrder asc, _createdAt asc){
-      variantId, displayName, productType, priceCents, productionEstimate, customizerLayoutKey, columns, rows, aspectRatio, sortOrder
+      variantId, displayName, productType, priceCents, productionEstimate, customizerLayoutKey, columns, rows,
+      panelColumns, panelRows, panelCount, tapeCountLabel, aspectRatio, sortOrder
     }`
   );
 
@@ -195,6 +214,12 @@ export const getActiveProductVariants = cache(async (): Promise<CmsProductVarian
       layout: variant.customizerLayoutKey === "landscape" ? "landscape" : "square",
       columns: variant.columns || (variant.customizerLayoutKey === "landscape" ? 8 : 6),
       rows: variant.rows || 9,
+      panelColumns: variant.panelColumns || (variant.customizerLayoutKey === "landscape" ? 4 : variant.customizerLayoutKey === "portrait" ? 3 : 3),
+      panelRows: variant.panelRows || (variant.customizerLayoutKey === "landscape" ? 3 : variant.customizerLayoutKey === "portrait" ? 4 : 3),
+      panelCount:
+        variant.panelCount ||
+        (variant.panelColumns && variant.panelRows ? variant.panelColumns * variant.panelRows : variant.customizerLayoutKey === "landscape" ? 12 : variant.customizerLayoutKey === "portrait" ? 12 : 9),
+      tapeCountLabel: variant.tapeCountLabel || `${(variant.columns || (variant.customizerLayoutKey === "landscape" ? 8 : 6)) * (variant.rows || 9)} tapes`,
       aspectRatio: variant.aspectRatio || (variant.customizerLayoutKey === "landscape" ? "1630 / 1254" : "1 / 1"),
       sortOrder: variant.sortOrder ?? index
     }));
@@ -204,3 +229,64 @@ export async function getActiveProductVariantById(id: string) {
   const variants = await getActiveProductVariants();
   return variants.find((variant) => variant.id === id) ?? null;
 }
+
+export const getArtworkCollectionPages = cache(async (): Promise<CmsArtworkCollectionPage[]> => {
+  const pages = await fetchSanity<CmsArtworkCollectionPage[]>(
+    `*[_type == "artworkCollectionPage" && active == true && !(_id in path("drafts.**"))] | order(title asc){
+      title, "slug": slug.current, categoryKey, eyebrow, intro, featuredTags, seoTitle, seoDescription
+    }`
+  );
+
+  return pages?.length
+    ? pages
+    : [
+        {
+          title: "Artwork Library",
+          slug: "all",
+          eyebrow: "Artwork Library",
+          intro:
+            "Discover approved artwork built for Mixtape Mosaic. Search by mood, theme, artist, color, and collection.",
+          featuredTags: ["retro", "music", "color", "landscape"],
+          seoTitle: "Artwork Library | Mixtape Mosaic",
+          seoDescription: "Browse cassette mosaic artwork options by collection, mood, and theme."
+        },
+        {
+          title: "Curated",
+          slug: "curated",
+          categoryKey: "curated",
+          eyebrow: "Collection",
+          intro: "A rotating set of studio-selected artwork ready to customize into a cassette mosaic.",
+          featuredTags: ["vintage", "music", "color"]
+        },
+        {
+          title: "Analog Reveal",
+          slug: "analog-reveal",
+          categoryKey: "analog reveal",
+          eyebrow: "Collection",
+          intro:
+            "Artwork designed to let the cassette shells, holes, labels, and analog texture remain part of the final piece.",
+          featuredTags: ["transparent", "texture", "cassette"]
+        },
+        {
+          title: "Retro",
+          slug: "retro",
+          categoryKey: "retro",
+          eyebrow: "Collection",
+          intro: "Bold, nostalgic artwork with color, shape, and visual rhythm built for tape-grid wall art.",
+          featuredTags: ["neon", "arcade", "pop"]
+        },
+        {
+          title: "1 of 1s",
+          slug: "limited-runs",
+          categoryKey: "1of1s",
+          eyebrow: "Collection",
+          intro: "Limited-run artwork drops for collectors who want something with a little more rarity.",
+          featuredTags: ["limited", "artist", "drop"]
+        }
+      ];
+});
+
+export const getArtworkCollectionPageBySlug = cache(async (slug: string) => {
+  const pages = await getArtworkCollectionPages();
+  return pages.find((page) => page.slug === slug) ?? null;
+});

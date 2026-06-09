@@ -273,9 +273,39 @@ export const schemaTypes = [
       defineField({ name: "customizerLayoutKey", type: "string", options: { list: ["square", "landscape", "portrait"] } }),
       defineField({ name: "columns", type: "number", initialValue: 6 }),
       defineField({ name: "rows", type: "number", initialValue: 9 }),
+      defineField({ name: "panelColumns", title: "Panel columns", type: "number", initialValue: 3 }),
+      defineField({ name: "panelRows", title: "Panel rows", type: "number", initialValue: 3 }),
+      defineField({ name: "panelCount", title: "Panel count", type: "number", initialValue: 9 }),
+      defineField({ name: "tapeCountLabel", title: "Tape count label", type: "string", initialValue: "54 tapes" }),
       defineField({ name: "aspectRatio", type: "string", initialValue: "1 / 1" }),
       defineField({ name: "sortOrder", type: "number", initialValue: 0 }),
       defineField({ name: "active", type: "boolean", initialValue: true })
     ]
+  }),
+  defineType({
+    name: "artworkCollectionPage",
+    title: "Artwork Collection Page",
+    type: "document",
+    fields: [
+      defineField({ name: "title", type: "string", validation: (rule) => rule.required() }),
+      defineField({ name: "slug", type: "slug", options: { source: "title" }, validation: (rule) => rule.required() }),
+      defineField({
+        name: "categoryKey",
+        title: "Image asset category key",
+        type: "string",
+        description: "Filters approved image_assets by category. Example: analog reveal, retro, curated."
+      }),
+      defineField({ name: "eyebrow", type: "string", initialValue: "Artwork Library" }),
+      defineField({ name: "intro", type: "text", rows: 5 }),
+      defineField({
+        name: "featuredTags",
+        title: "Featured tag filters",
+        type: "array",
+        of: [defineArrayMember({ type: "string" })]
+      }),
+      defineField({ name: "active", type: "boolean", initialValue: true }),
+      ...seoFields
+    ],
+    preview: { select: { title: "title", subtitle: "categoryKey" } }
   })
 ];

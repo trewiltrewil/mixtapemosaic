@@ -1,4 +1,5 @@
 import sharp from "sharp";
+import { generateCassetteArtworkThumbnail } from "./cassette-thumbnail";
 import { getSupabaseAdminClient } from "./supabase";
 import { downloadR2ObjectBuffer, getR2BucketNames, getR2PublicUrl, uploadR2Object } from "./r2";
 
@@ -26,10 +27,12 @@ export type ImageAssetRecord = {
   card_storage_key: string | null;
   preview_storage_key: string | null;
   large_storage_key: string | null;
+  cassette_thumb_storage_key: string | null;
   thumb_url: string | null;
   card_url: string | null;
   preview_url: string | null;
   large_url: string | null;
+  cassette_thumb_url: string | null;
   dominant_color: string | null;
   blurhash: string | null;
   tags: string[];
@@ -52,6 +55,7 @@ export type PublicImageAsset = Pick<
   | "card_url"
   | "preview_url"
   | "large_url"
+  | "cassette_thumb_url"
   | "dominant_color"
   | "blurhash"
   | "tags"
@@ -155,6 +159,7 @@ function toPublicAsset(record: ImageAssetRecord): PublicImageAsset {
     card_url: record.card_url,
     preview_url: record.preview_url,
     large_url: record.large_url,
+    cassette_thumb_url: record.cassette_thumb_url,
     dominant_color: record.dominant_color,
     blurhash: record.blurhash,
     tags: record.tags ?? [],
@@ -195,31 +200,109 @@ export async function searchPublicImageAssets({
   query,
   curatedOnly = false,
   limit = 24,
-  offset = 0
+  offset = 0,
+  category,
+  tag,
+  seed
 }: {
   query?: string | null;
   curatedOnly?: boolean;
   limit?: number;
   offset?: number;
+  category?: string | null;
+  tag?: string | null;
+  seed?: string | null;
 }) {
   const supabase = requireSupabaseAdmin();
+  const requestedLimit = Math.max(1, Math.min(limit, 60));
   const { data, error } = await supabase.rpc("search_public_image_assets", {
     p_query: query?.trim() || null,
     p_curated_only: curatedOnly,
-    p_limit: limit,
-    p_offset: offset
+    p_limit: requestedLimit + 1,
+    p_offset: offset,
+    p_category: category?.trim() || null,
+    p_tag: tag?.trim() || null,
+    p_seed: seed?.trim() || null
   });
 
   if (error) {
     throw error;
   }
 
-  return ((data ?? []) as ImageAssetRecord[]).map(toPublicAsset);
+  const records = (data ?? []) as ImageAssetRecord[];
+  const hasMore = records.length > requestedLimit;
+  const assets = records.slice(0, requestedLimit).map(toPublicAsset);
+
+  return {
+    assets,
+    hasMore,
+    nextOffset: offset + assets.length
+  };
+}
+
+export async function getPublicImageAssetById(id: string) {
+  const supabase = requireSupabaseAdmin();
+  const { data, error } = await supabase.from("image_assets").select("*").eq("id", id).eq("status", "active").single();
+
+  if (error) {
+    throw error;
+  }
+
+  return toPublicAsset(data as ImageAssetRecord);
 }
 
 export async function getAdminImageAsset(id: string) {
   const supabase = requireSupabaseAdmin();
   const { data, error } = await supabase.from("image_assets").select("*").eq("id", id).single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data as ImageAssetRecord;
+}
+
+export async function listImageAssetsMissingCassetteThumb(limit = 8) {
+  const supabase = requireSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("image_assets")
+    .select("*")
+    .eq("status", "active")
+    .is("cassette_thumb_url", null)
+    .order("created_at", { ascending: false })
+    .limit(Math.max(1, Math.min(limit, 20)));
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []) as ImageAssetRecord[];
+}
+
+export async function generateAndSaveCassetteThumb(asset: ImageAssetRecord, originalBuffer?: Buffer) {
+  const supabase = requireSupabaseAdmin();
+  const buckets = getR2BucketNames();
+  const source = originalBuffer ?? (await downloadR2ObjectBuffer({ bucket: buckets.originals, key: asset.original_storage_key }));
+  const cassetteThumbStorageKey = `derivatives/${asset.id}/cassette-thumb.webp`;
+  const cassetteThumb = await generateCassetteArtworkThumbnail(source);
+
+  await uploadR2Object({
+    bucket: buckets.derivatives,
+    key: cassetteThumbStorageKey,
+    body: cassetteThumb,
+    contentType: "image/webp"
+  });
+
+  const { data, error } = await supabase
+    .from("image_assets")
+    .update({
+      cassette_thumb_storage_key: cassetteThumbStorageKey,
+      cassette_thumb_url: getR2PublicUrl(cassetteThumbStorageKey),
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", asset.id)
+    .select("*")
+    .single();
 
   if (error) {
     throw error;
@@ -357,6 +440,7 @@ export async function createImageAssetFromOriginalBuffer({
     preview: `derivatives/${id}/preview.webp`,
     large: `derivatives/${id}/large.webp`
   };
+  const cassetteThumbStorageKey = `derivatives/${id}/cassette-thumb.webp`;
 
   for (const [name, width] of Object.entries(derivativeTargets) as Array<
     [keyof typeof derivativeTargets, number]
@@ -392,6 +476,14 @@ export async function createImageAssetFromOriginalBuffer({
     }
   }
 
+  const cassetteThumb = await generateCassetteArtworkThumbnail(originalBuffer);
+  await uploadR2Object({
+    bucket: buckets.derivatives,
+    key: cassetteThumbStorageKey,
+    body: cassetteThumb,
+    contentType: "image/webp"
+  });
+
   const row = {
     id,
     title: metadata.title,
@@ -413,10 +505,12 @@ export async function createImageAssetFromOriginalBuffer({
     card_storage_key: derivativeKeys.card,
     preview_storage_key: derivativeKeys.preview,
     large_storage_key: derivativeKeys.large,
+    cassette_thumb_storage_key: cassetteThumbStorageKey,
     thumb_url: getR2PublicUrl(derivativeKeys.thumb),
     card_url: getR2PublicUrl(derivativeKeys.card),
     preview_url: getR2PublicUrl(derivativeKeys.preview),
     large_url: getR2PublicUrl(derivativeKeys.large),
+    cassette_thumb_url: getR2PublicUrl(cassetteThumbStorageKey),
     dominant_color: dominantColor,
     blurhash: null,
     tags: metadata.tags ?? [],

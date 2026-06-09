@@ -40,6 +40,7 @@ export function SiteFooter() {
             <ul className="space-y-4 font-bold uppercase tracking-wider">
               <li><Link href="/customize" className="hover:text-background transition-colors">Shop</Link></li>
               <li><Link href="/process" className="hover:text-background transition-colors">Our Process</Link></li>
+              <li><Link href="/artwork" className="hover:text-background transition-colors">Artwork Library</Link></li>
               <li><Link href="/gallery" className="hover:text-background transition-colors">Gallery</Link></li>
               <li><Link href="/journal" className="hover:text-background transition-colors">Journal</Link></li>
               <li><Link href="/faq" className="hover:text-background transition-colors">FAQ</Link></li>

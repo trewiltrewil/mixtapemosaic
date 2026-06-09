@@ -25,6 +25,7 @@ type ImageAsset = {
   card_url: string | null;
   preview_url: string | null;
   large_url: string | null;
+  cassette_thumb_url: string | null;
   dominant_color: string | null;
   tags: string[];
   categories: string[];
@@ -115,6 +116,7 @@ export function AdminImageLibrary() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadStage, setUploadStage] = useState("");
+  const [backfillRunning, setBackfillRunning] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -449,6 +451,53 @@ export function AdminImageLibrary() {
     setSaving(false);
   }
 
+  async function backfillCassetteThumbs() {
+    setBackfillRunning(true);
+    setMessage("");
+    setError("");
+    let totalUpdated = 0;
+    let totalFailed = 0;
+    let hasMore = true;
+
+    try {
+      while (hasMore) {
+        setUploadStage(`Generating cassette thumbnails... ${totalUpdated} done${totalFailed ? `, ${totalFailed} failed` : ""}.`);
+        const response = await fetch("/api/admin/images/backfill-cassette-thumbs", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ limit: 4 })
+        });
+        const result = (await response.json()) as {
+          updated?: ImageAsset[];
+          failed?: Array<{ id: string; error: string }>;
+          hasMore?: boolean;
+          error?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(result.error ?? "Could not generate cassette thumbnails.");
+        }
+
+        const updated = result.updated ?? [];
+        totalUpdated += updated.length;
+        totalFailed += result.failed?.length ?? 0;
+        hasMore = Boolean(result.hasMore && updated.length > 0);
+        if (updated.length) {
+          setAssets((current) =>
+            current.map((asset) => updated.find((candidate) => candidate.id === asset.id) ?? asset)
+          );
+        }
+      }
+
+      setMessage(`Cassette thumbnail backfill complete. ${totalUpdated} updated${totalFailed ? `, ${totalFailed} failed` : ""}.`);
+    } catch (backfillError) {
+      setError(backfillError instanceof Error ? backfillError.message : "Could not generate cassette thumbnails.");
+    } finally {
+      setUploadStage("");
+      setBackfillRunning(false);
+    }
+  }
+
   return (
     <main className="tool-shell image-admin-shell">
       <section className="canvas-panel">
@@ -485,6 +534,7 @@ export function AdminImageLibrary() {
                 <small>{asset.source_author || asset.source_name || asset.source_type}</small>
               </span>
               <span className="asset-tags">{[...asset.categories, ...asset.tags].slice(0, 4).join(" / ")}</span>
+              <small className="asset-tags">{asset.cassette_thumb_url ? "Cassette thumb ready" : "Needs cassette thumb"}</small>
             </button>
           ))}
         </div>
@@ -504,6 +554,14 @@ export function AdminImageLibrary() {
               Bulk
             </button>
           </div>
+          <button
+            type="button"
+            className="secondary-button image-admin-backfill-button"
+            disabled={backfillRunning}
+            onClick={() => void backfillCassetteThumbs()}
+          >
+            {backfillRunning ? "Building cassette thumbs..." : "Backfill cassette thumbs"}
+          </button>
 
           {message ? <p className="status-message">{message}</p> : null}
           {uploadStage ? <p className="status-message">{uploadStage}</p> : null}
@@ -639,7 +697,8 @@ export function AdminImageLibrary() {
                 ["Thumb", selectedAsset.thumb_url],
                 ["Card", selectedAsset.card_url],
                 ["Preview", selectedAsset.preview_url],
-                ["Large", selectedAsset.large_url]
+                ["Large", selectedAsset.large_url],
+                ["Cassette", selectedAsset.cassette_thumb_url]
               ].map(([label, url]) => (
                 <a key={label} href={url ?? "#"} target="_blank" rel="noreferrer" aria-disabled={!url}>
                   {label}

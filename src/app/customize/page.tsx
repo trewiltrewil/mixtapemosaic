@@ -5,12 +5,19 @@ import { getPageBySlug } from "@/lib/cms";
 
 export const revalidate = 86400;
 
-export default async function CustomizePage() {
+type CustomizePageProps = {
+  searchParams?: Promise<{ artwork?: string }>;
+};
+
+export default async function CustomizePage({ searchParams }: CustomizePageProps) {
+  const params = await searchParams;
   const page = await getPageBySlug("customize");
+  const customizer = <Customizer initialArtworkId={params?.artwork ?? null} />;
+
   if (page?.sections?.length) {
     return (
       <>
-        <CmsSections sections={page.sections} />
+        <CmsSections sections={page.sections} initialArtworkId={params?.artwork ?? null} />
         <SiteFooter />
       </>
     );
@@ -18,7 +25,7 @@ export default async function CustomizePage() {
 
   return (
     <>
-      <Customizer />
+      {customizer}
       <SiteFooter />
     </>
   );
