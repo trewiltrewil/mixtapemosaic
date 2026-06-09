@@ -262,7 +262,7 @@ export async function getAdminImageAsset(id: string) {
   return data as ImageAssetRecord;
 }
 
-export async function listImageAssetsMissingCassetteThumb(limit = 8) {
+export async function listImageAssetsMissingCassetteThumb(limit = 8, offset = 0) {
   const supabase = requireSupabaseAdmin();
   const { data, error } = await supabase
     .from("image_assets")
@@ -270,7 +270,7 @@ export async function listImageAssetsMissingCassetteThumb(limit = 8) {
     .eq("status", "active")
     .is("cassette_thumb_url", null)
     .order("created_at", { ascending: false })
-    .limit(Math.max(1, Math.min(limit, 20)));
+    .range(Math.max(0, offset), Math.max(0, offset) + Math.max(1, Math.min(limit, 20)) - 1);
 
   if (error) {
     throw error;

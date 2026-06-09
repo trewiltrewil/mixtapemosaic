@@ -13,9 +13,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = (await request.json().catch(() => null)) as { limit?: number } | null;
+    const body = (await request.json().catch(() => null)) as { limit?: number; offset?: number } | null;
     const limit = Math.max(1, Math.min(Number(body?.limit ?? 4), 8));
-    const missing = await listImageAssetsMissingCassetteThumb(limit);
+    const offset = Math.max(0, Number(body?.offset ?? 0));
+    const missing = await listImageAssetsMissingCassetteThumb(limit, offset);
     const updated = [];
     const failed = [];
 

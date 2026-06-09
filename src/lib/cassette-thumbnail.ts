@@ -40,18 +40,20 @@ function alpha(value: number) {
 
 export async function generateCassetteArtworkThumbnail(originalBuffer: Buffer) {
   const basePath = path.join(process.cwd(), "public", "product", "cassette-grid-square-v2.png");
-  const [base] = await Promise.all([
-    sharp(basePath).resize(thumbSize, thumbSize, { fit: "cover" }).png().toBuffer(),
-  ]);
-  const artAlpha = alpha(0.84);
+  const base = await sharp(basePath).resize(thumbSize, thumbSize, { fit: "cover" }).removeAlpha().png().toBuffer();
+  const maskAlpha = await sharp(cassetteMaskSvg(), { density: 144 })
+    .resize(thumbSize, thumbSize)
+    .greyscale()
+    .linear(0.84)
+    .raw()
+    .toBuffer();
   const baseAlpha = alpha(0.3);
 
   const art = await sharp(originalBuffer, { failOn: "none" })
     .rotate()
     .resize(thumbSize, thumbSize, { fit: "cover" })
     .removeAlpha()
-    .joinChannel(artAlpha, { raw: { width: thumbSize, height: thumbSize, channels: 1 } })
-    .composite([{ input: cassetteMaskSvg(), blend: "dest-in" }])
+    .joinChannel(maskAlpha, { raw: { width: thumbSize, height: thumbSize, channels: 1 } })
     .png()
     .toBuffer();
 

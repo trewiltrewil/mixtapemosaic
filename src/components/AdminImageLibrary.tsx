@@ -465,7 +465,7 @@ export function AdminImageLibrary() {
         const response = await fetch("/api/admin/images/backfill-cassette-thumbs", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ limit: 4 })
+          body: JSON.stringify({ limit: 4, offset: totalFailed })
         });
         const result = (await response.json()) as {
           updated?: ImageAsset[];
