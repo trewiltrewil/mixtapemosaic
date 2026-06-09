@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ArtworkLibrary } from "@/components/ArtworkLibrary";
-import { SiteFooter } from "@/components/PublicChrome";
+import { PageHero, SiteFooter } from "@/components/PublicChrome";
 import { getArtworkCollectionPages } from "@/lib/cms";
 import { searchPublicImageAssets } from "@/lib/image-assets";
 
@@ -36,13 +36,13 @@ export default async function ArtworkPage({ searchParams }: PageProps) {
 
   return (
     <main>
-      <section className="artwork-library-hero">
-        <div>
-          <p>{page?.eyebrow ?? "Artwork Library"}</p>
-          <h1>{page?.title ?? "Artwork Library"}</h1>
-        </div>
-        <p>{page?.intro ?? "Discover approved artwork built for Mixtape Mosaic. Search by mood, theme, artist, color, and collection."}</p>
-      </section>
+      <PageHero
+        title={page?.title ?? "Artwork Library"}
+        kicker={
+          page?.intro ??
+          "Discover the perfect piece for your mosaic. Browse hundreds of curated prints, limited drops, and analog reveals."
+        }
+      />
       <ArtworkLibrary
         initialAssets={result.assets}
         initialHasMore={result.hasMore}
