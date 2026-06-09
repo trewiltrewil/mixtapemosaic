@@ -1,7 +1,7 @@
 import sharp from "sharp";
 import { generateCassetteArtworkThumbnail } from "./cassette-thumbnail";
 import { getSupabaseAdminClient } from "./supabase";
-import { downloadR2ObjectBuffer, getR2BucketNames, getR2PublicUrl, uploadR2Object } from "./r2";
+import { deleteR2Object, downloadR2ObjectBuffer, getR2BucketNames, getR2PublicUrl, uploadR2Object } from "./r2";
 
 export type ImageAssetStatus = "draft" | "active" | "archived" | "processing" | "failed";
 
@@ -262,15 +262,20 @@ export async function getAdminImageAsset(id: string) {
   return data as ImageAssetRecord;
 }
 
-export async function listImageAssetsMissingCassetteThumb(limit = 8, offset = 0) {
+export async function listImageAssetsForCassetteThumbBackfill(limit = 8, offset = 0, force = false) {
   const supabase = requireSupabaseAdmin();
-  const { data, error } = await supabase
+  let query = supabase
     .from("image_assets")
     .select("*")
     .eq("status", "active")
-    .is("cassette_thumb_url", null)
     .order("created_at", { ascending: false })
     .range(Math.max(0, offset), Math.max(0, offset) + Math.max(1, Math.min(limit, 20)) - 1);
+
+  if (!force) {
+    query = query.is("cassette_thumb_url", null);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw error;
@@ -283,7 +288,7 @@ export async function generateAndSaveCassetteThumb(asset: ImageAssetRecord, orig
   const supabase = requireSupabaseAdmin();
   const buckets = getR2BucketNames();
   const source = originalBuffer ?? (await downloadR2ObjectBuffer({ bucket: buckets.originals, key: asset.original_storage_key }));
-  const cassetteThumbStorageKey = `derivatives/${asset.id}/cassette-thumb.webp`;
+  const cassetteThumbStorageKey = `derivatives/${asset.id}/cassette-thumb-${Date.now()}.webp`;
   const cassetteThumb = await generateCassetteArtworkThumbnail(source);
 
   await uploadR2Object({
@@ -306,6 +311,10 @@ export async function generateAndSaveCassetteThumb(asset: ImageAssetRecord, orig
 
   if (error) {
     throw error;
+  }
+
+  if (asset.cassette_thumb_storage_key && asset.cassette_thumb_storage_key !== cassetteThumbStorageKey) {
+    await deleteR2Object({ bucket: buckets.derivatives, key: asset.cassette_thumb_storage_key }).catch(() => undefined);
   }
 
   return data as ImageAssetRecord;
@@ -440,7 +449,7 @@ export async function createImageAssetFromOriginalBuffer({
     preview: `derivatives/${id}/preview.webp`,
     large: `derivatives/${id}/large.webp`
   };
-  const cassetteThumbStorageKey = `derivatives/${id}/cassette-thumb.webp`;
+  const cassetteThumbStorageKey = `derivatives/${id}/cassette-thumb-${Date.now()}.webp`;
 
   for (const [name, width] of Object.entries(derivativeTargets) as Array<
     [keyof typeof derivativeTargets, number]

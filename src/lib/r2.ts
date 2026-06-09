@@ -1,4 +1,4 @@
-import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 type UploadObjectInput = {
@@ -89,6 +89,16 @@ export async function uploadR2Object({ bucket, key, body, contentType }: UploadO
       Body: body,
       ContentType: contentType,
       CacheControl: bucket === getR2BucketNames().derivatives ? "public, max-age=31536000, immutable" : undefined
+    })
+  );
+}
+
+export async function deleteR2Object({ bucket, key }: { bucket: string; key: string }) {
+  const client = requireR2Client();
+  await client.send(
+    new DeleteObjectCommand({
+      Bucket: bucket,
+      Key: key
     })
   );
 }

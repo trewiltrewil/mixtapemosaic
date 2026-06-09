@@ -5,6 +5,8 @@ const thumbSize = 720;
 const tapeColumns = 6;
 const tapeRows = 9;
 
+type Rgb = { r: number; g: number; b: number };
+
 function cassetteMaskSvg() {
   const margin = 22;
   const gap = 4;
@@ -34,26 +36,72 @@ function cassetteMaskSvg() {
   return Buffer.from(parts.join(""));
 }
 
-function alpha(value: number) {
-  return Buffer.alloc(thumbSize * thumbSize, Math.round(value * 255));
+function clampChannel(value: number) {
+  return Math.max(0, Math.min(255, Math.round(value)));
+}
+
+function mix(a: Rgb, b: Rgb, amount: number): Rgb {
+  return {
+    r: clampChannel(a.r + (b.r - a.r) * amount),
+    g: clampChannel(a.g + (b.g - a.g) * amount),
+    b: clampChannel(a.b + (b.b - a.b) * amount)
+  };
+}
+
+function backgroundFromAverage(color: Rgb) {
+  const luminance = (0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b) / 255;
+  const saturation = (Math.max(color.r, color.g, color.b) - Math.min(color.r, color.g, color.b)) / 255;
+  const target = luminance > 0.74 ? mix(color, { r: 41, g: 41, b: 41 }, 0.28) : mix(color, { r: 255, g: 255, b: 255 }, 0.48);
+  return saturation < 0.08 ? mix(target, { r: 250, g: 185, b: 60 }, 0.18) : target;
+}
+
+async function averageImageColor(originalBuffer: Buffer): Promise<Rgb> {
+  const stats = await sharp(originalBuffer, { failOn: "none" })
+    .rotate()
+    .resize(80, 80, { fit: "cover" })
+    .removeAlpha()
+    .stats();
+  return {
+    r: stats.channels[0]?.mean ?? 245,
+    g: stats.channels[1]?.mean ?? 241,
+    b: stats.channels[2]?.mean ?? 237
+  };
+}
+
+async function maskAlpha(opacity: number) {
+  return sharp(cassetteMaskSvg(), { density: 144 })
+    .resize(thumbSize, thumbSize)
+    .greyscale()
+    .linear(opacity)
+    .raw()
+    .toBuffer();
 }
 
 export async function generateCassetteArtworkThumbnail(originalBuffer: Buffer) {
   const basePath = path.join(process.cwd(), "public", "product", "cassette-grid-square-v2.png");
-  const base = await sharp(basePath).resize(thumbSize, thumbSize, { fit: "cover" }).removeAlpha().png().toBuffer();
-  const maskAlpha = await sharp(cassetteMaskSvg(), { density: 144 })
-    .resize(thumbSize, thumbSize)
-    .greyscale()
-    .linear(0.84)
-    .raw()
+  const [base, averageColor] = await Promise.all([
+    sharp(basePath).resize(thumbSize, thumbSize, { fit: "cover" }).removeAlpha().png().toBuffer(),
+    averageImageColor(originalBuffer)
+  ]);
+  const backgroundColor = backgroundFromAverage(averageColor);
+  const [artAlpha, baseAlpha, detailAlpha] = await Promise.all([maskAlpha(0.98), maskAlpha(0.24), maskAlpha(0.1)]);
+
+  const background = await sharp({
+    create: {
+      width: thumbSize,
+      height: thumbSize,
+      channels: 3,
+      background: backgroundColor
+    }
+  })
+    .png()
     .toBuffer();
-  const baseAlpha = alpha(0.3);
 
   const art = await sharp(originalBuffer, { failOn: "none" })
     .rotate()
     .resize(thumbSize, thumbSize, { fit: "cover" })
     .removeAlpha()
-    .joinChannel(maskAlpha, { raw: { width: thumbSize, height: thumbSize, channels: 1 } })
+    .joinChannel(artAlpha, { raw: { width: thumbSize, height: thumbSize, channels: 1 } })
     .png()
     .toBuffer();
 
@@ -63,10 +111,17 @@ export async function generateCassetteArtworkThumbnail(originalBuffer: Buffer) {
     .png()
     .toBuffer();
 
-  return sharp(base)
+  const details = await sharp(base)
+    .removeAlpha()
+    .joinChannel(detailAlpha, { raw: { width: thumbSize, height: thumbSize, channels: 1 } })
+    .png()
+    .toBuffer();
+
+  return sharp(background)
     .composite([
+      { input: texture, blend: "over" },
       { input: art, blend: "over" },
-      { input: texture, blend: "over" }
+      { input: details, blend: "multiply" }
     ])
     .webp({ quality: 82 })
     .toBuffer();

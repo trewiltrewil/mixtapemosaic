@@ -457,19 +457,21 @@ export function AdminImageLibrary() {
     setError("");
     let totalUpdated = 0;
     let totalFailed = 0;
+    let offset = 0;
     let hasMore = true;
 
     try {
       while (hasMore) {
-        setUploadStage(`Generating cassette thumbnails... ${totalUpdated} done${totalFailed ? `, ${totalFailed} failed` : ""}.`);
+        setUploadStage(`Regenerating cassette thumbnails... ${totalUpdated} done${totalFailed ? `, ${totalFailed} failed` : ""}.`);
         const response = await fetch("/api/admin/images/backfill-cassette-thumbs", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ limit: 4, offset: totalFailed })
+          body: JSON.stringify({ force: true, limit: 4, offset })
         });
         const result = (await response.json()) as {
           updated?: ImageAsset[];
           failed?: Array<{ id: string; error: string }>;
+          processed?: number;
           hasMore?: boolean;
           error?: string;
         };
@@ -479,9 +481,11 @@ export function AdminImageLibrary() {
         }
 
         const updated = result.updated ?? [];
+        const processed = result.processed ?? updated.length + (result.failed?.length ?? 0);
         totalUpdated += updated.length;
         totalFailed += result.failed?.length ?? 0;
-        hasMore = Boolean(result.hasMore && updated.length > 0);
+        offset += processed;
+        hasMore = Boolean(result.hasMore && processed > 0);
         if (updated.length) {
           setAssets((current) =>
             current.map((asset) => updated.find((candidate) => candidate.id === asset.id) ?? asset)
@@ -489,7 +493,7 @@ export function AdminImageLibrary() {
         }
       }
 
-      setMessage(`Cassette thumbnail backfill complete. ${totalUpdated} updated${totalFailed ? `, ${totalFailed} failed` : ""}.`);
+      setMessage(`Cassette thumbnail regeneration complete. ${totalUpdated} updated${totalFailed ? `, ${totalFailed} failed` : ""}.`);
     } catch (backfillError) {
       setError(backfillError instanceof Error ? backfillError.message : "Could not generate cassette thumbnails.");
     } finally {
@@ -560,7 +564,7 @@ export function AdminImageLibrary() {
             disabled={backfillRunning}
             onClick={() => void backfillCassetteThumbs()}
           >
-            {backfillRunning ? "Building cassette thumbs..." : "Backfill cassette thumbs"}
+            {backfillRunning ? "Building cassette thumbs..." : "Regenerate cassette thumbs"}
           </button>
 
           {message ? <p className="status-message">{message}</p> : null}

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   generateAndSaveCassetteThumb,
-  listImageAssetsMissingCassetteThumb
+  listImageAssetsForCassetteThumbBackfill
 } from "@/lib/image-assets";
 import { isAdminRequest } from "@/lib/server-admin";
 
@@ -13,10 +13,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = (await request.json().catch(() => null)) as { limit?: number; offset?: number } | null;
+    const body = (await request.json().catch(() => null)) as { force?: boolean; limit?: number; offset?: number } | null;
     const limit = Math.max(1, Math.min(Number(body?.limit ?? 4), 8));
     const offset = Math.max(0, Number(body?.offset ?? 0));
-    const missing = await listImageAssetsMissingCassetteThumb(limit, offset);
+    const force = Boolean(body?.force);
+    const missing = await listImageAssetsForCassetteThumbBackfill(limit, offset, force);
     const updated = [];
     const failed = [];
 
