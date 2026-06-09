@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Search, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { PointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -160,6 +160,11 @@ type CropState = {
   zoom: number;
 };
 
+type CropImageFit = {
+  width: number;
+  height: number;
+};
+
 function UploadCropModal({
   file,
   url,
@@ -179,7 +184,34 @@ function UploadCropModal({
   const imageRef = useRef<HTMLImageElement | null>(null);
   const dragRef = useRef<{ pointerId: number; startX: number; startY: number; cropX: number; cropY: number } | null>(null);
   const [crop, setCrop] = useState<CropState>({ x: 0, y: 0, zoom: 1 });
+  const [imageFit, setImageFit] = useState<CropImageFit>({ width: 0, height: 0 });
   const numericAspect = aspectRatioNumber(aspectRatio);
+
+  function updateImageFit() {
+    const image = imageRef.current;
+    const viewport = viewportRef.current;
+    if (!image || !viewport || !image.naturalWidth || !image.naturalHeight) {
+      return;
+    }
+
+    const viewportWidth = viewport.clientWidth;
+    const viewportHeight = viewport.clientHeight;
+    const containScale = Math.min(viewportWidth / image.naturalWidth, viewportHeight / image.naturalHeight);
+    setImageFit({
+      width: image.naturalWidth * containScale,
+      height: image.naturalHeight * containScale
+    });
+  }
+
+  useEffect(() => {
+    setCrop({ x: 0, y: 0, zoom: 1 });
+    const handle = window.setTimeout(updateImageFit, 0);
+    window.addEventListener("resize", updateImageFit);
+    return () => {
+      window.clearTimeout(handle);
+      window.removeEventListener("resize", updateImageFit);
+    };
+  }, [url, aspectRatio]);
 
   function pointerDown(event: PointerEvent<HTMLDivElement>) {
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -227,8 +259,8 @@ function UploadCropModal({
 
     const viewportWidth = viewport.clientWidth || outputWidth;
     const viewportHeight = viewport.clientHeight || outputHeight;
-    const coverScale = Math.max(viewportWidth / image.naturalWidth, viewportHeight / image.naturalHeight);
-    const drawScale = coverScale * crop.zoom * (outputWidth / viewportWidth);
+    const containScale = Math.min(viewportWidth / image.naturalWidth, viewportHeight / image.naturalHeight);
+    const drawScale = containScale * crop.zoom * (outputWidth / viewportWidth);
     const drawWidth = image.naturalWidth * drawScale;
     const drawHeight = image.naturalHeight * drawScale;
     const drawX = outputWidth / 2 - drawWidth / 2 + crop.x * (outputWidth / viewportWidth);
@@ -266,7 +298,12 @@ function UploadCropModal({
                 src={url}
                 alt={file.name}
                 draggable={false}
-                style={{ transform: `translate(${crop.x}px, ${crop.y}px) scale(${crop.zoom})` }}
+                onLoad={updateImageFit}
+                style={{
+                  height: imageFit.height ? `${imageFit.height}px` : undefined,
+                  transform: `translate(calc(-50% + ${crop.x}px), calc(-50% + ${crop.y}px)) scale(${crop.zoom})`,
+                  width: imageFit.width ? `${imageFit.width}px` : undefined
+                }}
               />
               <span className="mtm-crop-grid" />
             </div>
@@ -563,6 +600,10 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
     setArtworkName(file.name);
     setArtworkSource("upload");
     setArtworkPanel("upload");
+    setArtworkSrc("");
+    if (uploadInputRef.current) {
+      uploadInputRef.current.value = "";
+    }
     if (previousObjectUrl) {
       URL.revokeObjectURL(previousObjectUrl);
     }
@@ -826,13 +867,13 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                   <div className="w-3 h-3 bg-secondary border border-border shadow-[1px_1px_0_0_#292929]" />
                   1. Select Size
                 </h3>
-                <div className="grid gap-3">
+                  <div className="grid gap-4">
                   {sizes.map((size) => (
                     <button
                       key={size.id}
                       type="button"
                       onClick={() => setSelectedSizeId(size.id)}
-                      className={`mtm-size-card text-left px-6 py-4 border-2 border-border font-bold uppercase tracking-wider transition-all ${
+                        className={`mtm-size-card text-left border-2 border-border font-bold uppercase tracking-wider transition-all ${
                         selectedSizeId === size.id
                           ? "bg-card shadow-[4px_4px_0_0_#292929]"
                           : "bg-card hover:bg-muted"
@@ -884,7 +925,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                 </h3>
 
                 {artworkPanel === "curated" ? (
-                  <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="grid gap-4">
                     {libraryOptions.length ? null : (
                       <div className="sm:col-span-2 bg-card border-2 border-border p-4 font-mono font-bold uppercase text-sm">
                         No curated artwork is active yet. Add the curated tag in the admin image library.
@@ -900,14 +941,14 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                           setArtworkSource("curated");
                           setArtworkPanel("curated");
                         }}
-                        className={`mtm-curated-card relative min-h-[76px] border-2 border-border px-4 py-3 text-left transition-all ${
+                        className={`mtm-curated-card relative border-2 border-border text-left transition-all ${
                           artworkSrc === option.src
                             ? "bg-card shadow-[4px_4px_0_0_#292929]"
                             : "bg-background hover:bg-card"
                         }`}
                       >
-                        <div className={`absolute left-4 top-4 w-6 h-6 border-2 border-border ${index % 2 === 0 ? "bg-secondary" : "bg-primary"}`} />
-                        <div className="pl-10 font-bold uppercase tracking-wider">
+                        <div className={`mtm-curated-swatch absolute left-4 top-1/2 -translate-y-1/2 border-2 border-border ${index % 2 === 0 ? "bg-secondary" : "bg-primary"}`} />
+                        <div className="mtm-curated-copy font-bold uppercase tracking-wider">
                           <p className="leading-4 text-base mb-0">{option.name}</p>
                           <p className="leading-4 text-[13px] font-mono text-muted-foreground">{option.credit}</p>
                         </div>
@@ -918,7 +959,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                 ) : null}
 
                 {artworkPanel === "upload" ? (
-                  <label className="bg-card h-[64px] relative w-full border-2 border-border flex items-center px-4 py-3 cursor-pointer">
+                  <label className="bg-card h-[48px] relative w-full border-2 border-border flex items-center px-4 cursor-pointer">
                     <span className="font-mono font-bold text-muted-foreground uppercase whitespace-nowrap">
                       Upload an image
                     </span>
@@ -931,8 +972,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                     />
                   </label>
                 ) : (
-                  <div className="bg-card relative w-full border-2 border-border flex items-center gap-3 px-4 py-3">
-                    <Search className="w-4 h-4 shrink-0" />
+                  <div className="mtm-search-input bg-card relative w-full border-2 border-border flex items-center gap-3">
                     <input
                       className="w-full bg-transparent font-mono font-bold text-muted-foreground uppercase outline-none placeholder:text-muted-foreground"
                       value={searchQuery}
