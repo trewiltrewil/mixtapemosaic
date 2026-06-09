@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { PointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -875,8 +875,8 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                       onClick={() => setSelectedSizeId(size.id)}
                       className={`mtm-size-card text-left border-2 border-border font-bold uppercase tracking-wider transition-all ${
                         selectedSizeId === size.id
-                          ? "is-selected bg-background shadow-[4px_4px_0_0_#292929]"
-                          : "bg-card hover:bg-muted"
+                          ? "is-selected mtm-active-card shadow-[4px_4px_0_0_#292929]"
+                          : "mtm-inactive-card"
                       }`}
                     >
                       <span>
@@ -898,8 +898,8 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                   <button
                     type="button"
                     onClick={() => setArtworkPanel("curated")}
-                    className={`flex items-center gap-3 px-4 py-3 border-2 border-border font-bold uppercase tracking-wider transition-all ${
-                      artworkPanel === "curated" ? "bg-card shadow-[4px_4px_0_0_#292929]" : "bg-transparent hover:bg-card"
+                    className={`mtm-artwork-mode flex items-center gap-3 px-4 py-3 border-2 border-border font-bold uppercase tracking-wider transition-all ${
+                      artworkPanel === "curated" ? "mtm-active-card shadow-[4px_4px_0_0_#292929]" : "mtm-inactive-card"
                     }`}
                   >
                     <div className={`w-6 h-6 border-2 border-border ${artworkPanel === "curated" ? "bg-secondary" : "bg-transparent"}`} />
@@ -908,8 +908,8 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                   <button
                     type="button"
                     onClick={() => setArtworkPanel("upload")}
-                    className={`flex items-center gap-3 px-4 py-3 border-2 border-border font-bold uppercase tracking-wider transition-all ${
-                      artworkPanel === "upload" ? "bg-card shadow-[4px_4px_0_0_#292929]" : "bg-transparent hover:bg-card"
+                    className={`mtm-artwork-mode flex items-center gap-3 px-4 py-3 border-2 border-border font-bold uppercase tracking-wider transition-all ${
+                      artworkPanel === "upload" ? "mtm-active-card shadow-[4px_4px_0_0_#292929]" : "mtm-inactive-card"
                     }`}
                   >
                     <div className={`w-6 h-6 border-2 border-border ${artworkPanel === "upload" ? "bg-primary" : "bg-transparent"}`} />
@@ -943,8 +943,8 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                         }}
                         className={`mtm-curated-card relative border-2 border-border text-left transition-all ${
                           artworkSrc === option.src
-                            ? "bg-card shadow-[4px_4px_0_0_#292929]"
-                            : "bg-background hover:bg-card"
+                            ? "mtm-active-card shadow-[4px_4px_0_0_#292929]"
+                            : "mtm-inactive-card"
                         }`}
                       >
                         <div className={`mtm-curated-swatch absolute left-4 top-1/2 -translate-y-1/2 border-2 border-border ${index % 2 === 0 ? "bg-secondary" : "bg-primary"}`} />
@@ -959,7 +959,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                 ) : null}
 
                 {artworkPanel === "upload" ? (
-                  <label className="bg-card h-[48px] relative w-full border-2 border-border flex items-center px-4 cursor-pointer">
+                  <label className="mtm-inactive-card h-[48px] relative w-full border-2 border-border flex items-center px-4 cursor-pointer">
                     <span className="font-mono font-bold text-muted-foreground uppercase whitespace-nowrap">
                       Upload an image
                     </span>
@@ -972,7 +972,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                     />
                   </label>
                 ) : (
-                  <div className="mtm-search-input bg-card relative w-full border-2 border-border flex items-center gap-3">
+                  <div className="mtm-search-input mtm-inactive-card relative w-full border-2 border-border flex items-center gap-3">
                     <input
                       className="w-full bg-transparent font-mono font-bold text-muted-foreground uppercase outline-none placeholder:text-muted-foreground"
                       value={searchQuery}
@@ -986,6 +986,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                       }}
                       placeholder="Search for more"
                     />
+                    <Search className="mtm-search-icon shrink-0" aria-hidden="true" />
                   </div>
                 )}
               </div>

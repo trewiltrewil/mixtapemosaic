@@ -2326,12 +2326,23 @@ p {
 
 .mtm-size-card {
   align-items: center;
-  background: var(--card);
   display: grid;
   gap: 18px;
   grid-template-columns: minmax(0, 1fr) auto;
   min-height: 98px;
   padding: 18px 22px;
+}
+
+.mtm-active-card {
+  background: var(--cream);
+}
+
+.mtm-inactive-card {
+  background: var(--paper);
+}
+
+.mtm-inactive-card:hover {
+  background: var(--cream);
 }
 
 .mtm-size-card strong,
@@ -2342,9 +2353,12 @@ p {
 .mtm-size-card small {
   color: var(--muted);
   font-family: "Space Mono", monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.35;
   margin-top: 8px;
+  text-transform: uppercase;
 }
 
 .mtm-panel-diagram {
@@ -2369,6 +2383,10 @@ p {
   padding: 12px 14px 12px 16px;
 }
 
+.mtm-artwork-mode {
+  background: var(--paper);
+}
+
 .mtm-curated-swatch {
   height: 24px;
   width: 24px;
@@ -2389,6 +2407,25 @@ p {
 .mtm-search-input {
   height: 48px;
   padding: 0 16px;
+}
+
+.mtm-search-input input {
+  color: #6a7282;
+  font-family: "Space Mono", monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.mtm-search-input input::placeholder {
+  color: #6a7282;
+  opacity: 1;
+}
+
+.mtm-search-icon {
+  color: #6a7282;
+  height: 30px;
+  width: 30px;
 }
 
 .mtm-crop-backdrop {
