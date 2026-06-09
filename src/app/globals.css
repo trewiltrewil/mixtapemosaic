@@ -2405,16 +2405,26 @@ p {
 }
 
 .mtm-search-input {
+  align-items: center;
+  display: flex;
+  gap: 12px;
   height: 48px;
-  padding: 0 16px;
+  padding: 0 18px;
 }
 
 .mtm-search-input input {
+  background: transparent;
+  border: 0;
   color: #6a7282;
+  flex: 1;
   font-family: "Space Mono", monospace;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0;
+  outline: 0;
+  padding: 0;
+  text-transform: uppercase;
+  min-width: 0;
 }
 
 .mtm-search-input input::placeholder {
@@ -2424,8 +2434,24 @@ p {
 
 .mtm-search-icon {
   color: #6a7282;
-  height: 30px;
-  width: 30px;
+  height: 28px;
+  width: 28px;
+}
+
+.mtm-search-results {
+  margin-top: -24px;
+}
+
+.mtm-search-result-card img {
+  height: auto;
+}
+
+.mtm-search-result-copy strong {
+  min-height: 32px;
+}
+
+.mtm-search-result-copy small {
+  min-height: 30px;
 }
 
 .mtm-crop-backdrop {

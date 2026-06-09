@@ -661,6 +661,15 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
     void searchArtwork(searchOffset);
   }
 
+  function selectArtworkOption(option: ArtworkOption) {
+    setArtworkSrc(option.src);
+    setArtworkName(option.name);
+    setArtworkSource("curated");
+    requestAnimationFrame(() => {
+      document.getElementById("customizer")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
   async function saveCustomerArtworkIfNeeded() {
     if (artworkSource !== "upload" || !uploadedFile) {
       return customerArtworkUploadId;
@@ -899,10 +908,10 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                     type="button"
                     onClick={() => setArtworkPanel("curated")}
                     className={`mtm-artwork-mode flex items-center gap-3 px-4 py-3 border-2 border-border font-bold uppercase tracking-wider transition-all ${
-                      artworkPanel === "curated" ? "mtm-active-card shadow-[4px_4px_0_0_#292929]" : "mtm-inactive-card"
+                      artworkPanel === "curated" || artworkPanel === "search" ? "mtm-active-card shadow-[4px_4px_0_0_#292929]" : "mtm-inactive-card"
                     }`}
                   >
-                    <div className={`w-6 h-6 border-2 border-border ${artworkPanel === "curated" ? "bg-secondary" : "bg-transparent"}`} />
+                    <div className={`w-6 h-6 border-2 border-border ${artworkPanel === "curated" || artworkPanel === "search" ? "bg-secondary" : "bg-transparent"}`} />
                     Curated Artist
                   </button>
                   <button
@@ -924,7 +933,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                   3. Curated Art
                 </h3>
 
-                {artworkPanel === "curated" ? (
+                {artworkPanel !== "upload" ? (
                   <div className="grid gap-4">
                     {libraryOptions.length ? null : (
                       <div className="sm:col-span-2 bg-card border-2 border-border p-4 font-mono font-bold uppercase text-sm">
@@ -935,12 +944,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                       <button
                         key={option.id}
                         type="button"
-                        onClick={() => {
-                          setArtworkSrc(option.src);
-                          setArtworkName(option.name);
-                          setArtworkSource("curated");
-                          setArtworkPanel("curated");
-                        }}
+                        onClick={() => selectArtworkOption(option)}
                         className={`mtm-curated-card relative border-2 border-border text-left transition-all ${
                           artworkSrc === option.src
                             ? "mtm-active-card shadow-[4px_4px_0_0_#292929]"
@@ -972,9 +976,8 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                     />
                   </label>
                 ) : (
-                  <div className="mtm-search-input mtm-inactive-card relative w-full border-2 border-border flex items-center gap-3">
+                  <div className="mtm-search-input mtm-inactive-card relative w-full border-2 border-border">
                     <input
-                      className="w-full bg-transparent font-mono font-bold text-muted-foreground uppercase outline-none placeholder:text-muted-foreground"
                       value={searchQuery}
                       onChange={(event) => setSearchQuery(event.target.value)}
                       onFocus={() => setArtworkPanel("search")}
@@ -992,25 +995,21 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
               </div>
 
               {artworkPanel === "search" ? (
-                <div className="bg-card border-2 border-border p-3 space-y-3">
+                <div className="mtm-search-results bg-card border-2 border-border p-3 space-y-3">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {searchResults.map((option) => (
                       <button
                         key={option.id}
                         type="button"
-                        onClick={() => {
-                          setArtworkSrc(option.src);
-                          setArtworkName(option.name);
-                          setArtworkSource("curated");
-                        }}
-                        className={`border-2 border-border bg-background text-left transition-all ${
+                        onClick={() => selectArtworkOption(option)}
+                        className={`mtm-search-result-card border-2 border-border bg-background text-left transition-all ${
                           artworkSrc === option.src ? "shadow-[4px_4px_0_0_#292929]" : "hover:bg-card"
                         }`}
                       >
                         {option.thumbSrc ? (
                           <img src={option.thumbSrc} alt={option.name} className="aspect-square w-full object-cover border-b-2 border-border" />
                         ) : null}
-                        <span className="block p-2">
+                        <span className="mtm-search-result-copy block p-2">
                           <strong className="block font-heading text-sm uppercase leading-4">{option.name}</strong>
                           <small className="block font-mono text-[10px] uppercase leading-3 text-muted-foreground">{option.credit}</small>
                         </span>
@@ -1020,7 +1019,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                   {searchStatus ? <p className="font-mono font-bold uppercase text-xs">{searchStatus}</p> : null}
                   {searchHasMore ? (
                     <button type="button" className="secondary-button w-full" onClick={loadMoreSearch}>
-                      {searchLoadCount >= 3 ? "Open artwork library" : "Load 9 more"}
+                      {searchLoadCount >= 3 ? "Open artwork library" : "See More"}
                     </button>
                   ) : null}
                 </div>
