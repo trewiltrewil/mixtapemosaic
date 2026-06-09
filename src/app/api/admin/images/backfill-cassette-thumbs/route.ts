@@ -7,6 +7,22 @@ import { isAdminRequest } from "@/lib/server-admin";
 
 export const runtime = "nodejs";
 
+function errorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return "Unknown thumbnail error";
+  }
+}
+
 export async function POST(request: Request) {
   if (!(await isAdminRequest())) {
     return NextResponse.json({ error: "Admin access required." }, { status: 401 });
@@ -28,7 +44,7 @@ export async function POST(request: Request) {
         failed.push({
           id: asset.id,
           title: asset.title,
-          error: error instanceof Error ? error.message : "Unknown thumbnail error"
+          error: errorMessage(error)
         });
       }
     }
@@ -41,7 +57,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Could not backfill cassette thumbnails." },
+      { error: errorMessage(error) || "Could not backfill cassette thumbnails." },
       { status: 500 }
     );
   }

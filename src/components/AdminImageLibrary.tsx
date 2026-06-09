@@ -104,6 +104,22 @@ function bulkItemId(file: File, index: number) {
   return `${file.name}-${file.size}-${file.lastModified}-${index}`;
 }
 
+function formatClientError(value: unknown) {
+  if (value instanceof Error) {
+    return value.message;
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return "Unknown error";
+  }
+}
+
 export function AdminImageLibrary() {
   const [assets, setAssets] = useState<ImageAsset[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -268,7 +284,7 @@ export function AdminImageLibrary() {
     };
 
     if (!prepareResponse.ok || !prepareResult.id || !prepareResult.originalStorageKey || !prepareResult.uploadUrl) {
-      throw new Error(prepareResult.error ?? "Could not prepare image upload.");
+      throw new Error(formatClientError(prepareResult.error ?? "Could not prepare image upload."));
     }
 
     onStage("uploading", "Uploading original directly to private R2...");
@@ -298,7 +314,7 @@ export function AdminImageLibrary() {
     const result = (await completeResponse.json()) as { asset?: ImageAsset; error?: string };
 
     if (!completeResponse.ok || !result.asset) {
-      throw new Error(result.error ?? "Could not process uploaded image asset.");
+      throw new Error(formatClientError(result.error ?? "Could not process uploaded image asset."));
     }
 
     return result.asset;
@@ -341,7 +357,7 @@ export function AdminImageLibrary() {
           failed += 1;
           updateBulkItem(itemId, {
             status: "failed",
-            detail: uploadError instanceof Error ? uploadError.message : "Upload failed"
+            detail: formatClientError(uploadError) || "Upload failed"
           });
         } finally {
           setUploadStage(`Uploaded ${completed} of ${bulkFiles.length}${failed ? `, ${failed} failed` : ""}.`);
@@ -387,7 +403,7 @@ export function AdminImageLibrary() {
         const result = (await response.json()) as { asset?: ImageAsset; error?: string };
 
         if (!response.ok || !result.asset) {
-          setError(result.error ?? "Could not update image metadata.");
+          setError(formatClientError(result.error ?? "Could not update image metadata."));
           return;
         }
 
@@ -418,7 +434,7 @@ export function AdminImageLibrary() {
       selectAsset(asset);
       setMessage("Image uploaded and web derivatives generated.");
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : "Could not upload image asset.");
+      setError(formatClientError(uploadError) || "Could not upload image asset.");
     } finally {
       setUploadStage("");
       setSaving(false);
@@ -477,7 +493,7 @@ export function AdminImageLibrary() {
         };
 
         if (!response.ok) {
-          throw new Error(result.error ?? "Could not generate cassette thumbnails.");
+          throw new Error(formatClientError(result.error ?? "Could not generate cassette thumbnails."));
         }
 
         const updated = result.updated ?? [];
@@ -495,7 +511,7 @@ export function AdminImageLibrary() {
 
       setMessage(`Cassette thumbnail regeneration complete. ${totalUpdated} updated${totalFailed ? `, ${totalFailed} failed` : ""}.`);
     } catch (backfillError) {
-      setError(backfillError instanceof Error ? backfillError.message : "Could not generate cassette thumbnails.");
+      setError(formatClientError(backfillError) || "Could not generate cassette thumbnails.");
     } finally {
       setUploadStage("");
       setBackfillRunning(false);
