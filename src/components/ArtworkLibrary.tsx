@@ -40,13 +40,8 @@ function image(asset: ArtworkLibraryAsset) {
   return asset.cassette_thumb_url ?? asset.thumb_url ?? asset.card_url ?? asset.preview_url ?? asset.large_url;
 }
 
-function uniqueTags(assets: ArtworkLibraryAsset[], featured: string[]) {
-  return Array.from(
-    new Set([
-      ...featured,
-      ...assets.flatMap((asset) => [...(asset.categories ?? []), ...(asset.tags ?? [])]).filter(Boolean)
-    ])
-  ).slice(0, 14);
+function uniqueFeaturedTags(featured: string[]) {
+  return Array.from(new Set(featured.map((tag) => tag.trim()).filter(Boolean))).slice(0, 14);
 }
 
 function collectionRank(collection: ArtworkCollectionLink) {
@@ -91,7 +86,7 @@ export function ArtworkLibrary({
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const tags = uniqueTags(assets, featuredTags);
+  const tags = uniqueFeaturedTags(featuredTags);
   const collectionLinks = [...collections].sort(
     (a, b) => collectionRank(a) - collectionRank(b) || a.title.localeCompare(b.title)
   );
@@ -146,7 +141,7 @@ export function ArtworkLibrary({
                 <Link
                   key={collection.slug}
                   href={collection.slug === "all" || collection.slug === "artwork" ? "/artwork" : `/artwork/${collection.slug}`}
-                  className={activeCollectionSlug === collection.slug ? "selected" : ""}
+                  className={!activeTag && activeCollectionSlug === collection.slug ? "selected" : ""}
                 >
                   {collection.slug === "all" || collection.slug === "artwork" ? "All" : collection.title}
                 </Link>

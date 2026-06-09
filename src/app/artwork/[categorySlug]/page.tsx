@@ -33,6 +33,10 @@ function dailyArtworkSeed() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function isMainArtworkPage(slug: string) {
+  return slug === "all" || slug === "artwork";
+}
+
 export default async function ArtworkCategoryPage({ params, searchParams }: PageProps) {
   const [{ categorySlug }, queryParams] = await Promise.all([params, searchParams]);
   const [page, collections] = await Promise.all([
@@ -42,6 +46,7 @@ export default async function ArtworkCategoryPage({ params, searchParams }: Page
   if (!page) {
     notFound();
   }
+  const mainPage = collections.find((collection) => isMainArtworkPage(collection.slug));
 
   const query = queryParams?.q ?? "";
   const seed = dailyArtworkSeed();
@@ -75,7 +80,7 @@ export default async function ArtworkCategoryPage({ params, searchParams }: Page
         collections={collections}
         storyHeading={page.contentHeading ?? page.seoTitle ?? null}
         storyBody={page.contentBody ?? page.seoDescription ?? null}
-        featuredTags={page.featuredTags ?? []}
+        featuredTags={mainPage?.featuredTags ?? []}
       />
       <SiteFooter />
     </main>
