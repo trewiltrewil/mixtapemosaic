@@ -9,6 +9,7 @@ import {
   mergeMetadata
 } from "@/lib/artwork-auto-metadata";
 import { downloadR2ObjectBuffer, getR2BucketNames } from "@/lib/r2";
+import { revalidateImageLibraryViews } from "@/lib/image-library-revalidation";
 import { isAdminRequest } from "@/lib/server-admin";
 
 export const runtime = "nodejs";
@@ -88,6 +89,7 @@ export async function POST(request: Request) {
       })
     });
 
+    revalidateImageLibraryViews();
     return NextResponse.json({ asset }, { status: 201 });
   } catch (error) {
     return NextResponse.json(

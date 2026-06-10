@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminImageAsset, updateImageAssetMetadata, type AssetMetadataInput } from "@/lib/image-assets";
+import { revalidateImageLibraryViews } from "@/lib/image-library-revalidation";
 import { isAdminRequest } from "@/lib/server-admin";
 
 export const runtime = "nodejs";
@@ -66,6 +67,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const { id } = await context.params;
     const body = (await request.json()) as Record<string, unknown>;
     const asset = await updateImageAssetMetadata(id, bodyToMetadata(body));
+    revalidateImageLibraryViews();
     return NextResponse.json({ asset });
   } catch (error) {
     return NextResponse.json(

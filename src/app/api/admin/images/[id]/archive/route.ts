@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { archiveImageAsset } from "@/lib/image-assets";
+import { revalidateImageLibraryViews } from "@/lib/image-library-revalidation";
 import { isAdminRequest } from "@/lib/server-admin";
 
 export const runtime = "nodejs";
@@ -16,6 +17,7 @@ export async function POST(_request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const asset = await archiveImageAsset(id);
+    revalidateImageLibraryViews();
     return NextResponse.json({ asset });
   } catch (error) {
     return NextResponse.json(
@@ -24,4 +26,3 @@ export async function POST(_request: Request, context: RouteContext) {
     );
   }
 }
-

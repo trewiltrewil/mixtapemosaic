@@ -4,6 +4,7 @@ import {
   listAdminImageAssets,
   metadataFromFormData
 } from "@/lib/image-assets";
+import { revalidateImageLibraryViews } from "@/lib/image-library-revalidation";
 import { isAdminRequest } from "@/lib/server-admin";
 
 export const runtime = "nodejs";
@@ -52,6 +53,7 @@ export async function POST(request: Request) {
     }
 
     const asset = await createImageAssetFromUpload(file, metadataFromFormData(formData));
+    revalidateImageLibraryViews();
     return NextResponse.json({ asset }, { status: 201 });
   } catch (error) {
     return NextResponse.json(

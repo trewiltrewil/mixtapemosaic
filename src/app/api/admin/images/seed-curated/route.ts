@@ -7,6 +7,7 @@ import {
   type AssetMetadataInput,
   type ImageAssetRecord
 } from "@/lib/image-assets";
+import { revalidateImageLibraryViews } from "@/lib/image-library-revalidation";
 import { isAdminRequest } from "@/lib/server-admin";
 
 export const runtime = "nodejs";
@@ -78,6 +79,10 @@ export async function POST() {
 
       const file = await sampleToFile(sample.filename, sample.contentType);
       created.push(await createImageAssetFromUpload(file, sample.metadata));
+    }
+
+    if (created.length) {
+      revalidateImageLibraryViews();
     }
 
     return NextResponse.json({ created, skipped });
