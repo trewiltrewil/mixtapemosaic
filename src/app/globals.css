@@ -2830,17 +2830,18 @@ p {
 }
 
 .artwork-library-cta {
-  border-bottom: 5px solid var(--ink);
+  border-bottom: 4px solid var(--ink);
   color: var(--ink);
   display: inline-block;
   font-family: var(--font-heading), sans-serif;
-  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-size: 1.125rem;
   font-weight: 1000;
   justify-self: start;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-  margin-top: 12px;
-  padding-bottom: 8px;
+  letter-spacing: 0.05em;
+  line-height: 28px;
+  margin-top: 10px;
+  min-height: 36px;
+  padding-bottom: 4px;
   text-decoration: none;
   text-transform: uppercase;
 }

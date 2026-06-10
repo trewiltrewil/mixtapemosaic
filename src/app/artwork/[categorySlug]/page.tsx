@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArtworkLibrary } from "@/components/ArtworkLibrary";
 import { PageHero, SiteFooter } from "@/components/PublicChrome";
-import { getArtworkCollectionPageBySlug, getArtworkCollectionPages } from "@/lib/cms";
+import { getArtworkCollectionPageBySlug, getArtworkCollectionPages, type CmsArtworkCollectionPage } from "@/lib/cms";
 import { searchPublicImageAssets } from "@/lib/image-assets";
 
 export const revalidate = 86400;
@@ -22,10 +22,37 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { categorySlug } = await params;
   const page = await getArtworkCollectionPageBySlug(categorySlug);
+  const title = page?.seoTitle ?? `${page?.title ?? "Artwork"} | Mixtape Mosaic`;
+  const description = page?.seoDescription ?? page?.intro ?? "Browse Mixtape Mosaic artwork.";
+
+  return artworkMetadata(page ?? undefined, title, description, `/artwork/${categorySlug}`);
+}
+
+function artworkMetadata(
+  page: CmsArtworkCollectionPage | undefined,
+  title: string,
+  description: string,
+  fallbackCanonical: string
+): Metadata {
+  const imageUrl = page?.seoImageUrl;
   return {
-    title: page?.seoTitle ?? `${page?.title ?? "Artwork"} | Mixtape Mosaic`,
-    description: page?.seoDescription ?? page?.intro ?? "Browse Mixtape Mosaic artwork.",
-    alternates: { canonical: `/artwork/${categorySlug}` }
+    title,
+    description,
+    keywords: page?.seoKeywords,
+    robots: page?.seoNoIndex ? { index: false, follow: false } : undefined,
+    alternates: { canonical: page?.seoCanonicalPath || fallbackCanonical },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: imageUrl ? [{ url: imageUrl, alt: title }] : undefined
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: imageUrl ? [imageUrl] : undefined
+    }
   };
 }
 
@@ -78,8 +105,8 @@ export default async function ArtworkCategoryPage({ params, searchParams }: Page
         category={page.categoryKey}
         activeCollectionSlug={page.slug}
         collections={collections}
-        storyHeading={page.contentHeading ?? page.seoTitle ?? null}
-        storyBody={page.contentBody ?? page.seoDescription ?? null}
+        storyHeading={page.contentHeading ?? null}
+        storyBody={page.contentBody ?? null}
         featuredTags={mainPage?.featuredTags ?? []}
       />
       <SiteFooter />

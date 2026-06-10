@@ -39,6 +39,10 @@ export type CmsArtworkCollectionPage = {
   featuredTags?: string[];
   seoTitle?: string;
   seoDescription?: string;
+  seoImageUrl?: string;
+  seoKeywords?: string[];
+  seoCanonicalPath?: string;
+  seoNoIndex?: boolean;
 };
 export type CmsPage = {
   title: string;
@@ -46,6 +50,10 @@ export type CmsPage = {
   sections: Array<Record<string, unknown> & { _type: string }>;
   seoTitle?: string;
   seoDescription?: string;
+  seoImageUrl?: string;
+  seoKeywords?: string[];
+  seoCanonicalPath?: string;
+  seoNoIndex?: boolean;
 };
 export type CmsSiteSettings = {
   title?: string;
@@ -81,7 +89,8 @@ export const getSiteSettings = cache(async (): Promise<CmsSiteSettings | null> =
 export const getPageBySlug = cache(async (slug: string): Promise<CmsPage | null> => {
   return fetchSanity<CmsPage>(
     `*[_type == "page" && slug.current == $slug][0]{
-      title, "slug": slug.current, sections, seoTitle, seoDescription
+      title, "slug": slug.current, sections,
+      seoTitle, seoDescription, "seoImageUrl": seoImage.asset->url, seoKeywords, seoCanonicalPath, seoNoIndex
     }`,
     { slug }
   );
@@ -235,7 +244,8 @@ export async function getActiveProductVariantById(id: string) {
 export const getArtworkCollectionPages = cache(async (): Promise<CmsArtworkCollectionPage[]> => {
   const pages = await fetchSanity<CmsArtworkCollectionPage[]>(
     `*[_type == "artworkCollectionPage" && active == true && !(_id in path("drafts.**"))] | order(title asc){
-      title, "slug": slug.current, categoryKey, eyebrow, intro, contentHeading, contentBody, featuredTags, seoTitle, seoDescription
+      title, "slug": slug.current, categoryKey, eyebrow, intro, contentHeading, contentBody, featuredTags,
+      seoTitle, seoDescription, "seoImageUrl": seoImage.asset->url, seoKeywords, seoCanonicalPath, seoNoIndex
     }`
   );
 

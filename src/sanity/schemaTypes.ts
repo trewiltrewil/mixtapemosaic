@@ -11,7 +11,34 @@ const mdxField = (name: string, title: string) =>
 
 const seoFields = [
   defineField({ name: "seoTitle", title: "SEO title", type: "string" }),
-  defineField({ name: "seoDescription", title: "SEO description", type: "text", rows: 3 })
+  defineField({ name: "seoDescription", title: "SEO description", type: "text", rows: 3 }),
+  defineField({
+    name: "seoImage",
+    title: "SEO / social image",
+    type: "image",
+    options: { hotspot: true },
+    description: "Used for Open Graph and social sharing previews. Keep visible page artwork/content separate."
+  }),
+  defineField({
+    name: "seoKeywords",
+    title: "SEO keywords",
+    type: "array",
+    of: [defineArrayMember({ type: "string" })],
+    description: "Optional comma-like keyword list for metadata."
+  }),
+  defineField({
+    name: "seoCanonicalPath",
+    title: "Canonical path",
+    type: "string",
+    description: "Optional canonical URL path, for example /artwork or /artwork/retro."
+  }),
+  defineField({
+    name: "seoNoIndex",
+    title: "Hide from search engines",
+    type: "boolean",
+    initialValue: false,
+    description: "Adds noindex/nofollow metadata when enabled."
+  })
 ];
 
 const enabledField = defineField({ name: "enabled", title: "Show section", type: "boolean", initialValue: true });
