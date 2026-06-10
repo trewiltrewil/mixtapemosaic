@@ -2528,39 +2528,21 @@ p {
   z-index: 220;
 }
 
-.mtm-preview-cue {
-  align-items: center;
-  background:
-    linear-gradient(90deg, rgba(250, 239, 221, 0.92), rgba(245, 241, 237, 0.92)),
-    repeating-linear-gradient(90deg, transparent 0 18px, rgba(41, 41, 41, 0.08) 18px 20px);
-  border: 3px solid var(--ink);
-  box-shadow: 6px 6px 0 var(--ink);
+.mtm-preview-loading-pill {
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  bottom: 14px;
+  box-shadow: 4px 4px 0 var(--ink);
   color: var(--ink);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  left: 50%;
-  min-width: min(78%, 340px);
-  padding: 18px;
-  position: absolute;
-  text-align: center;
-  text-transform: uppercase;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.mtm-preview-cue span {
-  color: var(--orange);
   font-family: "Space Mono", monospace;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 900;
-  letter-spacing: 0.12em;
-}
-
-.mtm-preview-cue strong {
-  font-family: var(--font-heading), sans-serif;
-  font-size: clamp(1rem, 2vw, 1.35rem);
-  line-height: 1;
+  left: 14px;
+  letter-spacing: 0.08em;
+  padding: 7px 10px;
+  position: absolute;
+  text-transform: uppercase;
+  z-index: 20;
 }
 
 .mtm-crop-modal {

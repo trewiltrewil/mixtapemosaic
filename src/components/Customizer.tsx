@@ -484,6 +484,7 @@ export function Customizer({
   const [cartStatus, setCartStatus] = useState("");
   const selectedSize = sizes.find((size) => size.id === selectedSizeId) ?? sizes[0] ?? fallbackSizes[0];
   const selectedLayout = selectedSize.layout;
+  const selectedPhoto = selectedSize.mockupPhoto ?? getProductPhoto(selectedLayout);
   const allArtworkOptions = useMemo(() => [...libraryOptions, ...searchResults], [libraryOptions, searchResults]);
   const previewConfig = useMemo(
     () => ({
@@ -495,6 +496,10 @@ export function Customizer({
   );
 
   useEffect(() => {
+    if (initialData?.sizes?.length) {
+      return;
+    }
+
     let active = true;
     fetch("/api/products/variants", { cache: "no-store" })
       .then(async (response) => {
@@ -519,7 +524,7 @@ export function Customizer({
     return () => {
       active = false;
     };
-  }, [selectedSizeId]);
+  }, [initialData?.sizes?.length, selectedSizeId]);
 
   useEffect(() => {
     if (initialCuratedOptions.length) {
@@ -608,8 +613,7 @@ export function Customizer({
 
   useEffect(() => {
     let active = true;
-    const productPhoto = selectedSize.mockupPhoto ?? getProductPhoto(selectedLayout);
-    loadImage(productPhoto.src).then((image) => {
+    loadImage(selectedPhoto.src).then((image) => {
       if (active) {
         setPhoto(image);
       }
@@ -617,7 +621,7 @@ export function Customizer({
     return () => {
       active = false;
     };
-  }, [selectedLayout, selectedSize.mockupPhoto]);
+  }, [selectedPhoto.src]);
 
   useEffect(() => {
     let active = true;
@@ -707,6 +711,12 @@ export function Customizer({
       if (!context) {
         return;
       }
+
+      if (!photo) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+
       drawRealisticPreview(
         context,
         artwork,
@@ -979,7 +989,7 @@ export function Customizer({
 
   const selectedOption = allArtworkOptions.find((option) => option.src === artworkSrc);
   const selectedLabel = selectedOption?.name ?? artworkName;
-  const previewReady = Boolean(photo && artwork);
+  const artworkLoading = Boolean(photo && artworkSrc && !artwork);
 
   return (
     <section id="customizer" className="bg-accent text-foreground border-b-4 border-border py-16 sm:py-20 lg:py-32">
@@ -1000,15 +1010,23 @@ export function Customizer({
                 className="w-full border-4 border-border shadow-[8px_8px_0_0_#292929] overflow-hidden bg-card relative"
                 style={{ aspectRatio: selectedSize.aspectRatio }}
               >
+                <img
+                  src={selectedPhoto.src}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 h-full w-full object-contain bg-[#f0f0f0]"
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                />
                 <canvas
                   ref={canvasRef}
-                  className="w-full h-full block bg-[#f0f0f0]"
+                  className="relative z-10 w-full h-full block"
                   aria-label="Realistic Mixtape Mosaic preview"
                 />
-                {!previewReady ? (
-                  <div className="mtm-preview-cue" aria-live="polite">
-                    <span>Loading the mix</span>
-                    <strong>{selectedSize.label}</strong>
+                {artworkLoading ? (
+                  <div className="mtm-preview-loading-pill" aria-live="polite">
+                    Loading the mix
                   </div>
                 ) : null}
               </div>

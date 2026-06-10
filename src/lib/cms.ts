@@ -237,7 +237,7 @@ export const getActiveProductVariants = cache(async (): Promise<CmsProductVarian
       layout: variant.customizerLayoutKey || "square",
       mockupPhoto: variant.mockupImageUrl
         ? {
-            src: sanityImageUrl(variant.mockupImage, 1200) ?? variant.mockupImageUrl,
+            src: sanityImageUrl(variant.mockupImage, variant.mockupImageWidth || 1600) ?? variant.mockupImageUrl,
             width: variant.mockupImageWidth || 1200,
             height: variant.mockupImageHeight || 1200
           }
