@@ -499,6 +499,19 @@ export function Customizer({
     [selectedSize.columns, selectedSize.rows]
   );
 
+  function scrollPreviewIntoView() {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    const top = canvas.getBoundingClientRect().top + window.scrollY - 96;
+    window.scrollTo({
+      top: Math.max(0, top),
+      behavior: "smooth"
+    });
+  }
+
   useEffect(() => {
     if (initialData?.sizes?.length) {
       return;
@@ -787,6 +800,7 @@ export function Customizer({
     setPendingUploadCrop(false);
     setArtworkSource("upload");
     setArtworkPanel("upload");
+    requestAnimationFrame(scrollPreviewIntoView);
   }
 
   function closeUploadCrop() {
@@ -840,9 +854,7 @@ export function Customizer({
     setArtworkSrc(option.src);
     setArtworkName(option.name);
     setArtworkSource("curated");
-    requestAnimationFrame(() => {
-      document.getElementById("customizer")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    requestAnimationFrame(scrollPreviewIntoView);
   }
 
   async function saveCustomerArtworkIfNeeded() {
