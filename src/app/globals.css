@@ -2584,6 +2584,7 @@ p {
   background: #d9d4ca;
   border: 4px solid var(--ink);
   cursor: grab;
+  height: min(48svh, 430px);
   max-height: min(48svh, 430px);
   overflow: hidden;
   position: relative;
@@ -2607,10 +2608,19 @@ p {
   width: auto;
 }
 
+.mtm-crop-frame {
+  box-shadow: 0 0 0 9999px rgba(41, 41, 41, 0.36);
+  left: 50%;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .mtm-crop-grid {
   border: 3px solid rgba(250, 239, 221, 0.92);
   display: grid;
-  inset: 18px;
+  inset: 0;
   pointer-events: none;
   position: absolute;
 }

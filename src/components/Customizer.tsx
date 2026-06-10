@@ -165,6 +165,11 @@ type CropImageFit = {
   height: number;
 };
 
+type CropFrameSize = {
+  width: number;
+  height: number;
+};
+
 function UploadCropModal({
   file,
   url,
@@ -185,22 +190,44 @@ function UploadCropModal({
   onApply: (dataUrl: string, crop: CropState) => void;
 }) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const frameRef = useRef<HTMLDivElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const dragRef = useRef<{ pointerId: number; startX: number; startY: number; cropX: number; cropY: number } | null>(null);
   const [crop, setCrop] = useState<CropState>({ x: 0, y: 0, zoom: 1 });
   const [imageFit, setImageFit] = useState<CropImageFit>({ width: 0, height: 0 });
+  const [frameSize, setFrameSize] = useState<CropFrameSize>({ width: 0, height: 0 });
   const numericAspect = aspectRatioNumber(aspectRatio);
+
+  function getCropFrameSize() {
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      return { width: 0, height: 0 };
+    }
+
+    const maxWidth = Math.max(1, viewport.clientWidth - 36);
+    const maxHeight = Math.max(1, viewport.clientHeight - 36);
+    if (maxWidth / maxHeight > numericAspect) {
+      return {
+        height: maxHeight,
+        width: Math.max(1, maxHeight * numericAspect)
+      };
+    }
+
+    return {
+      height: Math.max(1, maxWidth / numericAspect),
+      width: maxWidth
+    };
+  }
 
   function updateImageFit() {
     const image = imageRef.current;
-    const viewport = viewportRef.current;
-    if (!image || !viewport || !image.naturalWidth || !image.naturalHeight) {
+    if (!image || !image.naturalWidth || !image.naturalHeight) {
       return;
     }
 
-    const viewportWidth = viewport.clientWidth;
-    const viewportHeight = viewport.clientHeight;
-    const containScale = Math.max(viewportWidth / image.naturalWidth, viewportHeight / image.naturalHeight);
+    const { width: frameWidth, height: frameHeight } = getCropFrameSize();
+    setFrameSize({ width: frameWidth, height: frameHeight });
+    const containScale = Math.max(frameWidth / image.naturalWidth, frameHeight / image.naturalHeight);
     setImageFit({
       width: image.naturalWidth * containScale,
       height: image.naturalHeight * containScale
@@ -243,8 +270,7 @@ function UploadCropModal({
 
   function saveCrop() {
     const image = imageRef.current;
-    const viewport = viewportRef.current;
-    if (!image || !viewport) {
+    if (!image) {
       return;
     }
 
@@ -261,14 +287,15 @@ function UploadCropModal({
     context.fillStyle = "#f0f0f0";
     context.fillRect(0, 0, outputWidth, outputHeight);
 
-    const viewportWidth = viewport.clientWidth || outputWidth;
-    const viewportHeight = viewport.clientHeight || outputHeight;
-    const containScale = Math.max(viewportWidth / image.naturalWidth, viewportHeight / image.naturalHeight);
-    const drawScale = containScale * crop.zoom * (outputWidth / viewportWidth);
+    const measuredFrame = getCropFrameSize();
+    const frameWidth = measuredFrame.width || outputWidth;
+    const frameHeight = measuredFrame.height || outputHeight;
+    const containScale = Math.max(frameWidth / image.naturalWidth, frameHeight / image.naturalHeight);
+    const drawScale = containScale * crop.zoom * (outputWidth / frameWidth);
     const drawWidth = image.naturalWidth * drawScale;
     const drawHeight = image.naturalHeight * drawScale;
-    const drawX = outputWidth / 2 - drawWidth / 2 + crop.x * (outputWidth / viewportWidth);
-    const drawY = outputHeight / 2 - drawHeight / 2 + crop.y * (outputHeight / viewportHeight);
+    const drawX = outputWidth / 2 - drawWidth / 2 + crop.x * (outputWidth / frameWidth);
+    const drawY = outputHeight / 2 - drawHeight / 2 + crop.y * (outputHeight / frameHeight);
 
     context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
     onApply(canvas.toDataURL("image/webp", 0.9), crop);
@@ -291,7 +318,6 @@ function UploadCropModal({
             <div
               ref={viewportRef}
               className="mtm-crop-viewport"
-              style={{ aspectRatio }}
               onPointerDown={pointerDown}
               onPointerMove={pointerMove}
               onPointerUp={pointerUp}
@@ -309,17 +335,27 @@ function UploadCropModal({
                   width: imageFit.width ? `${imageFit.width}px` : undefined
                 }}
               />
-              <span
-                className="mtm-crop-grid"
+              <div
+                ref={frameRef}
+                className="mtm-crop-frame"
                 style={{
-                  gridTemplateColumns: `repeat(${panelColumns}, 1fr)`,
-                  gridTemplateRows: `repeat(${panelRows}, 1fr)`
+                  aspectRatio,
+                  height: frameSize.height ? `${frameSize.height}px` : undefined,
+                  width: frameSize.width ? `${frameSize.width}px` : undefined
                 }}
               >
-                {Array.from({ length: panelColumns * panelRows }, (_, index) => (
-                  <span key={index} />
-                ))}
-              </span>
+                <span
+                  className="mtm-crop-grid"
+                  style={{
+                    gridTemplateColumns: `repeat(${panelColumns}, 1fr)`,
+                    gridTemplateRows: `repeat(${panelRows}, 1fr)`
+                  }}
+                >
+                  {Array.from({ length: panelColumns * panelRows }, (_, index) => (
+                    <span key={index} />
+                  ))}
+                </span>
+              </div>
             </div>
             <label className="mtm-crop-slider">
               Zoom
