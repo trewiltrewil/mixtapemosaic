@@ -67,6 +67,12 @@ type ProductSizePayload = Omit<ProductSizeOption, "layout"> & {
   layout?: string;
 };
 
+export type CustomizerInitialData = {
+  sizes?: ProductSizePayload[];
+  curatedAssets?: PublicImageAsset[];
+  selectedAsset?: PublicImageAsset | null;
+};
+
 const fallbackSizes: ProductSizeOption[] = fallbackProductVariantList.map((variant) => ({
   id: variant.id,
   label: variant.label,
@@ -414,18 +420,52 @@ function UploadCropModal({
   );
 }
 
-export function Customizer({ initialArtworkId }: { initialArtworkId?: string | null } = {}) {
+function sizePayloadToOption(variant: ProductSizePayload): ProductSizeOption {
+  return {
+    ...variant,
+    layout: variant.layout === "landscape" ? "landscape" : variant.layout || "square",
+    panelColumns: variant.panelColumns ?? (variant.layout === "landscape" ? 4 : 3),
+    panelRows: variant.panelRows ?? (variant.layout === "portrait" ? 4 : 3),
+    panelCount: variant.panelCount ?? ((variant.layout === "landscape" || variant.layout === "portrait") ? 12 : 9),
+    tapeCountLabel: variant.tapeCountLabel ?? `${variant.columns * variant.rows} tapes`
+  };
+}
+
+export function Customizer({
+  initialArtworkId,
+  initialData
+}: {
+  initialArtworkId?: string | null;
+  initialData?: CustomizerInitialData;
+} = {}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
   const { addItem } = useCart();
+  const initialSizes = useMemo(
+    () => initialData?.sizes?.length ? initialData.sizes.map(sizePayloadToOption) : fallbackSizes,
+    [initialData?.sizes]
+  );
+  const initialCuratedOptions = useMemo(
+    () => (initialData?.curatedAssets ?? []).map(assetToOption).filter((asset): asset is ArtworkOption => Boolean(asset)),
+    [initialData?.curatedAssets]
+  );
+  const initialSelectedOption = useMemo(
+    () => initialData?.selectedAsset ? assetToOption(initialData.selectedAsset) : null,
+    [initialData?.selectedAsset]
+  );
   const [calibration, setCalibration] = useState<ProductCalibration>(() => createPrototypeCalibration());
-  const [artworkSrc, setArtworkSrc] = useState("");
-  const [artworkName, setArtworkName] = useState("Choose artwork");
+  const [artworkSrc, setArtworkSrc] = useState(initialSelectedOption?.src ?? initialCuratedOptions[0]?.src ?? "");
+  const [artworkName, setArtworkName] = useState(initialSelectedOption?.name ?? initialCuratedOptions[0]?.name ?? "Choose artwork");
   const [artworkSource, setArtworkSource] = useState<ArtworkSource>("curated");
   const [artworkPanel, setArtworkPanel] = useState<ArtworkPanel>("curated");
-  const [initialArtworkPending, setInitialArtworkPending] = useState(Boolean(initialArtworkId));
-  const [libraryOptions, setLibraryOptions] = useState<ArtworkOption[]>([]);
+  const [initialArtworkPending, setInitialArtworkPending] = useState(Boolean(initialArtworkId && !initialSelectedOption));
+  const [libraryOptions, setLibraryOptions] = useState<ArtworkOption[]>(() => {
+    if (initialSelectedOption && !initialCuratedOptions.some((option) => option.id === initialSelectedOption.id)) {
+      return [initialSelectedOption, ...initialCuratedOptions];
+    }
+    return initialCuratedOptions;
+  });
   const [searchResults, setSearchResults] = useState<ArtworkOption[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOffset, setSearchOffset] = useState(0);
@@ -437,8 +477,8 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
   const [pendingUploadCrop, setPendingUploadCrop] = useState(false);
   const [cropState, setCropState] = useState<CropState | null>(null);
   const [customerArtworkUploadId, setCustomerArtworkUploadId] = useState<string | null>(null);
-  const [sizes, setSizes] = useState<ProductSizeOption[]>(fallbackSizes);
-  const [selectedSizeId, setSelectedSizeId] = useState(fallbackSizes[0].id);
+  const [sizes, setSizes] = useState<ProductSizeOption[]>(initialSizes);
+  const [selectedSizeId, setSelectedSizeId] = useState(initialSizes[0]?.id ?? fallbackSizes[0].id);
   const [artwork, setArtwork] = useState<LoadedImage | null>(null);
   const [photo, setPhoto] = useState<LoadedImage | null>(null);
   const [cartStatus, setCartStatus] = useState("");
@@ -468,14 +508,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
           return;
         }
 
-        const nextSizes = payload.variants.map((variant) => ({
-          ...variant,
-          layout: variant.layout === "landscape" ? "landscape" : "square",
-          panelColumns: variant.panelColumns ?? (variant.layout === "landscape" ? 4 : 3),
-          panelRows: variant.panelRows ?? (variant.layout === "portrait" ? 4 : 3),
-          panelCount: variant.panelCount ?? ((variant.layout === "landscape" || variant.layout === "portrait") ? 12 : 9),
-          tapeCountLabel: variant.tapeCountLabel ?? `${variant.columns * variant.rows} tapes`
-        })) as ProductSizeOption[];
+        const nextSizes = payload.variants.map(sizePayloadToOption);
         setSizes(nextSizes);
         if (!nextSizes.some((size) => size.id === selectedSizeId)) {
           setSelectedSizeId(nextSizes[0].id);
@@ -489,6 +522,10 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
   }, [selectedSizeId]);
 
   useEffect(() => {
+    if (initialCuratedOptions.length) {
+      return;
+    }
+
     let active = true;
     fetch("/api/images?curatedOnly=true&limit=6&offset=0", { cache: "no-store" })
       .then(async (response) => {
@@ -512,7 +549,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialCuratedOptions.length]);
 
   useEffect(() => {
     if (!initialArtworkId) {
@@ -942,6 +979,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
 
   const selectedOption = allArtworkOptions.find((option) => option.src === artworkSrc);
   const selectedLabel = selectedOption?.name ?? artworkName;
+  const previewReady = Boolean(photo && artwork);
 
   return (
     <section id="customizer" className="bg-accent text-foreground border-b-4 border-border py-16 sm:py-20 lg:py-32">
@@ -967,6 +1005,12 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
                   className="w-full h-full block bg-[#f0f0f0]"
                   aria-label="Realistic Mixtape Mosaic preview"
                 />
+                {!previewReady ? (
+                  <div className="mtm-preview-cue" aria-live="polite">
+                    <span>Loading the mix</span>
+                    <strong>{selectedSize.label}</strong>
+                  </div>
+                ) : null}
               </div>
               <div className="flex flex-col gap-1 sm:flex-row sm:justify-between font-mono font-bold text-xs sm:text-sm uppercase">
                 <span>Preview: {selectedLabel}</span>

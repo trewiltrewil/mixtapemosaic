@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
-import { Customizer } from "@/components/Customizer";
+import { CustomizerServer } from "@/components/CustomizerServer";
 import { FaqAccordion } from "@/components/FaqAccordion";
 import { GalleryCard, JournalCard } from "@/components/PublicChrome";
 import { getFaqItems, getGalleryItems, getJournalPosts } from "@/lib/cms";
@@ -218,7 +218,7 @@ export async function CmsSections({
           }
 
           if (section._type === "customizerSection") {
-            return <Customizer key={index} initialArtworkId={initialArtworkId} />;
+            return <CustomizerServer key={index} initialArtworkId={initialArtworkId} />;
           }
 
           if (section._type === "ctaSection") {

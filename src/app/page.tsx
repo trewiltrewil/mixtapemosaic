@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
 import { CmsSections, type CmsSection } from "@/components/CmsSections";
-import { Customizer } from "@/components/Customizer";
+import { CustomizerServer } from "@/components/CustomizerServer";
 import { GalleryCard, JournalCard, SiteFooter } from "@/components/PublicChrome";
 import { getGalleryItems, getJournalPosts, getPageBySlug } from "@/lib/cms";
 import { sanityImageUrl } from "@/lib/sanity";
@@ -153,7 +153,7 @@ export default async function HomePage() {
           <CmsSections sections={[wallPresence]} />
         ) : null}
 
-        {customizer ? <Customizer /> : null}
+        {customizer ? <CustomizerServer /> : null}
 
         {gallery ? (
           <section className="bg-muted border-b-4 border-border py-20 lg:py-32">
@@ -345,7 +345,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <Customizer />
+      <CustomizerServer />
 
       <section className="bg-muted border-b-4 border-border py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-6">

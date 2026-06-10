@@ -1,5 +1,5 @@
 import { CmsSections } from "@/components/CmsSections";
-import { Customizer } from "@/components/Customizer";
+import { CustomizerServer } from "@/components/CustomizerServer";
 import { SiteFooter } from "@/components/PublicChrome";
 import { getPageBySlug } from "@/lib/cms";
 
@@ -12,7 +12,7 @@ type CustomizePageProps = {
 export default async function CustomizePage({ searchParams }: CustomizePageProps) {
   const params = await searchParams;
   const page = await getPageBySlug("customize");
-  const customizer = <Customizer initialArtworkId={params?.artwork ?? null} />;
+  const customizer = <CustomizerServer initialArtworkId={params?.artwork ?? null} />;
 
   if (page?.sections?.length) {
     return (
