@@ -348,6 +348,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
   const [artworkName, setArtworkName] = useState("Choose artwork");
   const [artworkSource, setArtworkSource] = useState<ArtworkSource>("curated");
   const [artworkPanel, setArtworkPanel] = useState<ArtworkPanel>("curated");
+  const [initialArtworkPending, setInitialArtworkPending] = useState(Boolean(initialArtworkId));
   const [libraryOptions, setLibraryOptions] = useState<ArtworkOption[]>([]);
   const [searchResults, setSearchResults] = useState<ArtworkOption[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -428,11 +429,6 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
 
         const options = assets.map(assetToOption).filter((asset): asset is ArtworkOption => Boolean(asset));
         setLibraryOptions(options);
-        if (!artworkSrc && options[0]) {
-          setArtworkSrc(options[0].src);
-          setArtworkName(options[0].name);
-          setArtworkSource("curated");
-        }
       })
       .catch(() => undefined);
 
@@ -443,10 +439,12 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
 
   useEffect(() => {
     if (!initialArtworkId) {
+      setInitialArtworkPending(false);
       return;
     }
 
     let active = true;
+    setInitialArtworkPending(true);
     fetch(`/api/images?id=${encodeURIComponent(initialArtworkId)}`, { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) {
@@ -472,12 +470,27 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
         setArtworkSource("curated");
         setArtworkPanel("curated");
       })
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => {
+        if (active) {
+          setInitialArtworkPending(false);
+        }
+      });
 
     return () => {
       active = false;
     };
   }, [initialArtworkId]);
+
+  useEffect(() => {
+    if (initialArtworkPending || artworkSrc || !libraryOptions[0]) {
+      return;
+    }
+
+    setArtworkSrc(libraryOptions[0].src);
+    setArtworkName(libraryOptions[0].name);
+    setArtworkSource("curated");
+  }, [artworkSrc, initialArtworkPending, libraryOptions]);
 
   useEffect(() => {
     let active = true;
