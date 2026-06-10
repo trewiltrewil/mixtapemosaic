@@ -358,6 +358,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
   const [searchLoadCount, setSearchLoadCount] = useState(0);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadObjectUrl, setUploadObjectUrl] = useState("");
+  const [pendingUploadCrop, setPendingUploadCrop] = useState(false);
   const [cropState, setCropState] = useState<CropState | null>(null);
   const [customerArtworkUploadId, setCustomerArtworkUploadId] = useState<string | null>(null);
   const [sizes, setSizes] = useState<ProductSizeOption[]>(fallbackSizes);
@@ -608,6 +609,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
     const objectUrl = URL.createObjectURL(file);
     setUploadedFile(file);
     setUploadObjectUrl(objectUrl);
+    setPendingUploadCrop(true);
     setCropState(null);
     setCustomerArtworkUploadId(null);
     setArtworkName(file.name);
@@ -625,15 +627,18 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
   function applyUploadedCrop(dataUrl: string, crop: CropState) {
     setArtworkSrc(dataUrl);
     setCropState(crop);
+    setPendingUploadCrop(false);
     setArtworkSource("upload");
     setArtworkPanel("upload");
   }
 
   function closeUploadCrop() {
+    setPendingUploadCrop(false);
     if (uploadObjectUrl && !artworkSrc.startsWith("data:")) {
       URL.revokeObjectURL(uploadObjectUrl);
       setUploadObjectUrl("");
       setUploadedFile(null);
+      setArtworkSource("curated");
     }
   }
 
@@ -943,7 +948,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
               <div className="space-y-4">
                 <h3 className="font-heading font-black text-2xl uppercase tracking-wider flex items-center gap-2">
                   <div className="w-3 h-3 bg-accent border border-border shadow-[1px_1px_0_0_#292929]" />
-                  3. Curated Art
+                  3. {artworkPanel === "upload" ? "Add Your Art" : "Curated Art"}
                 </h3>
 
                 {artworkPanel !== "upload" ? (
@@ -1063,7 +1068,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
           </div>
         </div>
       </div>
-      {uploadedFile && uploadObjectUrl && artworkSource === "upload" && !artworkSrc.startsWith("data:") ? (
+      {pendingUploadCrop && uploadedFile && uploadObjectUrl ? (
         <UploadCropModal
           file={uploadedFile}
           url={uploadObjectUrl}
