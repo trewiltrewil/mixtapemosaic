@@ -92,7 +92,7 @@ function assetCredit(asset: PublicImageAsset) {
 }
 
 function assetToOption(asset: PublicImageAsset): ArtworkOption | null {
-  const src = asset.preview_url ?? asset.large_url ?? asset.card_url ?? asset.thumb_url;
+  const src = asset.card_url ?? asset.preview_url ?? asset.large_url ?? asset.thumb_url;
   if (!src) {
     return null;
   }
