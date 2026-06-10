@@ -46,6 +46,11 @@ type ProductSizeOption = {
   id: string;
   label: string;
   layout: ProductLayoutKey;
+  mockupPhoto?: {
+    src: string;
+    width: number;
+    height: number;
+  };
   columns: number;
   rows: number;
   panelColumns: number;
@@ -152,6 +157,27 @@ function PanelDiagram({ size }: { size: ProductSizeOption }) {
       ))}
     </span>
   );
+}
+
+function createVariantCalibration(size: ProductSizeOption): ProductCalibration {
+  const calibration = createPrototypeCalibration(size.layout);
+  const photo = size.mockupPhoto;
+
+  return normalizeCalibration({
+    ...calibration,
+    photo: photo
+      ? {
+          src: photo.src,
+          width: photo.width,
+          height: photo.height,
+          notes: `${size.label} mockup image from Sanity product variant.`
+        }
+      : calibration.photo,
+    layout: {
+      columns: size.columns,
+      rows: size.rows
+    }
+  });
 }
 
 type CropState = {
@@ -545,7 +571,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
 
   useEffect(() => {
     let active = true;
-    const productPhoto = getProductPhoto(selectedLayout);
+    const productPhoto = selectedSize.mockupPhoto ?? getProductPhoto(selectedLayout);
     loadImage(productPhoto.src).then((image) => {
       if (active) {
         setPhoto(image);
@@ -554,11 +580,11 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
     return () => {
       active = false;
     };
-  }, [selectedLayout]);
+  }, [selectedLayout, selectedSize.mockupPhoto]);
 
   useEffect(() => {
     let active = true;
-    setCalibration(createPrototypeCalibration(selectedLayout));
+    setCalibration(createVariantCalibration(selectedSize));
 
     fetch(`/api/calibration?layout=${selectedLayout}&ts=${Date.now()}`, { cache: "no-store" })
       .then(async (response) => {
@@ -569,7 +595,17 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
       })
       .then((saved) => {
         if (active && saved?.tapes?.length) {
-          setCalibration(normalizeCalibration(saved));
+          setCalibration(normalizeCalibration({
+            ...saved,
+            photo: selectedSize.mockupPhoto
+              ? {
+                  src: selectedSize.mockupPhoto.src,
+                  width: selectedSize.mockupPhoto.width,
+                  height: selectedSize.mockupPhoto.height,
+                  notes: saved.photo?.notes ?? `${selectedSize.label} mockup image from Sanity product variant.`
+                }
+              : saved.photo
+          }));
         }
       })
       .catch(() => {
@@ -579,7 +615,7 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
     return () => {
       active = false;
     };
-  }, [selectedLayout]);
+  }, [selectedLayout, selectedSize]);
 
   useEffect(() => {
     if (!artworkSrc) {

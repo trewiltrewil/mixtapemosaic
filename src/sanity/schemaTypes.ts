@@ -297,14 +297,58 @@ export const schemaTypes = [
       defineField({ name: "priceCents", type: "number", validation: (rule) => rule.required().min(1) }),
       defineField({ name: "productType", type: "string", validation: (rule) => rule.required() }),
       defineField({ name: "productionEstimate", type: "string", initialValue: "Ships in 2-3 weeks" }),
-      defineField({ name: "customizerLayoutKey", type: "string", options: { list: ["square", "landscape", "portrait"] } }),
-      defineField({ name: "columns", type: "number", initialValue: 6 }),
-      defineField({ name: "rows", type: "number", initialValue: 9 }),
-      defineField({ name: "panelColumns", title: "Panel columns", type: "number", initialValue: 3 }),
-      defineField({ name: "panelRows", title: "Panel rows", type: "number", initialValue: 3 }),
+      defineField({
+        name: "customizerLayoutKey",
+        title: "Mockup / calibration key",
+        type: "string",
+        initialValue: "square",
+        description:
+          "Connects this variant to the saved Supabase calibration. Existing keys include square and landscape. New products can use a new key such as ten-by-two, then be calibrated in admin."
+      }),
+      defineField({
+        name: "mockupImage",
+        title: "Customizer cassette mockup image",
+        type: "image",
+        description:
+          "Optional base cassette image for this product. If empty, the app uses the built-in image for the mockup/calibration key."
+      }),
+      defineField({
+        name: "columns",
+        title: "Cassette columns",
+        type: "number",
+        initialValue: 6,
+        description: "Number of individual cassette tapes across the physical mockup."
+      }),
+      defineField({
+        name: "rows",
+        title: "Cassette rows",
+        type: "number",
+        initialValue: 9,
+        description: "Number of individual cassette tapes down the physical mockup."
+      }),
+      defineField({
+        name: "panelColumns",
+        title: "Panel columns",
+        type: "number",
+        initialValue: 3,
+        description: "Number of finished wall-art panels across. This controls the customer upload crop frame."
+      }),
+      defineField({
+        name: "panelRows",
+        title: "Panel rows",
+        type: "number",
+        initialValue: 3,
+        description: "Number of finished wall-art panels down. This controls the customer upload crop frame."
+      }),
       defineField({ name: "panelCount", title: "Panel count", type: "number", initialValue: 9 }),
       defineField({ name: "tapeCountLabel", title: "Tape count label", type: "string", initialValue: "54 tapes" }),
-      defineField({ name: "aspectRatio", type: "string", initialValue: "1 / 1" }),
+      defineField({
+        name: "aspectRatio",
+        type: "string",
+        initialValue: "1 / 1",
+        description:
+          "Visible builder preview shape. Use values like 1 / 1, 4 / 3, 10 / 2, or the exact mockup image ratio."
+      }),
       defineField({ name: "sortOrder", type: "number", initialValue: 0 }),
       defineField({ name: "active", type: "boolean", initialValue: true })
     ]

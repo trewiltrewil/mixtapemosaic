@@ -2,28 +2,30 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { getSupabaseAdminClient } from "@/lib/supabase";
-import type { ProductLayoutKey } from "@/lib/assets";
 
 export const runtime = "nodejs";
 
-const calibrationFiles: Record<ProductLayoutKey, string> = {
+const calibrationFiles: Record<string, string> = {
   square: "prototype-wall-unit-calibration.json",
   landscape: "landscape-wall-unit-calibration.json"
 };
 
-function getLayout(request: Request): ProductLayoutKey {
+function getLayout(request: Request) {
   const url = new URL(request.url);
-  return url.searchParams.get("layout") === "landscape" ? "landscape" : "square";
+  return (url.searchParams.get("layout") || "square").replace(/[^a-z0-9_-]/gi, "").toLowerCase() || "square";
 }
 
-function getCalibrationPath(layout: ProductLayoutKey) {
-  return path.join(process.cwd(), "public", "calibration", calibrationFiles[layout]);
+function getCalibrationPath(layout: string) {
+  const filename = calibrationFiles[layout];
+  return filename ? path.join(process.cwd(), "public", "calibration", filename) : null;
 }
 
-function getSettingsKey(layout: ProductLayoutKey) {
+function getSettingsKey(layout: string) {
   return layout === "landscape"
     ? "landscape_wall_unit_calibration"
-    : "prototype_wall_unit_calibration";
+    : layout === "square"
+      ? "prototype_wall_unit_calibration"
+      : `${layout}_wall_unit_calibration`;
 }
 
 function isMissingTableError(error: { code?: string; message?: string } | null) {
@@ -94,17 +96,21 @@ export async function GET(request: Request) {
     }
   }
 
-  try {
-    const text = await readFile(calibrationPath, "utf8");
-    return new NextResponse(text, {
-      headers: {
-        "content-type": "application/json; charset=utf-8",
-        "cache-control": "no-store"
-      }
-    });
-  } catch {
-    return NextResponse.json({ error: "No saved calibration found." }, { status: 404 });
+  if (calibrationPath) {
+    try {
+      const text = await readFile(calibrationPath, "utf8");
+      return new NextResponse(text, {
+        headers: {
+          "content-type": "application/json; charset=utf-8",
+          "cache-control": "no-store"
+        }
+      });
+    } catch {
+      return NextResponse.json({ error: "No saved calibration found." }, { status: 404 });
+    }
   }
+
+  return NextResponse.json({ error: "No saved calibration found." }, { status: 404 });
 }
 
 export async function POST(request: Request) {
@@ -146,8 +152,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    await mkdir(path.dirname(calibrationPath), { recursive: true });
-    await writeFile(calibrationPath, `${JSON.stringify(body, null, 2)}\n`, "utf8");
+    if (calibrationPath) {
+      await mkdir(path.dirname(calibrationPath), { recursive: true });
+      await writeFile(calibrationPath, `${JSON.stringify(body, null, 2)}\n`, "utf8");
+    }
   } catch {
     // Vercel deployments are read-only at runtime; Supabase is the durable path there.
   }
@@ -155,6 +163,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     source: "filesystem",
-    path: `/calibration/${calibrationFiles[layout]}`
+    path: calibrationPath ? `/calibration/${calibrationFiles[layout]}` : `memory:${layout}`
   });
 }

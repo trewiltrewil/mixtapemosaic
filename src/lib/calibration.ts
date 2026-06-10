@@ -135,7 +135,7 @@ function getDefaultPreviewFrame(layout: ProductLayoutKey) {
 
 function makeTape(layout: ProductLayoutKey, row: number, column: number): TapeCalibration {
   const photo = getProductPhoto(layout);
-  const seed = layoutSeeds[layout];
+  const seed = layoutSeeds[layout] ?? layoutSeeds.square;
   const index = row * photo.columns + column;
   const tapeWidth = (seed.bounds.width - seed.tapeGapX * Math.max(0, photo.columns - 1)) / photo.columns;
   const tapeHeight = (seed.bounds.height - seed.tapeGapY * Math.max(0, photo.rows - 1)) / photo.rows;

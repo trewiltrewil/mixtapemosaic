@@ -1,6 +1,6 @@
 import type { ArtworkOption } from "./types";
 
-export type ProductLayoutKey = "square" | "landscape";
+export type ProductLayoutKey = string;
 
 export const artworkOptions: ArtworkOption[] = [
   {
@@ -17,13 +17,15 @@ export const artworkOptions: ArtworkOption[] = [
   }
 ];
 
-export const productPhotos: Record<ProductLayoutKey, {
+export type ProductPhoto = {
   src: string;
   width: number;
   height: number;
   columns: number;
   rows: number;
-}> = {
+};
+
+export const productPhotos: Record<string, ProductPhoto> = {
   square: {
     src: "/product/cassette-grid-square-v2.png",
     width: 1254,
@@ -42,6 +44,6 @@ export const productPhotos: Record<ProductLayoutKey, {
 
 export const productPhoto = productPhotos.square;
 
-export function getProductPhoto(layout: ProductLayoutKey) {
-  return productPhotos[layout];
+export function getProductPhoto(layout: ProductLayoutKey): ProductPhoto {
+  return productPhotos[layout] ?? productPhotos.square;
 }

@@ -19,6 +19,11 @@ export type CmsProductVariant = {
   priceCents: number;
   productionEstimate: string;
   layout: string;
+  mockupPhoto?: {
+    src: string;
+    width: number;
+    height: number;
+  };
   columns: number;
   rows: number;
   panelColumns: number;
@@ -194,6 +199,10 @@ export const getActiveProductVariants = cache(async (): Promise<CmsProductVarian
       priceCents: number;
       productionEstimate?: string;
       customizerLayoutKey?: string;
+      mockupImage?: unknown;
+      mockupImageUrl?: string;
+      mockupImageWidth?: number;
+      mockupImageHeight?: number;
       columns?: number;
       rows?: number;
       panelColumns?: number;
@@ -206,7 +215,10 @@ export const getActiveProductVariants = cache(async (): Promise<CmsProductVarian
   >(
     `*[_type == "productVariant" && active == true && !(_id in path("drafts.**"))] | order(sortOrder asc, _createdAt asc){
       variantId, displayName, productType, priceCents, productionEstimate, customizerLayoutKey, columns, rows,
-      panelColumns, panelRows, panelCount, tapeCountLabel, aspectRatio, sortOrder
+      panelColumns, panelRows, panelCount, tapeCountLabel, aspectRatio, sortOrder,
+      mockupImage, "mockupImageUrl": mockupImage.asset->url,
+      "mockupImageWidth": mockupImage.asset->metadata.dimensions.width,
+      "mockupImageHeight": mockupImage.asset->metadata.dimensions.height
     }`
   );
 
@@ -222,7 +234,14 @@ export const getActiveProductVariants = cache(async (): Promise<CmsProductVarian
       productType: variant.productType,
       priceCents: variant.priceCents,
       productionEstimate: variant.productionEstimate || "Ships in 2-3 weeks",
-      layout: variant.customizerLayoutKey === "landscape" ? "landscape" : "square",
+      layout: variant.customizerLayoutKey || "square",
+      mockupPhoto: variant.mockupImageUrl
+        ? {
+            src: sanityImageUrl(variant.mockupImage, 1200) ?? variant.mockupImageUrl,
+            width: variant.mockupImageWidth || 1200,
+            height: variant.mockupImageHeight || 1200
+          }
+        : undefined,
       columns: variant.columns || (variant.customizerLayoutKey === "landscape" ? 8 : 6),
       rows: variant.rows || 9,
       panelColumns: variant.panelColumns || (variant.customizerLayoutKey === "landscape" ? 4 : variant.customizerLayoutKey === "portrait" ? 3 : 3),
