@@ -169,6 +169,8 @@ function UploadCropModal({
   file,
   url,
   aspectRatio,
+  panelColumns,
+  panelRows,
   onClose,
   onChooseDifferent,
   onApply
@@ -176,6 +178,8 @@ function UploadCropModal({
   file: File;
   url: string;
   aspectRatio: string;
+  panelColumns: number;
+  panelRows: number;
   onClose: () => void;
   onChooseDifferent: () => void;
   onApply: (dataUrl: string, crop: CropState) => void;
@@ -196,7 +200,7 @@ function UploadCropModal({
 
     const viewportWidth = viewport.clientWidth;
     const viewportHeight = viewport.clientHeight;
-    const containScale = Math.min(viewportWidth / image.naturalWidth, viewportHeight / image.naturalHeight);
+    const containScale = Math.max(viewportWidth / image.naturalWidth, viewportHeight / image.naturalHeight);
     setImageFit({
       width: image.naturalWidth * containScale,
       height: image.naturalHeight * containScale
@@ -259,7 +263,7 @@ function UploadCropModal({
 
     const viewportWidth = viewport.clientWidth || outputWidth;
     const viewportHeight = viewport.clientHeight || outputHeight;
-    const containScale = Math.min(viewportWidth / image.naturalWidth, viewportHeight / image.naturalHeight);
+    const containScale = Math.max(viewportWidth / image.naturalWidth, viewportHeight / image.naturalHeight);
     const drawScale = containScale * crop.zoom * (outputWidth / viewportWidth);
     const drawWidth = image.naturalWidth * drawScale;
     const drawHeight = image.naturalHeight * drawScale;
@@ -305,7 +309,17 @@ function UploadCropModal({
                   width: imageFit.width ? `${imageFit.width}px` : undefined
                 }}
               />
-              <span className="mtm-crop-grid" />
+              <span
+                className="mtm-crop-grid"
+                style={{
+                  gridTemplateColumns: `repeat(${panelColumns}, 1fr)`,
+                  gridTemplateRows: `repeat(${panelRows}, 1fr)`
+                }}
+              >
+                {Array.from({ length: panelColumns * panelRows }, (_, index) => (
+                  <span key={index} />
+                ))}
+              </span>
             </div>
             <label className="mtm-crop-slider">
               Zoom
@@ -1072,7 +1086,9 @@ export function Customizer({ initialArtworkId }: { initialArtworkId?: string | n
         <UploadCropModal
           file={uploadedFile}
           url={uploadObjectUrl}
-          aspectRatio={selectedSize.aspectRatio}
+          aspectRatio={`${selectedSize.panelColumns} / ${selectedSize.panelRows}`}
+          panelColumns={selectedSize.panelColumns}
+          panelRows={selectedSize.panelRows}
           onClose={closeUploadCrop}
           onChooseDifferent={() => uploadInputRef.current?.click()}
           onApply={applyUploadedCrop}
