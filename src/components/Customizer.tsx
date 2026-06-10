@@ -483,12 +483,11 @@ export function Customizer({
   const [artwork, setArtwork] = useState<LoadedImage | null>(null);
   const [photo, setPhoto] = useState<LoadedImage | null>(null);
   const [calibrationLoading, setCalibrationLoading] = useState(true);
-  const [previewDrawnKey, setPreviewDrawnKey] = useState("");
+  const [hasDrawnPreview, setHasDrawnPreview] = useState(false);
   const [cartStatus, setCartStatus] = useState("");
   const selectedSize = sizes.find((size) => size.id === selectedSizeId) ?? sizes[0] ?? fallbackSizes[0];
   const selectedLayout = selectedSize.layout;
   const selectedPhoto = selectedSize.mockupPhoto ?? getProductPhoto(selectedLayout);
-  const previewKey = `${selectedSize.id}|${selectedPhoto.src}|${artworkSrc || "blank"}`;
   const allArtworkOptions = useMemo(() => [...libraryOptions, ...searchResults], [libraryOptions, searchResults]);
   const previewConfig = useMemo(
     () => ({
@@ -730,8 +729,13 @@ export function Customizer({
     let active = true;
     let animationFrame = 0;
     const render = () => {
+      const canDrawPreview = Boolean(photo && !calibrationLoading && (!artworkSrc || artwork));
       const bounds = canvas.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      if (!canDrawPreview && hasDrawnPreview) {
+        return;
+      }
+
       canvas.width = Math.max(1, Math.round(bounds.width * dpr));
       canvas.height = Math.max(1, Math.round(bounds.height * dpr));
       const context = canvas.getContext("2d");
@@ -739,7 +743,7 @@ export function Customizer({
         return;
       }
 
-      if (!photo || calibrationLoading || (artworkSrc && !artwork)) {
+      if (!canDrawPreview) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         return;
       }
@@ -757,7 +761,7 @@ export function Customizer({
 
       animationFrame = window.requestAnimationFrame(() => {
         if (active) {
-          setPreviewDrawnKey((current) => current === previewKey ? current : previewKey);
+          setHasDrawnPreview(true);
         }
       });
     };
@@ -769,7 +773,7 @@ export function Customizer({
       window.cancelAnimationFrame(animationFrame);
       window.removeEventListener("resize", render);
     };
-  }, [artwork, artworkSrc, calibration, calibrationLoading, photo, previewConfig, previewKey]);
+  }, [artwork, artworkSrc, calibration, calibrationLoading, hasDrawnPreview, photo, previewConfig]);
 
   function handleUpload(file: File | undefined) {
     if (!file) {
@@ -1025,7 +1029,6 @@ export function Customizer({
 
   const selectedOption = allArtworkOptions.find((option) => option.src === artworkSrc);
   const selectedLabel = selectedOption?.name ?? artworkName;
-  const previewReady = previewDrawnKey === previewKey;
 
   return (
     <section id="customizer" className="bg-accent text-foreground border-b-4 border-border py-16 sm:py-20 lg:py-32">
@@ -1057,10 +1060,10 @@ export function Customizer({
                 />
                 <canvas
                   ref={canvasRef}
-                  className={`relative z-10 w-full h-full block transition-opacity duration-200 ${previewReady ? "opacity-100" : "opacity-0"}`}
+                  className="relative z-10 w-full h-full block"
                   aria-label="Realistic Mixtape Mosaic preview"
                 />
-                {!previewReady ? (
+                {!hasDrawnPreview ? (
                   <div className="mtm-preview-loading-cover" aria-live="polite">
                     <span>Loading the mix</span>
                   </div>
