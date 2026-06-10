@@ -61,7 +61,7 @@ export async function POST() {
   }
 
   try {
-    const existingAssets = await listAdminImageAssets();
+    const { assets: existingAssets } = await listAdminImageAssets({ limit: 96 });
     const existingBundledTitles = new Set(
       existingAssets
         .filter((asset) => asset.source_type === "bundled_sample")

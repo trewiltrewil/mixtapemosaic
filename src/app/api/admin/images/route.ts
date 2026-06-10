@@ -8,14 +8,24 @@ import { isAdminRequest } from "@/lib/server-admin";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+function numberParam(value: string | null, fallback: number) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+export async function GET(request: Request) {
   if (!(await isAdminRequest())) {
     return NextResponse.json({ error: "Admin password required." }, { status: 401 });
   }
 
   try {
-    const assets = await listAdminImageAssets();
-    return NextResponse.json({ assets });
+    const url = new URL(request.url);
+    const result = await listAdminImageAssets({
+      query: url.searchParams.get("q"),
+      limit: numberParam(url.searchParams.get("limit"), 48),
+      offset: numberParam(url.searchParams.get("offset"), 0)
+    });
+    return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Could not load customizer artwork." },

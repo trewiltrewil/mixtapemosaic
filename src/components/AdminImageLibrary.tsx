@@ -124,12 +124,17 @@ export function AdminImageLibrary() {
   const [assets, setAssets] = useState<ImageAsset[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [query, setQuery] = useState("");
+  const [nextOffset, setNextOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalAssets, setTotalAssets] = useState(0);
   const [file, setFile] = useState<File | null>(null);
   const [bulkMode, setBulkMode] = useState(false);
   const [bulkFiles, setBulkFiles] = useState<File[]>([]);
   const [bulkItems, setBulkItems] = useState<BulkUploadItem[]>([]);
   const [uploadPreview, setUploadPreview] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploadStage, setUploadStage] = useState("");
   const [backfillRunning, setBackfillRunning] = useState(false);
@@ -142,8 +147,12 @@ export function AdminImageLibrary() {
   );
 
   useEffect(() => {
-    void loadAssets();
-  }, []);
+    const handle = window.setTimeout(() => {
+      void loadAssets({ reset: true, nextQuery: query });
+    }, 250);
+
+    return () => window.clearTimeout(handle);
+  }, [query]);
 
   useEffect(() => {
     if (!file) {
@@ -156,21 +165,77 @@ export function AdminImageLibrary() {
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
-  async function loadAssets() {
-    setLoading(true);
+  function publicCustomizerUrl(assetId: string) {
+    if (typeof window === "undefined") {
+      return `/customize?artwork=${assetId}`;
+    }
+
+    const url = new URL(window.location.origin);
+    if (url.hostname.startsWith("admin.")) {
+      url.hostname = url.hostname.replace(/^admin\./, "www.");
+    }
+    url.pathname = "/customize";
+    url.search = `?artwork=${encodeURIComponent(assetId)}`;
+    return url.toString();
+  }
+
+  async function copyArtworkLink(asset: ImageAsset) {
+    const link = publicCustomizerUrl(asset.id);
+    try {
+      await navigator.clipboard.writeText(link);
+      setMessage(`Copied customizer link for ${asset.title}.`);
+      setError("");
+    } catch {
+      setError(`Could not copy link. Use: ${link}`);
+    }
+  }
+
+  async function loadAssets({
+    reset = false,
+    nextQuery = query
+  }: {
+    reset?: boolean;
+    nextQuery?: string;
+  } = {}) {
+    if (reset) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
     setError("");
 
-    const response = await fetch("/api/admin/images", { cache: "no-store" }).catch(() => null);
-    const payload = response ? ((await response.json()) as { assets?: ImageAsset[]; error?: string }) : null;
+    const params = new URLSearchParams({
+      limit: "48",
+      offset: String(reset ? 0 : nextOffset)
+    });
+    if (nextQuery.trim()) {
+      params.set("q", nextQuery.trim());
+    }
+
+    const response = await fetch(`/api/admin/images?${params.toString()}`, { cache: "no-store" }).catch(() => null);
+    const payload = response
+      ? ((await response.json()) as {
+          assets?: ImageAsset[];
+          hasMore?: boolean;
+          nextOffset?: number;
+          total?: number;
+          error?: string;
+        })
+      : null;
 
     if (!response?.ok) {
       setError(payload?.error ?? "Could not load customizer artwork.");
       setLoading(false);
+      setLoadingMore(false);
       return;
     }
 
-    setAssets(payload?.assets ?? []);
+    setAssets((current) => (reset ? payload?.assets ?? [] : [...current, ...(payload?.assets ?? [])]));
+    setNextOffset(payload?.nextOffset ?? 0);
+    setHasMore(Boolean(payload?.hasMore));
+    setTotalAssets(payload?.total ?? payload?.assets?.length ?? 0);
     setLoading(false);
+    setLoadingMore(false);
   }
 
   function selectAsset(asset: ImageAsset) {
@@ -528,6 +593,17 @@ export function AdminImageLibrary() {
             Upload approved configurator artwork once, keep the full-resolution original private for
             future print production, and serve WebP derivatives to the public cassette customizer.
           </p>
+          <label className="image-admin-search">
+            <span>Search artwork</span>
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Title, artist, filename, source..."
+            />
+          </label>
+          <small className="image-admin-count">
+            Showing {assets.length} of {totalAssets || assets.length} image{(totalAssets || assets.length) === 1 ? "" : "s"}
+          </small>
         </div>
 
         <div className="image-admin-grid">
@@ -536,28 +612,45 @@ export function AdminImageLibrary() {
             <div className="panel">No customizer artwork yet. Upload the first approved image to seed the cassette configurator.</div>
           ) : null}
 
-          {assets.map((asset) => (
-            <button
+          {!loading && assets.map((asset) => (
+            <article
               key={asset.id}
-              type="button"
               className={`image-admin-card ${selectedId === asset.id ? "selected" : ""}`}
-              onClick={() => selectAsset(asset)}
             >
-              <span className={`asset-status asset-status-${asset.status}`}>{asset.status}</span>
-              {asset.thumb_url ? (
-                <img src={asset.thumb_url} alt={asset.alt_text ?? asset.title} loading="lazy" />
-              ) : (
-                <span className="asset-empty-thumb">No preview</span>
-              )}
-              <span>
-                <strong>{asset.title}</strong>
-                <small>{asset.source_author || asset.source_name || asset.source_type}</small>
-              </span>
-              <span className="asset-tags">{[...asset.categories, ...asset.tags].slice(0, 4).join(" / ")}</span>
-              <small className="asset-tags">{asset.cassette_thumb_url ? "Cassette thumb ready" : "Needs cassette thumb"}</small>
-            </button>
+              <button type="button" className="image-admin-card-main" onClick={() => selectAsset(asset)}>
+                <span className={`asset-status asset-status-${asset.status}`}>{asset.status}</span>
+                {asset.thumb_url ? (
+                  <img src={asset.thumb_url} alt={asset.alt_text ?? asset.title} loading="lazy" />
+                ) : (
+                  <span className="asset-empty-thumb">No preview</span>
+                )}
+                <span>
+                  <strong>{asset.title}</strong>
+                  <small>{asset.source_author || asset.source_name || asset.source_type}</small>
+                </span>
+                <span className="asset-tags">{[...asset.categories, ...asset.tags].slice(0, 4).join(" / ")}</span>
+                <small className="asset-tags">{asset.cassette_thumb_url ? "Cassette thumb ready" : "Needs cassette thumb"}</small>
+              </button>
+              <button
+                type="button"
+                className="image-admin-copy-link"
+                onClick={() => void copyArtworkLink(asset)}
+              >
+                Copy customizer link
+              </button>
+            </article>
           ))}
         </div>
+        {!loading && hasMore ? (
+          <button
+            type="button"
+            className="secondary-button image-admin-load-more"
+            disabled={loadingMore}
+            onClick={() => void loadAssets()}
+          >
+            {loadingMore ? "Loading..." : "Load more artwork"}
+          </button>
+        ) : null}
       </section>
 
       <aside className="control-rail">

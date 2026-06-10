@@ -178,18 +178,55 @@ function dominantColorFromStats(stats: sharp.Stats) {
     .join("")}`;
 }
 
-export async function listAdminImageAssets() {
+export async function listAdminImageAssets({
+  query,
+  limit = 48,
+  offset = 0
+}: {
+  query?: string | null;
+  limit?: number;
+  offset?: number;
+} = {}) {
   const supabase = requireSupabaseAdmin();
-  const { data, error } = await supabase
+  const requestedLimit = Math.max(1, Math.min(limit, 96));
+  const start = Math.max(0, offset);
+  const end = start + requestedLimit - 1;
+  let request = supabase
     .from("image_assets")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(start, end);
+
+  const cleanedQuery = query?.trim().replace(/[%,]/g, " ");
+  if (cleanedQuery) {
+    const term = `%${cleanedQuery}%`;
+    request = request.or(
+      [
+        `title.ilike.${term}`,
+        `description.ilike.${term}`,
+        `alt_text.ilike.${term}`,
+        `source_author.ilike.${term}`,
+        `source_name.ilike.${term}`,
+        `source_url.ilike.${term}`,
+        `source_type.ilike.${term}`,
+        `original_filename.ilike.${term}`
+      ].join(",")
+    );
+  }
+
+  const { data, error, count } = await request;
 
   if (error) {
     throw error;
   }
 
-  return (data ?? []) as ImageAssetRecord[];
+  const assets = (data ?? []) as ImageAssetRecord[];
+  return {
+    assets,
+    hasMore: start + assets.length < (count ?? 0),
+    nextOffset: start + assets.length,
+    total: count ?? assets.length
+  };
 }
 
 export async function listPublicImageAssets() {
