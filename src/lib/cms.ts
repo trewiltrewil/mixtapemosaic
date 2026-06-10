@@ -228,31 +228,39 @@ export const getActiveProductVariants = cache(async (): Promise<CmsProductVarian
 
   return variants
     .filter((variant) => variant.variantId && variant.displayName && variant.productType && Number.isFinite(variant.priceCents))
-    .map((variant, index) => ({
-      id: variant.variantId,
-      label: variant.displayName,
-      productType: variant.productType,
-      priceCents: variant.priceCents,
-      productionEstimate: variant.productionEstimate || "Ships in 2-3 weeks",
-      layout: variant.customizerLayoutKey || "square",
-      mockupPhoto: variant.mockupImageUrl
-        ? {
-            src: sanityImageUrl(variant.mockupImage, variant.mockupImageWidth || 1600) ?? variant.mockupImageUrl,
-            width: variant.mockupImageWidth || 1200,
-            height: variant.mockupImageHeight || 1200
-          }
-        : undefined,
-      columns: variant.columns || (variant.customizerLayoutKey === "landscape" ? 8 : 6),
-      rows: variant.rows || 9,
-      panelColumns: variant.panelColumns || (variant.customizerLayoutKey === "landscape" ? 4 : variant.customizerLayoutKey === "portrait" ? 3 : 3),
-      panelRows: variant.panelRows || (variant.customizerLayoutKey === "landscape" ? 3 : variant.customizerLayoutKey === "portrait" ? 4 : 3),
-      panelCount:
-        variant.panelCount ||
-        (variant.panelColumns && variant.panelRows ? variant.panelColumns * variant.panelRows : variant.customizerLayoutKey === "landscape" ? 12 : variant.customizerLayoutKey === "portrait" ? 12 : 9),
-      tapeCountLabel: variant.tapeCountLabel || `${(variant.columns || (variant.customizerLayoutKey === "landscape" ? 8 : 6)) * (variant.rows || 9)} tapes`,
-      aspectRatio: variant.aspectRatio || (variant.customizerLayoutKey === "landscape" ? "1630 / 1254" : "1 / 1"),
-      sortOrder: variant.sortOrder ?? index
-    }));
+    .map((variant, index) => {
+      const layout = (variant.customizerLayoutKey || "square").trim().toLowerCase();
+      const columns = variant.columns || (layout === "landscape" ? 8 : 6);
+      const rows = variant.rows || 9;
+      const panelColumns = variant.panelColumns || (layout === "landscape" ? 4 : layout === "portrait" ? 3 : 3);
+      const panelRows = variant.panelRows || (layout === "landscape" ? 3 : layout === "portrait" ? 4 : 3);
+
+      return {
+        id: variant.variantId,
+        label: variant.displayName,
+        productType: variant.productType,
+        priceCents: variant.priceCents,
+        productionEstimate: variant.productionEstimate || "Ships in 2-3 weeks",
+        layout,
+        mockupPhoto: variant.mockupImageUrl
+          ? {
+              src: sanityImageUrl(variant.mockupImage, variant.mockupImageWidth || 1600) ?? variant.mockupImageUrl,
+              width: variant.mockupImageWidth || 1200,
+              height: variant.mockupImageHeight || 1200
+            }
+          : undefined,
+        columns,
+        rows,
+        panelColumns,
+        panelRows,
+        panelCount:
+          variant.panelCount ||
+          (variant.panelColumns && variant.panelRows ? variant.panelColumns * variant.panelRows : layout === "landscape" ? 12 : layout === "portrait" ? 12 : 9),
+        tapeCountLabel: variant.tapeCountLabel || `${columns * rows} tapes`,
+        aspectRatio: variant.aspectRatio || (layout === "landscape" ? "1630 / 1254" : "1 / 1"),
+        sortOrder: variant.sortOrder ?? index
+      };
+    });
 });
 
 export async function getActiveProductVariantById(id: string) {

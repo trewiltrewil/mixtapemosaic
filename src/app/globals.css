@@ -2528,21 +2528,31 @@ p {
   z-index: 220;
 }
 
-.mtm-preview-loading-pill {
+.mtm-preview-loading-cover {
+  align-items: flex-end;
+  background:
+    linear-gradient(180deg, rgba(245, 241, 237, 0.2), rgba(245, 241, 237, 0.62)),
+    repeating-linear-gradient(90deg, rgba(41, 41, 41, 0.05) 0 1px, transparent 1px 18px);
+  display: flex;
+  inset: 0;
+  justify-content: flex-start;
+  padding: 14px;
+  position: absolute;
+  z-index: 30;
+}
+
+.mtm-preview-loading-cover span {
   background: var(--cream);
   border: 2px solid var(--ink);
-  bottom: 14px;
   box-shadow: 4px 4px 0 var(--ink);
   color: var(--ink);
+  display: inline-flex;
   font-family: "Space Mono", monospace;
   font-size: 0.72rem;
   font-weight: 900;
-  left: 14px;
   letter-spacing: 0.08em;
   padding: 7px 10px;
-  position: absolute;
   text-transform: uppercase;
-  z-index: 20;
 }
 
 .mtm-crop-modal {

@@ -421,12 +421,13 @@ function UploadCropModal({
 }
 
 function sizePayloadToOption(variant: ProductSizePayload): ProductSizeOption {
+  const layout = (variant.layout || "square").trim().toLowerCase();
   return {
     ...variant,
-    layout: variant.layout === "landscape" ? "landscape" : variant.layout || "square",
-    panelColumns: variant.panelColumns ?? (variant.layout === "landscape" ? 4 : 3),
-    panelRows: variant.panelRows ?? (variant.layout === "portrait" ? 4 : 3),
-    panelCount: variant.panelCount ?? ((variant.layout === "landscape" || variant.layout === "portrait") ? 12 : 9),
+    layout,
+    panelColumns: variant.panelColumns ?? (layout === "landscape" ? 4 : 3),
+    panelRows: variant.panelRows ?? (layout === "portrait" ? 4 : 3),
+    panelCount: variant.panelCount ?? ((layout === "landscape" || layout === "portrait") ? 12 : 9),
     tapeCountLabel: variant.tapeCountLabel ?? `${variant.columns * variant.rows} tapes`
   };
 }
@@ -481,10 +482,13 @@ export function Customizer({
   const [selectedSizeId, setSelectedSizeId] = useState(initialSizes[0]?.id ?? fallbackSizes[0].id);
   const [artwork, setArtwork] = useState<LoadedImage | null>(null);
   const [photo, setPhoto] = useState<LoadedImage | null>(null);
+  const [calibrationLoading, setCalibrationLoading] = useState(true);
+  const [previewDrawnKey, setPreviewDrawnKey] = useState("");
   const [cartStatus, setCartStatus] = useState("");
   const selectedSize = sizes.find((size) => size.id === selectedSizeId) ?? sizes[0] ?? fallbackSizes[0];
   const selectedLayout = selectedSize.layout;
   const selectedPhoto = selectedSize.mockupPhoto ?? getProductPhoto(selectedLayout);
+  const previewKey = `${selectedSize.id}|${selectedPhoto.src}|${artworkSrc || "blank"}`;
   const allArtworkOptions = useMemo(() => [...libraryOptions, ...searchResults], [libraryOptions, searchResults]);
   const previewConfig = useMemo(
     () => ({
@@ -613,6 +617,7 @@ export function Customizer({
 
   useEffect(() => {
     let active = true;
+    setPhoto(null);
     loadImage(selectedPhoto.src).then((image) => {
       if (active) {
         setPhoto(image);
@@ -625,6 +630,7 @@ export function Customizer({
 
   useEffect(() => {
     let active = true;
+    setCalibrationLoading(true);
     setCalibration(createVariantCalibration(selectedSize));
 
     fetch(`/api/calibration?layout=${selectedLayout}&ts=${Date.now()}`, { cache: "no-store" })
@@ -651,6 +657,11 @@ export function Customizer({
       })
       .catch(() => {
         // The seeded calibration is valid when no saved calibration exists.
+      })
+      .finally(() => {
+        if (active) {
+          setCalibrationLoading(false);
+        }
       });
 
     return () => {
@@ -665,6 +676,7 @@ export function Customizer({
     }
 
     let active = true;
+    setArtwork(null);
     loadImage(artworkSrc).then((image) => {
       if (active) {
         setArtwork(image);
@@ -702,6 +714,8 @@ export function Customizer({
       return;
     }
 
+    let active = true;
+    let animationFrame = 0;
     const render = () => {
       const bounds = canvas.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -712,7 +726,7 @@ export function Customizer({
         return;
       }
 
-      if (!photo) {
+      if (!photo || calibrationLoading || (artworkSrc && !artwork)) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         return;
       }
@@ -727,12 +741,22 @@ export function Customizer({
         previewConfig,
         false
       );
+
+      animationFrame = window.requestAnimationFrame(() => {
+        if (active) {
+          setPreviewDrawnKey((current) => current === previewKey ? current : previewKey);
+        }
+      });
     };
 
     render();
     window.addEventListener("resize", render);
-    return () => window.removeEventListener("resize", render);
-  }, [artwork, photo, calibration, previewConfig]);
+    return () => {
+      active = false;
+      window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener("resize", render);
+    };
+  }, [artwork, artworkSrc, calibration, calibrationLoading, photo, previewConfig, previewKey]);
 
   function handleUpload(file: File | undefined) {
     if (!file) {
@@ -989,7 +1013,7 @@ export function Customizer({
 
   const selectedOption = allArtworkOptions.find((option) => option.src === artworkSrc);
   const selectedLabel = selectedOption?.name ?? artworkName;
-  const artworkLoading = Boolean(photo && artworkSrc && !artwork);
+  const previewReady = previewDrawnKey === previewKey;
 
   return (
     <section id="customizer" className="bg-accent text-foreground border-b-4 border-border py-16 sm:py-20 lg:py-32">
@@ -1021,12 +1045,12 @@ export function Customizer({
                 />
                 <canvas
                   ref={canvasRef}
-                  className="relative z-10 w-full h-full block"
+                  className={`relative z-10 w-full h-full block transition-opacity duration-200 ${previewReady ? "opacity-100" : "opacity-0"}`}
                   aria-label="Realistic Mixtape Mosaic preview"
                 />
-                {artworkLoading ? (
-                  <div className="mtm-preview-loading-pill" aria-live="polite">
-                    Loading the mix
+                {!previewReady ? (
+                  <div className="mtm-preview-loading-cover" aria-live="polite">
+                    <span>Loading the mix</span>
                   </div>
                 ) : null}
               </div>
