@@ -58,9 +58,22 @@ const sectionMembers = [
       defineField({ name: "image", type: "image", options: { hotspot: true } }),
       defineField({ name: "imageAlt", title: "Image alt text", type: "string" }),
       defineField({
+        name: "layout",
+        title: "Hero layout",
+        type: "string",
+        options: {
+          list: [
+            { title: "Marketing split hero", value: "marketing" },
+            { title: "Centered page header", value: "page" }
+          ]
+        },
+        initialValue: "marketing",
+        description: "Use Centered page header for journal/process/artwork-style title bands."
+      }),
+      defineField({
         name: "tone",
         type: "string",
-        options: { list: ["yellow", "dark", "orange", "muted"] },
+        options: { list: ["yellow", "dark", "orange", "green", "muted"] },
         initialValue: "yellow"
       })
     ]
@@ -98,7 +111,28 @@ const sectionMembers = [
               defineField({ name: "title", type: "string" }),
               defineField({ name: "body", type: "text", rows: 4 }),
               defineField({ name: "image", type: "image", options: { hotspot: true } }),
-              defineField({ name: "imageAlt", title: "Image alt text", type: "string" })
+              defineField({ name: "imageAlt", title: "Image alt text", type: "string" }),
+              defineField({
+                name: "tone",
+                title: "Label / frame color",
+                type: "string",
+                options: { list: ["yellow", "orange", "green"] },
+                initialValue: "yellow"
+              }),
+              defineField({
+                name: "imageSide",
+                title: "Desktop image side",
+                type: "string",
+                options: { list: ["left", "right"] },
+                description: "Mobile always stacks copy first, image second."
+              }),
+              defineField({
+                name: "tilt",
+                title: "Photo tilt",
+                type: "string",
+                options: { list: ["left", "right", "none"] },
+                initialValue: "right"
+              })
             ]
           })
         ]

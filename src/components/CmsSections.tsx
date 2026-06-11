@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
 import { CustomizerServer } from "@/components/CustomizerServer";
 import { FaqAccordion } from "@/components/FaqAccordion";
-import { GalleryCard, JournalCard } from "@/components/PublicChrome";
+import { GalleryCard, JournalCard, PageHero, type PageHeroTone } from "@/components/PublicChrome";
 import { getFaqItems, getGalleryItems, getJournalPosts } from "@/lib/cms";
 import { sanityImageUrl } from "@/lib/sanity";
 import { MdxContent } from "./MdxContent";
@@ -37,6 +37,23 @@ function imageForSection(section: CmsSection, width: number) {
   return sanityImageUrl(section.image, width) ?? localImageForSection(section);
 }
 
+function pageHeroTone(value: unknown): PageHeroTone {
+  return value === "orange" || value === "green" || value === "yellow" || value === "dark" ? value : "dark";
+}
+
+const processStepImages = [
+  "/figma/process-vintage-audio.png",
+  "/figma/process-art-studio.png",
+  "/figma/process-artisan-assembly.png"
+];
+
+function processStepTone(value: unknown, index: number) {
+  if (value === "orange" || value === "green" || value === "yellow") {
+    return value;
+  }
+  return index % 2 === 1 ? "orange" : "yellow";
+}
+
 export async function CmsSections({
   sections,
   initialArtworkId
@@ -55,6 +72,17 @@ export async function CmsSections({
       {await Promise.all(
         visibleSections.map(async (section, index) => {
           if (section._type === "heroSection") {
+            if (section.layout === "page") {
+              return (
+                <PageHero
+                  key={index}
+                  title={text(section.title)}
+                  kicker={text(section.body || section.kicker)}
+                  tone={pageHeroTone(section.tone)}
+                />
+              );
+            }
+
             const image = imageForSection(section, 1400);
             return (
               <section key={index} className="bg-primary border-b-4 border-border relative overflow-hidden">
@@ -118,22 +146,26 @@ export async function CmsSections({
           if (section._type === "processStepsSection") {
             const steps = Array.isArray(section.steps) ? section.steps : [];
             return (
-              <section key={index} className="bg-background py-20 lg:py-32">
-                <div className="max-w-5xl mx-auto px-6 space-y-24">
-                  {section.title ? <h2 className="font-heading font-black text-5xl uppercase tracking-tighter">{text(section.title)}</h2> : null}
+              <section key={index} className="process-page">
+                <div className="process-steps">
                   {steps.map((rawStep, stepIndex) => {
                     const step = rawStep as Record<string, unknown>;
-                    const image = sanityImageUrl(step.image, 1000);
+                    const image = sanityImageUrl(step.image, 1000) ?? processStepImages[stepIndex % processStepImages.length];
+                    const tone = processStepTone(step.tone, stepIndex);
+                    const imageSide = step.imageSide === "left" || step.imageSide === "right" ? step.imageSide : stepIndex % 2 === 1 ? "left" : "right";
+                    const tilt = step.tilt === "left" || step.tilt === "right" || step.tilt === "none" ? step.tilt : stepIndex % 2 === 1 ? "left" : "right";
                     return (
-                      <article key={stepIndex} className="grid md:grid-cols-2 gap-12 items-center">
-                        <div className="space-y-6">
-                          <div className="inline-block border-2 border-border px-4 py-1 font-heading font-black text-2xl shadow-[4px_4px_0_0_#292929] bg-primary">{text(step.label, `Step ${String(stepIndex + 1).padStart(2, "0")}`)}</div>
-                          <h3 className="font-heading font-black text-4xl uppercase tracking-tighter">{text(step.title)}</h3>
-                          <p className="text-lg font-medium">{text(step.body)}</p>
+                      <article key={stepIndex} className={`process-step process-step-image-${imageSide}`}>
+                        <div className="process-copy">
+                          <span className={`process-step-label process-step-label-${tone}`}>
+                            {text(step.label, `Step ${String(stepIndex + 1).padStart(2, "0")}`)}
+                          </span>
+                          <h2>{text(step.title)}</h2>
+                          <p>{text(step.body)}</p>
                         </div>
                         {image ? (
-                          <div className="bg-card border-4 border-border shadow-[8px_8px_0_0_#292929] p-2">
-                            <img src={image} alt={text(step.imageAlt, text(step.title))} className="w-full h-80 object-cover border-2 border-border grayscale hover:grayscale-0 transition-all duration-500" />
+                          <div className={`process-photo process-photo-${tone} process-photo-tilt-${tilt}`}>
+                            <img src={image} alt={text(step.imageAlt, text(step.title))} />
                           </div>
                         ) : null}
                       </article>

@@ -76,9 +76,11 @@ export function SiteFooter() {
   );
 }
 
-export function PageHero({ title, kicker, tone = "dark" }: { title: string; kicker: string; tone?: "dark" | "orange" }) {
+export type PageHeroTone = "dark" | "orange" | "green" | "yellow";
+
+export function PageHero({ title, kicker, tone = "dark" }: { title: string; kicker: string; tone?: PageHeroTone }) {
   return (
-    <section className={`page-hero ${tone === "orange" ? "page-hero-orange" : ""}`}>
+    <section className={`page-hero page-hero-${tone}`}>
       <h1>{title}</h1>
       <p>{kicker}</p>
     </section>

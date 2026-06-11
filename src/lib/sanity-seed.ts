@@ -80,6 +80,12 @@ async function createIfMissing(id: string, document: Record<string, unknown> & {
   return { id, status: "created" as const };
 }
 
+async function createOrReplace(id: string, document: Record<string, unknown> & { _type: string }) {
+  const exists = await documentExists(id);
+  await sanityWriteClient.createOrReplace({ _id: id, ...document });
+  return { id, status: exists ? ("updated" as const) : ("created" as const) };
+}
+
 function pageDocument(slug: string, title: string, sections: Array<Record<string, unknown>>) {
   return {
     _type: "page",
@@ -96,7 +102,7 @@ export async function seedSanityStarterContent() {
     throw new Error("SANITY_API_TOKEN is not configured.");
   }
 
-  const results: Array<{ id: string; status: "created" | "skipped" }> = [];
+  const results: Array<{ id: string; status: "created" | "skipped" | "updated" }> = [];
 
   results.push(
     await createIfMissing("siteSettings", {
@@ -160,28 +166,63 @@ export async function seedSanityStarterContent() {
     )
   );
 
+  const processVintageAudio = await uploadPublicImage("/figma/process-vintage-audio.png", "Process - Vintage audio");
+  const processArtStudio = await uploadPublicImage("/figma/process-art-studio.png", "Process - Cleaning and prepping");
+  const processAssembly = await uploadPublicImage("/figma/process-artisan-assembly.png", "Process - Mosaic assembly");
+
   results.push(
-    await createIfMissing(
+    await createOrReplace(
       "page.process",
       pageDocument("process", "Our Process", [
         {
           _key: "hero",
           _type: "heroSection",
-          kicker: "How it works",
-          title: "From image to analog object",
-          body: "A simple path from selected artwork to a handmade cassette mosaic.",
-          ctaLabel: "Start Customizing",
-          ctaHref: "/customize",
-          tone: "dark"
+          layout: "page",
+          kicker: "The studio process",
+          title: "The Process",
+          body: "How we turn discarded memories into permanent art.",
+          tone: "orange"
         },
         {
           _key: "steps",
           _type: "processStepsSection",
-          title: "The build",
           steps: [
-            { _key: "choose", label: "01", title: "Choose artwork", body: "Start with one of our curated images or upload a high-resolution file you own." },
-            { _key: "preview", label: "02", title: "Preview the mosaic", body: "The customizer maps your image across the cassette layout so you can see the direction before ordering." },
-            { _key: "make", label: "03", title: "We make the piece", body: "We prepare the artwork, print the cassette overlays, and assemble the finished wall art by hand." }
+            {
+              _key: "sourcing",
+              label: "Step 01",
+              title: "Sourcing the Gold",
+              body:
+                "We scour flea markets, estate sales, and abandoned storage units to find authentic, generation-defining cassettes. We don't use blanks—we want tapes that have been loved, played, and lived with.",
+              image: processVintageAudio,
+              imageAlt: "Vintage Webster Chicago tape recorder",
+              imageSide: "right",
+              tone: "yellow",
+              tilt: "right"
+            },
+            {
+              _key: "cleaning",
+              label: "Step 02",
+              title: "Cleaning & Prepping",
+              body:
+                "Each tape is hand-cleaned. We preserve the original labels when possible, but often strip the plastic down to its structural core to prepare it for priming and painting in our signature vibrant colorways.",
+              image: processArtStudio,
+              imageAlt: "Worn studio chair with layered paint",
+              imageSide: "left",
+              tone: "orange",
+              tilt: "left"
+            },
+            {
+              _key: "assembly",
+              label: "Step 03",
+              title: "The Mosaic Assembly",
+              body:
+                "Using your selected themes, we arrange the painted cassettes into a dense, structural grid. This is where the magic happens—combining analog geometry into a monolithic piece of neo-brutalist art.",
+              image: processAssembly,
+              imageAlt: "Hands shaping a ceramic form on a wheel",
+              imageSide: "right",
+              tone: "yellow",
+              tilt: "right"
+            }
           ]
         }
       ])
