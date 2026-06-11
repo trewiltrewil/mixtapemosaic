@@ -24,7 +24,8 @@ const processSections = [
         body:
           "We scour flea markets, estate sales, and abandoned storage units to find authentic, generation-defining cassettes. We don't use blanks—we want tapes that have been loved, played, and lived with.",
         imageSide: "right",
-        tone: "yellow",
+        labelTone: "yellow",
+        frameTone: "paper",
         tilt: "right"
       },
       {
@@ -34,7 +35,8 @@ const processSections = [
         body:
           "Each tape is hand-cleaned. We preserve the original labels when possible, but often strip the plastic down to its structural core to prepare it for priming and painting in our signature vibrant colorways.",
         imageSide: "left",
-        tone: "orange",
+        labelTone: "orange",
+        frameTone: "green",
         tilt: "left"
       },
       {
@@ -44,7 +46,8 @@ const processSections = [
         body:
           "Using your selected themes, we arrange the painted cassettes into a dense, structural grid. This is where the magic happens—combining analog geometry into a monolithic piece of neo-brutalist art.",
         imageSide: "right",
-        tone: "yellow",
+        labelTone: "yellow",
+        frameTone: "paper",
         tilt: "right"
       }
     ]

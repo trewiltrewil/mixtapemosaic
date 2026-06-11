@@ -86,6 +86,15 @@ async function createOrReplace(id: string, document: Record<string, unknown> & {
   return { id, status: exists ? ("updated" as const) : ("created" as const) };
 }
 
+async function setIfMissing(id: string, fields: Record<string, unknown>) {
+  if (!(await documentExists(id))) {
+    return { id, status: "skipped" as const };
+  }
+
+  await sanityWriteClient.patch(id).setIfMissing(fields).commit();
+  return { id, status: "updated" as const };
+}
+
 function pageDocument(slug: string, title: string, sections: Array<Record<string, unknown>>) {
   return {
     _type: "page",
@@ -110,11 +119,20 @@ export async function seedSanityStarterContent() {
       title: "Mixtape Mosaic",
       footerBody: "Turning vintage sound into vibrant sight. Handmade analog art for a digital world.",
       newsletterBody: "Get early access to limited edition drops.",
+      contactRecipientEmail: "trevin@mixtapemosaic.com",
+      contactSubjectPrefix: "[Mixtape Mosaic Contact]",
       marqueeText: "VINTAGE CASSETTES • HANDCRAFTED MOSAICS • CUSTOM WALL ART • LIMITED EDITION •",
       navItems,
       socialLinks,
       seoTitle: "Mixtape Mosaic",
       seoDescription: "Personalized cassette wall art made from real vintage tapes."
+    })
+  );
+
+  results.push(
+    await setIfMissing("siteSettings", {
+      contactRecipientEmail: "trevin@mixtapemosaic.com",
+      contactSubjectPrefix: "[Mixtape Mosaic Contact]"
     })
   );
 
@@ -196,7 +214,8 @@ export async function seedSanityStarterContent() {
               image: processVintageAudio,
               imageAlt: "Vintage Webster Chicago tape recorder",
               imageSide: "right",
-              tone: "yellow",
+              labelTone: "yellow",
+              frameTone: "paper",
               tilt: "right"
             },
             {
@@ -208,7 +227,8 @@ export async function seedSanityStarterContent() {
               image: processArtStudio,
               imageAlt: "Worn studio chair with layered paint",
               imageSide: "left",
-              tone: "orange",
+              labelTone: "orange",
+              frameTone: "green",
               tilt: "left"
             },
             {
@@ -220,10 +240,33 @@ export async function seedSanityStarterContent() {
               image: processAssembly,
               imageAlt: "Hands shaping a ceramic form on a wheel",
               imageSide: "right",
-              tone: "yellow",
+              labelTone: "yellow",
+              frameTone: "paper",
               tilt: "right"
             }
           ]
+        }
+      ])
+    )
+  );
+
+  results.push(
+    await createOrReplace(
+      "page.gallery",
+      pageDocument("gallery", "Gallery", [
+        {
+          _key: "hero",
+          _type: "heroSection",
+          layout: "page",
+          tone: "green",
+          title: "Gallery",
+          body: "Installed pieces, customer walls, and studio proofs from the Mixtape Mosaic archive."
+        },
+        {
+          _key: "gallery-grid",
+          _type: "gallerySection",
+          title: "Installed Stories",
+          columns: 3
         }
       ])
     )
@@ -239,18 +282,18 @@ export async function seedSanityStarterContent() {
   );
 
   results.push(
-    await createIfMissing(
+    await createOrReplace(
       "page.contact",
       pageDocument("contact", "Contact", [
         {
-          _key: "hero",
-          _type: "heroSection",
-          kicker: "Contact",
-          title: "Talk to the studio",
-          body: "Questions about custom artwork, production timing, or a special commission? Send us a note.",
-          ctaLabel: "Start Customizing",
-          ctaHref: "/customize",
-          tone: "orange"
+          _key: "contact",
+          _type: "contactFormSection",
+          heading: "Hit us up.",
+          accentText: "up.",
+          body: "Got a custom request? Found a crate of old tapes? Just want to talk about 90s hip-hop? Drop a line.",
+          buttonLabel: "Send Transmission",
+          successTitle: "Transmission received.",
+          successMessage: "We got your note. The studio will get back to you soon."
         }
       ])
     )

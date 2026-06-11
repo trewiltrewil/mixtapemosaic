@@ -1,30 +1,60 @@
-import { GalleryCard, SiteFooter } from "@/components/PublicChrome";
-import { getGalleryItems } from "@/lib/cms";
+import type { Metadata } from "next";
+import { CmsSections } from "@/components/CmsSections";
+import { SiteFooter } from "@/components/PublicChrome";
+import { getPageBySlug } from "@/lib/cms";
 
 export const revalidate = 86400;
 
+const fallbackGallerySections = [
+  {
+    _key: "hero",
+    _type: "heroSection",
+    layout: "page",
+    tone: "green",
+    title: "Gallery",
+    body: "Installed pieces, customer walls, and studio proofs from the Mixtape Mosaic archive."
+  },
+  {
+    _key: "gallery-grid",
+    _type: "gallerySection",
+    columns: 3
+  }
+];
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPageBySlug("gallery");
+  const title = page?.seoTitle ?? "Gallery | Mixtape Mosaic";
+  const description =
+    page?.seoDescription ?? "See installed Mixtape Mosaic cassette wall-art pieces, studio proofs, and room inspiration.";
+
+  return {
+    title,
+    description,
+    keywords: page?.seoKeywords,
+    robots: page?.seoNoIndex ? { index: false, follow: false } : undefined,
+    alternates: { canonical: page?.seoCanonicalPath || "/gallery" },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: page?.seoImageUrl ? [{ url: page.seoImageUrl, alt: title }] : undefined
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: page?.seoImageUrl ? [page.seoImageUrl] : undefined
+    }
+  };
+}
+
 export default async function GalleryPage() {
-  const galleryItems = await getGalleryItems();
+  const page = await getPageBySlug("gallery");
+  const hasGalleryGrid = page?.sections?.some((section) => section._type === "gallerySection");
 
   return (
     <main>
-      <section className="bg-accent text-foreground border-b-4 border-border py-20 lg:py-32">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="inline-block border-2 border-border bg-background px-4 py-1 font-mono font-bold text-sm shadow-[4px_4px_0_0_#292929] uppercase tracking-widest mb-8">
-            Gallery
-          </div>
-          <h1 className="font-heading font-black text-6xl lg:text-8xl uppercase tracking-tighter leading-[0.9] max-w-4xl">
-            Recent commissions & studio proofs.
-          </h1>
-        </div>
-      </section>
-      <section className="bg-background py-20 lg:py-32">
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {galleryItems.map((item) => (
-            <GalleryCard key={item.title} item={item} />
-          ))}
-        </div>
-      </section>
+      <CmsSections sections={hasGalleryGrid ? page?.sections : fallbackGallerySections} />
       <SiteFooter />
     </main>
   );

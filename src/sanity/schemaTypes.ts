@@ -114,10 +114,25 @@ const sectionMembers = [
               defineField({ name: "imageAlt", title: "Image alt text", type: "string" }),
               defineField({
                 name: "tone",
-                title: "Label / frame color",
+                title: "Legacy combined color",
+                type: "string",
+                options: { list: ["yellow", "orange", "green"] },
+                hidden: true,
+                initialValue: "yellow"
+              }),
+              defineField({
+                name: "labelTone",
+                title: "Step label color",
                 type: "string",
                 options: { list: ["yellow", "orange", "green"] },
                 initialValue: "yellow"
+              }),
+              defineField({
+                name: "frameTone",
+                title: "Image frame color",
+                type: "string",
+                options: { list: ["paper", "yellow", "orange", "green"] },
+                initialValue: "paper"
               }),
               defineField({
                 name: "imageSide",
@@ -168,6 +183,28 @@ const sectionMembers = [
     ]
   }),
   defineArrayMember({
+    name: "gallerySection",
+    title: "Gallery grid",
+    type: "object",
+    fields: [
+      enabledField,
+      defineField({ name: "title", type: "string", initialValue: "Gallery" }),
+      defineField({ name: "body", type: "string" }),
+      defineField({
+        name: "limit",
+        type: "number",
+        description: "Leave empty to show all active gallery items."
+      }),
+      defineField({
+        name: "columns",
+        title: "Desktop columns",
+        type: "number",
+        initialValue: 3,
+        description: "Supports 2 or 3 columns in the current public design."
+      })
+    ]
+  }),
+  defineArrayMember({
     name: "journalPreviewSection",
     title: "Journal preview",
     type: "object",
@@ -206,6 +243,38 @@ const sectionMembers = [
     ]
   }),
   defineArrayMember({
+    name: "contactFormSection",
+    title: "Contact form",
+    type: "object",
+    fields: [
+      enabledField,
+      defineField({ name: "heading", type: "string", initialValue: "Hit us up." }),
+      defineField({
+        name: "accentText",
+        title: "Orange accent text",
+        type: "string",
+        initialValue: "up."
+      }),
+      defineField({
+        name: "body",
+        type: "text",
+        rows: 3,
+        initialValue:
+          "Got a custom request? Found a crate of old tapes? Just want to talk about 90s hip-hop? Drop a line."
+      }),
+      defineField({ name: "buttonLabel", type: "string", initialValue: "Send Transmission" }),
+      defineField({ name: "successTitle", type: "string", initialValue: "Transmission received." }),
+      defineField({
+        name: "successMessage",
+        type: "text",
+        rows: 3,
+        initialValue: "We got your note. The studio will get back to you soon."
+      }),
+      defineField({ name: "image", type: "image", options: { hotspot: true } }),
+      defineField({ name: "imageAlt", title: "Image alt text", type: "string" })
+    ]
+  }),
+  defineArrayMember({
     name: "ctaSection",
     title: "CTA",
     type: "object",
@@ -236,6 +305,24 @@ export const schemaTypes = [
       defineField({ name: "footerBody", title: "Footer body", type: "text", rows: 3 }),
       defineField({ name: "newsletterBody", title: "Newsletter body", type: "text", rows: 2 }),
       defineField({ name: "marqueeText", title: "Marquee text", type: "string" }),
+      defineField({
+        name: "contactRecipientEmail",
+        title: "Contact form recipient email",
+        type: "string",
+        initialValue: "trevin@mixtapemosaic.com"
+      }),
+      defineField({
+        name: "contactSubjectPrefix",
+        title: "Contact form subject prefix",
+        type: "string",
+        initialValue: "[Mixtape Mosaic Contact]"
+      }),
+      defineField({
+        name: "contactFromEmail",
+        title: "Contact form from email",
+        type: "string",
+        description: "Use a verified sender once your email provider is configured."
+      }),
       defineField({
         name: "navItems",
         title: "Navigation",

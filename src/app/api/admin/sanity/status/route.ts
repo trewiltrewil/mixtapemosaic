@@ -26,7 +26,7 @@ export async function GET() {
       productVariantCount: number;
     }>(
       `{
-        "pages": *[_type == "page" && slug.current in ["home", "process", "customize", "contact"]]{
+        "pages": *[_type == "page" && slug.current in ["home", "process", "customize", "gallery", "contact"]]{
           _id,
           title,
           "slug": slug.current,

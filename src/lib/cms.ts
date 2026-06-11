@@ -65,6 +65,9 @@ export type CmsSiteSettings = {
   footerBody?: string;
   newsletterBody?: string;
   marqueeText?: string;
+  contactRecipientEmail?: string;
+  contactSubjectPrefix?: string;
+  contactFromEmail?: string;
   navItems?: Array<{ label: string; href: string }>;
   socialLinks?: Array<{ label: string; href: string }>;
 };
@@ -86,7 +89,9 @@ async function fetchSanity<T>(query: string, params: Record<string, unknown> = {
 export const getSiteSettings = cache(async (): Promise<CmsSiteSettings | null> => {
   return fetchSanity<CmsSiteSettings>(
     `*[_type == "siteSettings"][0]{
-      title, footerBody, newsletterBody, marqueeText, navItems, socialLinks
+      title, footerBody, newsletterBody, marqueeText,
+      contactRecipientEmail, contactSubjectPrefix, contactFromEmail,
+      navItems, socialLinks
     }`
   );
 });

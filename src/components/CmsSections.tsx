@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
+import { ContactFormSection } from "@/components/ContactFormSection";
 import { CustomizerServer } from "@/components/CustomizerServer";
 import { FaqAccordion } from "@/components/FaqAccordion";
 import { GalleryCard, JournalCard, PageHero, type PageHeroTone } from "@/components/PublicChrome";
@@ -52,6 +53,13 @@ function processStepTone(value: unknown, index: number) {
     return value;
   }
   return index % 2 === 1 ? "orange" : "yellow";
+}
+
+function processFrameTone(value: unknown) {
+  if (value === "orange" || value === "green" || value === "yellow" || value === "paper") {
+    return value;
+  }
+  return "paper";
 }
 
 export async function CmsSections({
@@ -151,20 +159,21 @@ export async function CmsSections({
                   {steps.map((rawStep, stepIndex) => {
                     const step = rawStep as Record<string, unknown>;
                     const image = sanityImageUrl(step.image, 1000) ?? processStepImages[stepIndex % processStepImages.length];
-                    const tone = processStepTone(step.tone, stepIndex);
+                    const labelTone = processStepTone(step.labelTone ?? step.tone, stepIndex);
+                    const frameTone = processFrameTone(step.frameTone ?? step.tone);
                     const imageSide = step.imageSide === "left" || step.imageSide === "right" ? step.imageSide : stepIndex % 2 === 1 ? "left" : "right";
                     const tilt = step.tilt === "left" || step.tilt === "right" || step.tilt === "none" ? step.tilt : stepIndex % 2 === 1 ? "left" : "right";
                     return (
                       <article key={stepIndex} className={`process-step process-step-image-${imageSide}`}>
                         <div className="process-copy">
-                          <span className={`process-step-label process-step-label-${tone}`}>
+                          <span className={`process-step-label process-step-label-${labelTone}`}>
                             {text(step.label, `Step ${String(stepIndex + 1).padStart(2, "0")}`)}
                           </span>
                           <h2>{text(step.title)}</h2>
                           <p>{text(step.body)}</p>
                         </div>
                         {image ? (
-                          <div className={`process-photo process-photo-${tone} process-photo-tilt-${tilt}`}>
+                          <div className={`process-photo process-photo-${frameTone} process-photo-tilt-${tilt}`}>
                             <img src={image} alt={text(step.imageAlt, text(step.title))} />
                           </div>
                         ) : null}
@@ -227,6 +236,20 @@ export async function CmsSections({
             );
           }
 
+          if (section._type === "gallerySection") {
+            const allItems = await getGalleryItems();
+            const limit = number(section.limit, 0);
+            const items = limit > 0 ? allItems.slice(0, limit) : allItems;
+            const columns = number(section.columns, 3) === 2 ? "lg:grid-cols-2" : "lg:grid-cols-3";
+            return (
+              <section key={index} className="bg-background py-20 lg:py-32">
+                <div className={`max-w-7xl mx-auto px-6 grid md:grid-cols-2 ${columns} gap-8`}>
+                  {items.map((item) => <GalleryCard key={item.title} item={item} />)}
+                </div>
+              </section>
+            );
+          }
+
           if (section._type === "journalPreviewSection") {
             const posts = (await getJournalPosts()).slice(0, number(section.limit, 3));
             return (
@@ -251,6 +274,25 @@ export async function CmsSections({
 
           if (section._type === "customizerSection") {
             return <CustomizerServer key={index} initialArtworkId={initialArtworkId} />;
+          }
+
+          if (section._type === "contactFormSection") {
+            return (
+              <ContactFormSection
+                key={index}
+                heading={text(section.heading, "Hit us up.")}
+                accentText={text(section.accentText, "up.")}
+                body={text(
+                  section.body,
+                  "Got a custom request? Found a crate of old tapes? Just want to talk about 90s hip-hop? Drop a line."
+                )}
+                buttonLabel={text(section.buttonLabel, "Send Transmission")}
+                successTitle={text(section.successTitle, "Transmission received.")}
+                successMessage={text(section.successMessage, "We got your note. The studio will get back to you soon.")}
+                image={imageForSection(section, 1200) ?? "/assets/story/cassette-closeup-grid.jpg"}
+                imageAlt={text(section.imageAlt, "Vintage cassette tape close-up")}
+              />
+            );
           }
 
           if (section._type === "ctaSection") {
