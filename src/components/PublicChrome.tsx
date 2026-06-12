@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { fallbackGalleryItems, fallbackJournalPosts } from "@/lib/fallback-content";
+import { NewsletterForm } from "./NewsletterForm";
 
 export const galleryItems = fallbackGalleryItems;
 
@@ -47,21 +48,7 @@ export function SiteFooter() {
               <li><Link href="/contact" className="hover:text-background transition-colors">Contact</Link></li>
             </ul>
           </nav>
-          <form className="flex flex-col items-center md:items-start">
-            <h4 className="font-heading font-black text-2xl uppercase tracking-wider mb-6 text-foreground">Newsletter</h4>
-            <p className="font-medium mb-4 text-foreground/80 font-mono">Get early access to limited edition drops.</p>
-            <div className="flex border-2 border-border shadow-[4px_4px_0_0_#292929]">
-              <input
-                type="email"
-                placeholder="EMAIL ADDRESS"
-                aria-label="Email address"
-                className="w-full bg-input-background text-foreground px-4 py-2 font-mono font-bold focus:outline-none placeholder:text-muted-foreground"
-              />
-              <button type="button" className="bg-secondary text-background border-l-2 border-border px-4 py-2 font-bold uppercase hover:bg-foreground transition-colors">
-                Join
-              </button>
-            </div>
-          </form>
+          <NewsletterForm />
         </div>
         <div className="max-w-[1080px] mx-auto px-6 mt-20 pt-8 border-t-4 border-border flex flex-col md:flex-row justify-between items-center gap-4 font-mono font-bold text-sm uppercase text-foreground">
           <p>© 2026 Mixtape Mosaic. All Rights Reserved.</p>

@@ -81,9 +81,6 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
             {isOpen ? (
               <div id={`${item.id}-answer`} className="border-t-4 border-border bg-card px-5 sm:px-6 py-6">
                 <p className="font-medium text-lg leading-relaxed max-w-3xl">{item.answer}</p>
-                <a href={`#${item.id}`} className="mt-5 inline-block font-mono font-bold uppercase text-sm text-secondary">
-                  Link to this answer
-                </a>
               </div>
             ) : null}
           </section>
