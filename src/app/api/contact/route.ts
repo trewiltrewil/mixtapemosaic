@@ -71,24 +71,41 @@ export async function POST(request: Request) {
     </div>
   `;
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      from,
-      to: [recipient],
-      reply_to: email,
-      subject,
-      text,
-      html
-    })
-  });
+  let response: Response;
+  try {
+    response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from,
+        to: [recipient],
+        replyTo: email,
+        subject,
+        text,
+        html
+      })
+    });
+  } catch (error) {
+    console.error("Contact email request failed", error);
+    return NextResponse.json({ error: "Email service could not be reached." }, { status: 502 });
+  }
 
   if (!response.ok) {
-    return NextResponse.json({ error: "Email delivery failed." }, { status: 502 });
+    const resendError = (await response.json().catch(() => null)) as { message?: string; name?: string } | null;
+    console.error("Contact email delivery failed", {
+      status: response.status,
+      name: resendError?.name,
+      message: resendError?.message
+    });
+    return NextResponse.json(
+      {
+        error: resendError?.message ? `Email delivery failed: ${resendError.message}` : "Email delivery failed."
+      },
+      { status: 502 }
+    );
   }
 
   return NextResponse.json({ ok: true });
