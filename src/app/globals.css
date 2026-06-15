@@ -1820,6 +1820,11 @@ p {
   background: var(--yellow);
 }
 
+.image-admin-copy-link:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 .image-admin-load-more {
   margin-top: 24px;
   width: 100%;
@@ -1855,6 +1860,18 @@ p {
 
 .image-admin-form {
   gap: 14px;
+}
+
+.image-admin-checkbox {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.image-admin-checkbox input {
+  height: 18px;
+  width: 18px;
 }
 
 .image-admin-file,
@@ -1972,6 +1989,62 @@ p {
 .image-admin-derivatives a[aria-disabled="true"] {
   opacity: 0.45;
   pointer-events: none;
+}
+
+.admin-orders-list {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-order-card {
+  align-items: stretch;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(240px, 1fr) auto;
+}
+
+.admin-order-card h2 {
+  font-size: clamp(1.25rem, 2vw, 2rem);
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.admin-order-card p,
+.admin-order-card small,
+.admin-order-card dt,
+.admin-order-card dd {
+  font-family: "Courier New", monospace;
+  font-size: 0.76rem;
+  font-weight: 900;
+  line-height: 1.35;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.admin-order-card dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.admin-order-card div:has(> dt) {
+  background: var(--white);
+  border: 2px solid var(--ink);
+  padding: 8px;
+}
+
+.admin-order-card dt {
+  color: var(--orange);
+}
+
+.admin-order-card dd {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .admin-order-card {
+    grid-template-columns: 1fr;
+  }
 }
 
 .example-mockup-canvas {

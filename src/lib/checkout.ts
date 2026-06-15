@@ -122,6 +122,7 @@ export function checkoutOrderPayload({
       typeof paymentIntent.customer === "string" ? paymentIntent.customer : paymentIntent.customer?.id ?? null,
     stripe_payment_intent_id: paymentIntent.id,
     customization_session_id: isUuid(item.customizationSessionId) ? item.customizationSessionId : null,
+    artwork_image_asset_id: isUuid(item.artworkImageAssetId) ? item.artworkImageAssetId : null,
     customer_artwork_upload_id: isUuid(item.customerArtworkUploadId) ? item.customerArtworkUploadId : null,
     preview_snapshot_key: item.previewSnapshotKey ?? item.previewSnapshotPath ?? null,
     email: normalizeEmail(email) ?? paymentIntent.receipt_email ?? null,

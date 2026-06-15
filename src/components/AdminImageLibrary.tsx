@@ -57,6 +57,13 @@ type BulkUploadItem = {
   detail: string;
 };
 
+type ProductVariantOption = {
+  id: string;
+  label: string;
+  panelColumns: number;
+  panelRows: number;
+};
+
 const emptyForm = {
   title: "",
   description: "",
@@ -138,6 +145,12 @@ export function AdminImageLibrary() {
   const [saving, setSaving] = useState(false);
   const [uploadStage, setUploadStage] = useState("");
   const [backfillRunning, setBackfillRunning] = useState(false);
+  const [productVariants, setProductVariants] = useState<ProductVariantOption[]>([]);
+  const [uvVariantId, setUvVariantId] = useState("");
+  const [uvDpi, setUvDpi] = useState(300);
+  const [uvBleedMm, setUvBleedMm] = useState(1);
+  const [uvMirror, setUvMirror] = useState(false);
+  const [uvExportingId, setUvExportingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -145,6 +158,32 @@ export function AdminImageLibrary() {
     () => assets.find((asset) => asset.id === selectedId) ?? null,
     [assets, selectedId]
   );
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/products/variants", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) {
+          return [];
+        }
+        const payload = (await response.json()) as { variants?: ProductVariantOption[] };
+        return payload.variants ?? [];
+      })
+      .then((variants) => {
+        if (!active) {
+          return;
+        }
+        setProductVariants(variants);
+        if (variants[0]) {
+          setUvVariantId((current) => current || variants[0].id);
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -583,6 +622,54 @@ export function AdminImageLibrary() {
     }
   }
 
+  async function exportUvForAsset(asset: ImageAsset) {
+    if (!uvVariantId) {
+      setError("Choose a product variant before exporting UV print files.");
+      return;
+    }
+
+    setUvExportingId(asset.id);
+    setMessage("");
+    setError("");
+
+    try {
+      const response = await fetch("/api/admin/uv-print/export", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          sourceType: "image_asset",
+          imageAssetId: asset.id,
+          productVariantId: uvVariantId,
+          dpi: uvDpi,
+          bleedMm: uvBleedMm,
+          mirror: uvMirror
+        })
+      });
+
+      if (!response.ok) {
+        const result = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(result?.error ?? "Could not generate UV print export.");
+      }
+
+      const blob = await response.blob();
+      const disposition = response.headers.get("content-disposition") ?? "";
+      const filename = disposition.match(/filename="([^"]+)"/)?.[1] ?? `${asset.title}-uv-print.zip`;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setMessage(`UV print export generated for ${asset.title}.`);
+    } catch (exportError) {
+      setError(formatClientError(exportError) || "Could not generate UV print export.");
+    } finally {
+      setUvExportingId(null);
+    }
+  }
+
   return (
     <main className="tool-shell image-admin-shell">
       <section className="canvas-panel">
@@ -638,6 +725,14 @@ export function AdminImageLibrary() {
               >
                 Copy customizer link
               </button>
+              <button
+                type="button"
+                className="image-admin-copy-link"
+                disabled={uvExportingId === asset.id}
+                onClick={() => void exportUvForAsset(asset)}
+              >
+                {uvExportingId === asset.id ? "Building UV ZIP..." : "UV export"}
+              </button>
             </article>
           ))}
         </div>
@@ -679,6 +774,53 @@ export function AdminImageLibrary() {
           {message ? <p className="status-message">{message}</p> : null}
           {uploadStage ? <p className="status-message">{uploadStage}</p> : null}
           {error ? <p className="admin-launcher-error">{error}</p> : null}
+        </div>
+
+        <div className="panel image-admin-form">
+          <p className="eyebrow">UV print export</p>
+          <h2>Print slicing</h2>
+          <label>
+            Product layout
+            <select value={uvVariantId} onChange={(event) => setUvVariantId(event.target.value)}>
+              {productVariants.map((variant) => (
+                <option key={variant.id} value={variant.id}>
+                  {variant.label} / {variant.panelColumns} x {variant.panelRows} panels
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            DPI
+            <input
+              type="number"
+              min="72"
+              max="720"
+              value={uvDpi}
+              onChange={(event) => setUvDpi(Number(event.target.value) || 300)}
+            />
+          </label>
+          <label>
+            Bleed in mm
+            <input
+              type="number"
+              min="0"
+              max="5"
+              step="0.1"
+              value={uvBleedMm}
+              onChange={(event) => setUvBleedMm(Number(event.target.value) || 0)}
+            />
+          </label>
+          <label className="image-admin-checkbox">
+            <input
+              type="checkbox"
+              checked={uvMirror}
+              onChange={(event) => setUvMirror(event.target.checked)}
+            />
+            Mirror output
+          </label>
+          <small>
+            Exports include two-panel sheets, one-panel sheets, individual cassette backups, and a manifest.
+          </small>
         </div>
 
         <form className="panel image-admin-form" onSubmit={submit}>

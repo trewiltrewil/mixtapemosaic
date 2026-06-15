@@ -41,6 +41,7 @@ export type CheckoutItemInput = {
   size?: string;
   artworkName?: string;
   artworkSource?: string;
+  artworkImageAssetId?: string;
   customizationSessionId?: string;
   customerArtworkUploadId?: string;
   previewSnapshotKey?: string;
@@ -74,6 +75,7 @@ export function metadataFromCheckoutItem(input: CheckoutItemInput | null | undef
     product_variant_id: variant.id,
     selected_size: input?.size || variant.label,
     artwork_source: input?.artworkSource ?? "",
+    artwork_image_asset_id: input?.artworkImageAssetId ?? "",
     artwork_name: input?.artworkName ?? "",
     customization_session_id: input?.customizationSessionId ?? "",
     customer_artwork_upload_id: input?.customerArtworkUploadId ?? "",

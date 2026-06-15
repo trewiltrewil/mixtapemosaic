@@ -17,6 +17,11 @@ const adminTools = [
     description: "Upload approved cassette-configurator artwork and web preview derivatives."
   },
   {
+    href: "/admin/orders",
+    title: "Orders & UV print files",
+    description: "Track purchases and export UV printer slices for curated or customer artwork."
+  },
+  {
     href: "/studio",
     title: "Sanity content studio",
     description: "Edit pages, journal posts, FAQ, gallery items, and live product variants."

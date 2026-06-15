@@ -989,6 +989,7 @@ export function Customizer({
           productVariantId: selectedSize.id,
           artworkSource,
           artworkName: selectedLabel,
+          artworkImageAssetId: artworkSource === "curated" ? selectedOption?.id ?? null : null,
           artworkUrl: artworkSource === "curated" ? artworkSrc : null,
           previewSnapshotKey: previewSnapshot?.previewSnapshotKey,
           previewSnapshotPath: previewSnapshot?.previewSnapshotKey,
@@ -1000,6 +1001,7 @@ export function Customizer({
             crop: cropState
           },
           metadata: {
+            artworkImageAssetId: artworkSource === "curated" ? selectedOption?.id ?? null : null,
             customerArtworkUploadId: uploadId,
             previewSnapshotKey: previewSnapshot?.previewSnapshotKey,
             originalFilename: artworkSource === "upload" ? uploadedFile?.name ?? null : null,
@@ -1014,6 +1016,7 @@ export function Customizer({
         size: selectedSize.label,
         artworkName: selectedLabel,
         artworkSource,
+        artworkImageAssetId: artworkSource === "curated" ? selectedOption?.id : undefined,
         priceCents: selectedSize.priceCents,
         customizationSessionId: result?.id,
         customerArtworkUploadId: uploadId ?? undefined,

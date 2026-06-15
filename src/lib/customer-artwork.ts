@@ -122,3 +122,18 @@ export async function linkCustomerArtworkToSession(uploadId: string, customizati
     throw error;
   }
 }
+
+export async function getAdminCustomerArtworkUpload(id: string) {
+  const supabase = requireSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("customer_artwork_uploads")
+    .select("id,original_storage_key,original_filename,original_content_type,original_width,original_height,original_size_bytes,status")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data as CustomerArtworkUploadRecord;
+}

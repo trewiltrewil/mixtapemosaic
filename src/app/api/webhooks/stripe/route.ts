@@ -43,6 +43,7 @@ async function upsertPaymentIntentOrder({
       stripe_customer_id: stringId(paymentIntent.customer),
       stripe_payment_intent_id: paymentIntent.id,
       customization_session_id: isUuid(metadata.customization_session_id) ? metadata.customization_session_id : null,
+      artwork_image_asset_id: isUuid(metadata.artwork_image_asset_id) ? metadata.artwork_image_asset_id : null,
       customer_artwork_upload_id: isUuid(metadata.customer_artwork_upload_id)
         ? metadata.customer_artwork_upload_id
         : null,
@@ -78,6 +79,7 @@ async function upsertCheckoutSessionOrder(session: Stripe.Checkout.Session) {
       stripe_payment_intent_id: stringId(session.payment_intent),
       stripe_customer_id: stringId(session.customer),
       customization_session_id: isUuid(metadata.customization_session_id) ? metadata.customization_session_id : null,
+      artwork_image_asset_id: isUuid(metadata.artwork_image_asset_id) ? metadata.artwork_image_asset_id : null,
       customer_artwork_upload_id: isUuid(metadata.customer_artwork_upload_id)
         ? metadata.customer_artwork_upload_id
         : null,

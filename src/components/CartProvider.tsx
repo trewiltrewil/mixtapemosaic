@@ -8,6 +8,7 @@ export type CartItem = {
   size: string;
   artworkName: string;
   artworkSource: "curated" | "upload";
+  artworkImageAssetId?: string;
   priceCents: number;
   customizationSessionId?: string;
   customerArtworkUploadId?: string;
