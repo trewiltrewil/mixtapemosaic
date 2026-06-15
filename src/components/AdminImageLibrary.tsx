@@ -150,6 +150,9 @@ export function AdminImageLibrary() {
   const [uvDpi, setUvDpi] = useState(300);
   const [uvBleedMm, setUvBleedMm] = useState(1);
   const [uvMirror, setUvMirror] = useState(false);
+  const [uvIncludeIndividualCassettes, setUvIncludeIndividualCassettes] = useState(false);
+  const [uvModalAsset, setUvModalAsset] = useState<ImageAsset | null>(null);
+  const [uvProgressMessage, setUvProgressMessage] = useState("");
   const [uvExportingId, setUvExportingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -622,6 +625,21 @@ export function AdminImageLibrary() {
     }
   }
 
+  function openUvModal(asset: ImageAsset) {
+    setUvModalAsset(asset);
+    setUvProgressMessage("");
+    setMessage("");
+    setError("");
+  }
+
+  function closeUvModal() {
+    if (uvExportingId) {
+      return;
+    }
+    setUvModalAsset(null);
+    setUvProgressMessage("");
+  }
+
   async function exportUvForAsset(asset: ImageAsset) {
     if (!uvVariantId) {
       setError("Choose a product variant before exporting UV print files.");
@@ -629,8 +647,14 @@ export function AdminImageLibrary() {
     }
 
     setUvExportingId(asset.id);
+    setUvProgressMessage("Cueing the source image...");
     setMessage("");
     setError("");
+    const progressTimers = [
+      window.setTimeout(() => setUvProgressMessage("Slicing panel sheets..."), 1200),
+      window.setTimeout(() => setUvProgressMessage("Masking transparent cassette gaps..."), 3500),
+      window.setTimeout(() => setUvProgressMessage("Packing the UV print ZIP..."), 7000)
+    ];
 
     try {
       const response = await fetch("/api/admin/uv-print/export", {
@@ -642,7 +666,8 @@ export function AdminImageLibrary() {
           productVariantId: uvVariantId,
           dpi: uvDpi,
           bleedMm: uvBleedMm,
-          mirror: uvMirror
+          mirror: uvMirror,
+          includeIndividualCassettes: uvIncludeIndividualCassettes
         })
       });
 
@@ -663,9 +688,12 @@ export function AdminImageLibrary() {
       link.remove();
       URL.revokeObjectURL(url);
       setMessage(`UV print export generated for ${asset.title}.`);
+      setUvModalAsset(null);
     } catch (exportError) {
       setError(formatClientError(exportError) || "Could not generate UV print export.");
     } finally {
+      progressTimers.forEach((timer) => window.clearTimeout(timer));
+      setUvProgressMessage("");
       setUvExportingId(null);
     }
   }
@@ -729,9 +757,9 @@ export function AdminImageLibrary() {
                 type="button"
                 className="image-admin-copy-link"
                 disabled={uvExportingId === asset.id}
-                onClick={() => void exportUvForAsset(asset)}
+                onClick={() => openUvModal(asset)}
               >
-                {uvExportingId === asset.id ? "Building UV ZIP..." : "UV export"}
+                UV export
               </button>
             </article>
           ))}
@@ -774,53 +802,6 @@ export function AdminImageLibrary() {
           {message ? <p className="status-message">{message}</p> : null}
           {uploadStage ? <p className="status-message">{uploadStage}</p> : null}
           {error ? <p className="admin-launcher-error">{error}</p> : null}
-        </div>
-
-        <div className="panel image-admin-form">
-          <p className="eyebrow">UV print export</p>
-          <h2>Print slicing</h2>
-          <label>
-            Product layout
-            <select value={uvVariantId} onChange={(event) => setUvVariantId(event.target.value)}>
-              {productVariants.map((variant) => (
-                <option key={variant.id} value={variant.id}>
-                  {variant.label} / {variant.panelColumns} x {variant.panelRows} panels
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            DPI
-            <input
-              type="number"
-              min="72"
-              max="720"
-              value={uvDpi}
-              onChange={(event) => setUvDpi(Number(event.target.value) || 300)}
-            />
-          </label>
-          <label>
-            Bleed in mm
-            <input
-              type="number"
-              min="0"
-              max="5"
-              step="0.1"
-              value={uvBleedMm}
-              onChange={(event) => setUvBleedMm(Number(event.target.value) || 0)}
-            />
-          </label>
-          <label className="image-admin-checkbox">
-            <input
-              type="checkbox"
-              checked={uvMirror}
-              onChange={(event) => setUvMirror(event.target.checked)}
-            />
-            Mirror output
-          </label>
-          <small>
-            Exports include two-panel sheets, one-panel sheets, individual cassette backups, and a manifest.
-          </small>
         </div>
 
         <form className="panel image-admin-form" onSubmit={submit}>
@@ -978,6 +959,96 @@ export function AdminImageLibrary() {
           ) : null}
         </form>
       </aside>
+      {uvModalAsset ? (
+        <div className="modal-backdrop" role="presentation">
+          <section className="panel uv-export-modal" role="dialog" aria-modal="true" aria-labelledby="uv-export-title">
+            <div className="uv-export-modal-header">
+              <div>
+                <p className="eyebrow">UV print export</p>
+                <h2 id="uv-export-title">Confirm print files</h2>
+              </div>
+              <button type="button" className="modal-close-button" onClick={closeUvModal} aria-label="Close UV export modal">
+                ×
+              </button>
+            </div>
+            <div className="uv-export-modal-grid">
+              <div className="uv-export-preview">
+                {uvModalAsset.thumb_url ? (
+                  <img src={uvModalAsset.thumb_url} alt={uvModalAsset.alt_text ?? uvModalAsset.title} />
+                ) : (
+                  <span>No preview</span>
+                )}
+                <strong>{uvModalAsset.title}</strong>
+                <small>{uvModalAsset.source_author || uvModalAsset.source_name || uvModalAsset.original_filename}</small>
+              </div>
+              <div className="image-admin-form uv-export-fields">
+                <label>
+                  Product layout
+                  <select value={uvVariantId} onChange={(event) => setUvVariantId(event.target.value)}>
+                    {productVariants.map((variant) => (
+                      <option key={variant.id} value={variant.id}>
+                        {variant.label} / {variant.panelColumns} x {variant.panelRows} panels
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="two-col">
+                  <label>
+                    DPI
+                    <input
+                      type="number"
+                      min="72"
+                      max="720"
+                      value={uvDpi}
+                      onChange={(event) => setUvDpi(Number(event.target.value) || 300)}
+                    />
+                  </label>
+                  <label>
+                    Bleed in mm
+                    <input
+                      type="number"
+                      min="0"
+                      max="5"
+                      step="0.1"
+                      value={uvBleedMm}
+                      onChange={(event) => setUvBleedMm(Number(event.target.value) || 0)}
+                    />
+                  </label>
+                </div>
+                <label className="image-admin-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={uvMirror}
+                    onChange={(event) => setUvMirror(event.target.checked)}
+                  />
+                  Mirror output
+                </label>
+                <label className="image-admin-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={uvIncludeIndividualCassettes}
+                    onChange={(event) => setUvIncludeIndividualCassettes(event.target.checked)}
+                  />
+                  Include individual cassette backups
+                </label>
+                <small>
+                  Standard export includes two-panel sheets, one-panel sheets, and a manifest. Individual cassette backups are slower.
+                </small>
+              </div>
+            </div>
+            {uvProgressMessage ? <p className="status-message uv-export-progress">{uvProgressMessage}</p> : null}
+            {error ? <p className="admin-launcher-error">{error}</p> : null}
+            <button
+              type="button"
+              className="primary-button"
+              disabled={Boolean(uvExportingId)}
+              onClick={() => void exportUvForAsset(uvModalAsset)}
+            >
+              {uvExportingId ? "Building UV ZIP..." : "Generate UV export"}
+            </button>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

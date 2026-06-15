@@ -88,6 +88,10 @@ export function AdminOrdersPanel() {
   const [dpi, setDpi] = useState(300);
   const [bleedMm, setBleedMm] = useState(1);
   const [mirror, setMirror] = useState(false);
+  const [includeIndividualCassettes, setIncludeIndividualCassettes] = useState(false);
+  const [uvModalOrder, setUvModalOrder] = useState<AdminOrder | null>(null);
+  const [uvVariantOverride, setUvVariantOverride] = useState("");
+  const [uvProgressMessage, setUvProgressMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [exportingOrderId, setExportingOrderId] = useState<string | null>(null);
@@ -178,16 +182,39 @@ export function AdminOrdersPanel() {
     setLoadingMore(false);
   }
 
+  function openUvModal(order: AdminOrder) {
+    setUvModalOrder(order);
+    setUvVariantOverride(orderVariantId(order) || fallbackVariantId);
+    setUvProgressMessage("");
+    setMessage("");
+    setError("");
+  }
+
+  function closeUvModal() {
+    if (exportingOrderId) {
+      return;
+    }
+    setUvModalOrder(null);
+    setUvVariantOverride("");
+    setUvProgressMessage("");
+  }
+
   async function exportOrder(order: AdminOrder) {
-    const variantId = orderVariantId(order) || fallbackVariantId;
+    const variantId = uvVariantOverride || orderVariantId(order) || fallbackVariantId;
     if (!variantId) {
       setError("Choose a fallback product variant before exporting this order.");
       return;
     }
 
     setExportingOrderId(order.id);
+    setUvProgressMessage("Cueing the order source image...");
     setMessage("");
     setError("");
+    const progressTimers = [
+      window.setTimeout(() => setUvProgressMessage("Slicing panel sheets..."), 1200),
+      window.setTimeout(() => setUvProgressMessage("Masking transparent cassette gaps..."), 3500),
+      window.setTimeout(() => setUvProgressMessage("Packing the UV print ZIP..."), 7000)
+    ];
 
     try {
       const response = await fetch("/api/admin/uv-print/export", {
@@ -199,7 +226,8 @@ export function AdminOrdersPanel() {
           productVariantId: variantId,
           dpi,
           bleedMm,
-          mirror
+          mirror,
+          includeIndividualCassettes
         })
       });
 
@@ -220,9 +248,12 @@ export function AdminOrdersPanel() {
       link.remove();
       URL.revokeObjectURL(url);
       setMessage(`UV print export generated for order ${order.id.slice(0, 8)}.`);
+      setUvModalOrder(null);
     } catch (exportError) {
       setError(clientError(exportError) || "Could not generate UV print export.");
     } finally {
+      progressTimers.forEach((timer) => window.clearTimeout(timer));
+      setUvProgressMessage("");
       setExportingOrderId(null);
     }
   }
@@ -282,9 +313,9 @@ export function AdminOrdersPanel() {
                   type="button"
                   className="primary-button"
                   disabled={exportingOrderId === order.id}
-                  onClick={() => void exportOrder(order)}
+                  onClick={() => openUvModal(order)}
                 >
-                  {exportingOrderId === order.id ? "Building UV ZIP..." : "UV export"}
+                  UV export
                 </button>
               </article>
             );
@@ -328,13 +359,86 @@ export function AdminOrdersPanel() {
             <input type="checkbox" checked={mirror} onChange={(event) => setMirror(event.target.checked)} />
             Mirror output
           </label>
+          <label className="image-admin-checkbox">
+            <input type="checkbox" checked={includeIndividualCassettes} onChange={(event) => setIncludeIndividualCassettes(event.target.checked)} />
+            Include individual cassette backups
+          </label>
           <small>
-            Orders use their saved variant when available. The fallback is only for older records missing variant metadata.
+            Orders use their saved variant when available. Individual cassette backups are slower, so keep them off unless needed.
           </small>
           {message ? <p className="status-message">{message}</p> : null}
           {error ? <p className="admin-launcher-error">{error}</p> : null}
         </div>
       </aside>
+      {uvModalOrder ? (
+        <div className="modal-backdrop" role="presentation">
+          <section className="panel uv-export-modal" role="dialog" aria-modal="true" aria-labelledby="order-uv-export-title">
+            <div className="uv-export-modal-header">
+              <div>
+                <p className="eyebrow">UV print export</p>
+                <h2 id="order-uv-export-title">Confirm order print files</h2>
+              </div>
+              <button type="button" className="modal-close-button" onClick={closeUvModal} aria-label="Close UV export modal">
+                ×
+              </button>
+            </div>
+            <dl className="uv-export-summary">
+              <div>
+                <dt>Artwork</dt>
+                <dd>{orderArtworkName(uvModalOrder)}</dd>
+              </div>
+              <div>
+                <dt>Customer</dt>
+                <dd>{uvModalOrder.email ?? "No email"}</dd>
+              </div>
+              <div>
+                <dt>Source</dt>
+                <dd>{orderSourceStatus(uvModalOrder)}</dd>
+              </div>
+            </dl>
+            <div className="image-admin-form uv-export-fields">
+              <label>
+                Product layout
+                <select value={uvVariantOverride} onChange={(event) => setUvVariantOverride(event.target.value)}>
+                  {variants.map((variant) => (
+                    <option key={variant.id} value={variant.id}>
+                      {variant.label} / {variant.panelColumns} x {variant.panelRows} panels
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="two-col">
+                <label>
+                  DPI
+                  <input type="number" min="72" max="720" value={dpi} onChange={(event) => setDpi(Number(event.target.value) || 300)} />
+                </label>
+                <label>
+                  Bleed in mm
+                  <input type="number" min="0" max="5" step="0.1" value={bleedMm} onChange={(event) => setBleedMm(Number(event.target.value) || 0)} />
+                </label>
+              </div>
+              <label className="image-admin-checkbox">
+                <input type="checkbox" checked={mirror} onChange={(event) => setMirror(event.target.checked)} />
+                Mirror output
+              </label>
+              <label className="image-admin-checkbox">
+                <input type="checkbox" checked={includeIndividualCassettes} onChange={(event) => setIncludeIndividualCassettes(event.target.checked)} />
+                Include individual cassette backups
+              </label>
+            </div>
+            {uvProgressMessage ? <p className="status-message uv-export-progress">{uvProgressMessage}</p> : null}
+            {error ? <p className="admin-launcher-error">{error}</p> : null}
+            <button
+              type="button"
+              className="primary-button"
+              disabled={Boolean(exportingOrderId)}
+              onClick={() => void exportOrder(uvModalOrder)}
+            >
+              {exportingOrderId ? "Building UV ZIP..." : "Generate UV export"}
+            </button>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

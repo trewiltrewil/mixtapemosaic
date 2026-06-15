@@ -19,6 +19,7 @@ export type UvPrintOptions = {
   dpi?: number;
   bleedMm?: number;
   mirror?: boolean;
+  includeIndividualCassettes?: boolean;
 };
 
 type ManifestFile = {
@@ -153,53 +154,44 @@ async function renderSheet({
   const sheetHeightMm = rows * layout.panelHeightMm;
   const sheetWidthPx = mmToPx(sheetWidthMm, dpi);
   const sheetHeightPx = mmToPx(sheetHeightMm, dpi);
-  const composites: sharp.OverlayOptions[] = [];
+  const sourceLeftMm = minPanelColumn * layout.panelWidthMm;
+  const sourceTopMm = minPanelRow * layout.panelHeightMm;
+  const left = clampInteger((sourceLeftMm / layout.fullWidthMm) * layout.fullWidthPx, 0, layout.fullWidthPx - 1);
+  const top = clampInteger((sourceTopMm / layout.fullHeightMm) * layout.fullHeightPx, 0, layout.fullHeightPx - 1);
+  const width = clampInteger((sheetWidthMm / layout.fullWidthMm) * layout.fullWidthPx, 1, layout.fullWidthPx - left);
+  const height = clampInteger((sheetHeightMm / layout.fullHeightMm) * layout.fullHeightPx, 1, layout.fullHeightPx - top);
+  const maskRects: string[] = [];
 
   for (const panel of panelPositions) {
     const panelOffsetX = panel.panelColumn - minPanelColumn;
     const panelOffsetY = panel.panelRowTop - minPanelRow;
     for (let localRow = 0; localRow < uvCassetteGeometry.panelTapeRows; localRow += 1) {
       for (let localColumn = 0; localColumn < uvCassetteGeometry.panelTapeColumns; localColumn += 1) {
-        const tapeColumn = panel.panelColumn * uvCassetteGeometry.panelTapeColumns + localColumn;
-        const tapeRowTop = panel.panelRowTop * uvCassetteGeometry.panelTapeRows + localRow;
-        const input = await cropCassette({
-          fullCanvas,
-          fullWidthPx: layout.fullWidthPx,
-          fullHeightPx: layout.fullHeightPx,
-          fullWidthMm: layout.fullWidthMm,
-          fullHeightMm: layout.fullHeightMm,
-          tapeColumn,
-          tapeRowTop,
-          tapeRows: layout.tapeRows,
-          dpi,
-          bleedMm,
-          mirror
-        });
-
-        composites.push({
-          input,
-          left: mmToPx(panelOffsetX * layout.panelWidthMm + localColumn * uvCassetteGeometry.pitchXMm + 4 - bleedMm, dpi),
-          top: mmToPx(panelOffsetY * layout.panelHeightMm + localRow * uvCassetteGeometry.pitchYMm + 4 - bleedMm, dpi)
-        });
+        const rectX = mmToPx(panelOffsetX * layout.panelWidthMm + localColumn * uvCassetteGeometry.pitchXMm + 4 - bleedMm, dpi);
+        const rectY = mmToPx(panelOffsetY * layout.panelHeightMm + localRow * uvCassetteGeometry.pitchYMm + 4 - bleedMm, dpi);
+        const rectWidth = mmToPx(uvCassetteGeometry.tapeWidthMm + bleedMm * 2, dpi);
+        const rectHeight = mmToPx(uvCassetteGeometry.tapeHeightMm + bleedMm * 2, dpi);
+        maskRects.push(`<rect x="${rectX}" y="${rectY}" width="${rectWidth}" height="${rectHeight}" fill="white"/>`);
       }
     }
   }
 
-  let sheet = sharp({
-    create: {
-      width: sheetWidthPx,
-      height: sheetHeightPx,
-      channels: 4,
-      background: { r: 0, g: 0, b: 0, alpha: 0 }
-    }
-  }).composite(composites);
+  const mask = Buffer.from(
+    `<svg width="${sheetWidthPx}" height="${sheetHeightPx}" viewBox="0 0 ${sheetWidthPx} ${sheetHeightPx}" xmlns="http://www.w3.org/2000/svg">${maskRects.join("")}</svg>`
+  );
+
+  let sheet = sharp(fullCanvas, { failOn: "none" })
+    .extract({ left, top, width, height })
+    .resize({ width: sheetWidthPx, height: sheetHeightPx, fit: "fill" })
+    .removeAlpha()
+    .joinChannel(mask);
 
   if (mirror) {
     sheet = sheet.flop();
   }
 
   return {
-    buffer: await sheet.png({ compressionLevel: 9 }).withMetadata({ density: dpi }).toBuffer(),
+    buffer: await sheet.png({ compressionLevel: 6 }).withMetadata({ density: dpi }).toBuffer(),
     physicalWidthMm: sheetWidthMm,
     physicalHeightMm: sheetHeightMm,
     pixelWidth: sheetWidthPx,
@@ -241,7 +233,7 @@ async function renderIndividualCassette({
   const physicalWidthMm = uvCassetteGeometry.tapeWidthMm + bleedMm * 2;
   const physicalHeightMm = uvCassetteGeometry.tapeHeightMm + bleedMm * 2;
   return {
-    buffer: await sharp(buffer).png({ compressionLevel: 9 }).withMetadata({ density: dpi }).toBuffer(),
+    buffer: await sharp(buffer).png({ compressionLevel: 6 }).withMetadata({ density: dpi }).toBuffer(),
     physicalWidthMm,
     physicalHeightMm,
     pixelWidth: mmToPx(physicalWidthMm, dpi),
@@ -253,6 +245,7 @@ export async function generateUvPrintZip(options: UvPrintOptions) {
   const dpi = Math.max(72, Math.min(720, Math.round(options.dpi || 300)));
   const bleedMm = Math.max(0, Math.min(5, Number.isFinite(options.bleedMm) ? options.bleedMm! : 1));
   const mirror = Boolean(options.mirror);
+  const includeIndividualCassettes = Boolean(options.includeIndividualCassettes);
   const baseLayout = getLayout(options.variant);
   const layout = {
     ...baseLayout,
@@ -319,30 +312,32 @@ export async function generateUvPrintZip(options: UvPrintOptions) {
     }
   }
 
-  for (let tapeRowTop = 0; tapeRowTop < layout.tapeRows; tapeRowTop += 1) {
-    for (let tapeColumn = 0; tapeColumn < layout.tapeColumns; tapeColumn += 1) {
-      const globalRowFromBottom = layout.tapeRows - tapeRowTop - 1;
-      const rendered = await renderIndividualCassette({
-        fullCanvas,
-        layout,
-        tapeColumn,
-        tapeRowTop,
-        dpi,
-        bleedMm,
-        mirror
-      });
-      const file = `individual-cassettes/${sourceSlug}_${variantSlug}_R${String(globalRowFromBottom).padStart(2, "0")}_C${String(tapeColumn).padStart(2, "0")}_${dpi}dpi.png`;
-      zip.file(file, rendered.buffer);
-      manifestFiles.push({
-        file,
-        kind: "cassette",
-        physicalWidthMm: rendered.physicalWidthMm,
-        physicalHeightMm: rendered.physicalHeightMm,
-        pixelWidth: rendered.pixelWidth,
-        pixelHeight: rendered.pixelHeight,
-        globalTapeRow: globalRowFromBottom,
-        globalTapeColumn: tapeColumn
-      });
+  if (includeIndividualCassettes) {
+    for (let tapeRowTop = 0; tapeRowTop < layout.tapeRows; tapeRowTop += 1) {
+      for (let tapeColumn = 0; tapeColumn < layout.tapeColumns; tapeColumn += 1) {
+        const globalRowFromBottom = layout.tapeRows - tapeRowTop - 1;
+        const rendered = await renderIndividualCassette({
+          fullCanvas,
+          layout,
+          tapeColumn,
+          tapeRowTop,
+          dpi,
+          bleedMm,
+          mirror
+        });
+        const file = `individual-cassettes/${sourceSlug}_${variantSlug}_R${String(globalRowFromBottom).padStart(2, "0")}_C${String(tapeColumn).padStart(2, "0")}_${dpi}dpi.png`;
+        zip.file(file, rendered.buffer);
+        manifestFiles.push({
+          file,
+          kind: "cassette",
+          physicalWidthMm: rendered.physicalWidthMm,
+          physicalHeightMm: rendered.physicalHeightMm,
+          pixelWidth: rendered.pixelWidth,
+          pixelHeight: rendered.pixelHeight,
+          globalTapeRow: globalRowFromBottom,
+          globalTapeColumn: tapeColumn
+        });
+      }
     }
   }
 
@@ -355,6 +350,7 @@ export async function generateUvPrintZip(options: UvPrintOptions) {
         dpi,
         bleedMm,
         mirror,
+        includeIndividualCassettes,
         geometry: uvCassetteGeometry,
         layout: {
           panelColumns: layout.panelColumns,
@@ -374,7 +370,7 @@ export async function generateUvPrintZip(options: UvPrintOptions) {
     )
   );
 
-  const zipBuffer = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE", compressionOptions: { level: 6 } });
+  const zipBuffer = await zip.generateAsync({ type: "nodebuffer", compression: "STORE" });
   return {
     buffer: zipBuffer,
     filename: `${sourceSlug}_${variantSlug}_uv-print_${dpi}dpi.zip`

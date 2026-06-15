@@ -20,6 +20,7 @@ type ExportRequest = {
   dpi?: number;
   bleedMm?: number;
   mirror?: boolean;
+  includeIndividualCassettes?: boolean;
 };
 
 function stringValue(value: unknown) {
@@ -124,7 +125,8 @@ export async function POST(request: Request) {
       variant,
       dpi: body.dpi,
       bleedMm: body.bleedMm,
-      mirror: body.mirror
+      mirror: body.mirror,
+      includeIndividualCassettes: body.includeIndividualCassettes
     });
 
     return new NextResponse(new Uint8Array(zip.buffer), {
