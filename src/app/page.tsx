@@ -322,7 +322,7 @@ export default async function HomePage() {
               <img
                 src="/assets/story/arcade-room-cassette-wall.webp"
                 alt="Cassette mosaic wall art installed in a retro arcade room"
-                className="h-[360px] w-full object-cover"
+                className="block h-[360px] w-full object-cover"
               />
             </div>
             <div className="space-y-4 pt-8">
@@ -330,14 +330,14 @@ export default async function HomePage() {
                 <img
                   src="/assets/story/coffee-vinyl-cassette-wall.webp"
                   alt="Cassette wall art installed in a coffee and vinyl shop"
-                  className="h-[170px] w-full object-cover"
+                  className="block h-[170px] w-full object-cover"
                 />
               </div>
               <div className="border-4 border-background bg-card shadow-[8px_8px_0_0_#F66630] overflow-hidden -rotate-1">
                 <img
                   src="/assets/story/brick-room-cassette-wall.webp"
                   alt="Large cassette wall art installed above a brick fireplace"
-                  className="h-[170px] w-full object-cover"
+                  className="block h-[170px] w-full object-cover"
                 />
               </div>
             </div>
