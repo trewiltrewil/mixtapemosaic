@@ -183,8 +183,8 @@ async function renderSheet({
   let sheet = sharp(fullCanvas, { failOn: "none" })
     .extract({ left, top, width, height })
     .resize({ width: sheetWidthPx, height: sheetHeightPx, fit: "fill" })
-    .removeAlpha()
-    .joinChannel(mask);
+    .ensureAlpha()
+    .composite([{ input: mask, blend: "dest-in" }]);
 
   if (mirror) {
     sheet = sheet.flop();
