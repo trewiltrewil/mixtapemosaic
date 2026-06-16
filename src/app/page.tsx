@@ -318,26 +318,26 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="border-4 border-background bg-primary shadow-[8px_8px_0_0_#FEB93C] overflow-hidden -rotate-2">
+            <div className="relative h-[360px] border-4 border-background bg-background shadow-[8px_8px_0_0_#FEB93C] overflow-hidden -rotate-2">
               <img
                 src="/assets/story/arcade-room-cassette-wall.webp"
                 alt="Cassette mosaic wall art installed in a retro arcade room"
-                className="block h-[360px] w-full object-cover"
+                className="absolute inset-0 block h-full w-full object-cover"
               />
             </div>
             <div className="space-y-4 pt-8">
-              <div className="border-4 border-background bg-card shadow-[8px_8px_0_0_#6B8F8B] overflow-hidden rotate-2">
+              <div className="relative h-[170px] border-4 border-background bg-card shadow-[8px_8px_0_0_#6B8F8B] overflow-hidden rotate-2">
                 <img
                   src="/assets/story/coffee-vinyl-cassette-wall.webp"
                   alt="Cassette wall art installed in a coffee and vinyl shop"
-                  className="block h-[170px] w-full object-cover"
+                  className="absolute inset-0 block h-full w-full object-cover"
                 />
               </div>
-              <div className="border-4 border-background bg-card shadow-[8px_8px_0_0_#F66630] overflow-hidden -rotate-1">
+              <div className="relative h-[170px] border-4 border-background bg-card shadow-[8px_8px_0_0_#F66630] overflow-hidden -rotate-1">
                 <img
                   src="/assets/story/brick-room-cassette-wall.webp"
                   alt="Large cassette wall art installed above a brick fireplace"
-                  className="block h-[170px] w-full object-cover"
+                  className="absolute inset-0 block h-full w-full object-cover"
                 />
               </div>
             </div>
