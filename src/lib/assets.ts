@@ -44,6 +44,10 @@ export const productPhotos: Record<string, ProductPhoto> = {
 
 export const productPhoto = productPhotos.square;
 
+export function findProductPhoto(layout: ProductLayoutKey): ProductPhoto | undefined {
+  return productPhotos[layout];
+}
+
 export function getProductPhoto(layout: ProductLayoutKey): ProductPhoto {
-  return productPhotos[layout] ?? productPhotos.square;
+  return findProductPhoto(layout) ?? productPhotos.square;
 }

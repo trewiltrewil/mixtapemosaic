@@ -28,6 +28,16 @@ const layoutSeeds: Record<ProductLayoutKey, {
   }
 };
 
+export type CalibrationProductSource = {
+  layout: ProductLayoutKey;
+  src: string;
+  width: number;
+  height: number;
+  columns: number;
+  rows: number;
+  label?: string;
+};
+
 const defaultRenderSettings = {
   artworkOpacity: 0.975,
   raisedEdgeArtworkOpacity: 0.9,
@@ -122,23 +132,34 @@ export function getTapeFeatures(tape: TapeCalibration): TapeFeatureSet {
   };
 }
 
-function getDefaultPreviewFrame(layout: ProductLayoutKey) {
-  const photo = getProductPhoto(layout);
+function defaultSeedForProduct(product: CalibrationProductSource) {
+  return {
+    bounds: {
+      x: product.width * 0.055,
+      y: product.height * 0.05,
+      width: product.width * 0.89,
+      height: product.height * 0.9
+    },
+    tapeGapX: Math.max(2, product.width * 0.004),
+    tapeGapY: Math.max(2, product.height * 0.006)
+  };
+}
+
+function getDefaultPreviewFrameForProduct(product: CalibrationProductSource) {
   return {
     x: 0,
     y: 0,
-    width: photo.width,
-    height: photo.height,
+    width: product.width,
+    height: product.height,
     rotationDeg: 0
   };
 }
 
-function makeTape(layout: ProductLayoutKey, row: number, column: number): TapeCalibration {
-  const photo = getProductPhoto(layout);
-  const seed = layoutSeeds[layout] ?? layoutSeeds.square;
-  const index = row * photo.columns + column;
-  const tapeWidth = (seed.bounds.width - seed.tapeGapX * Math.max(0, photo.columns - 1)) / photo.columns;
-  const tapeHeight = (seed.bounds.height - seed.tapeGapY * Math.max(0, photo.rows - 1)) / photo.rows;
+function makeTape(product: CalibrationProductSource, row: number, column: number): TapeCalibration {
+  const seed = layoutSeeds[product.layout] ?? defaultSeedForProduct(product);
+  const index = row * product.columns + column;
+  const tapeWidth = (seed.bounds.width - seed.tapeGapX * Math.max(0, product.columns - 1)) / product.columns;
+  const tapeHeight = (seed.bounds.height - seed.tapeGapY * Math.max(0, product.rows - 1)) / product.rows;
   const x = seed.bounds.x + column * (tapeWidth + seed.tapeGapX);
   const y = seed.bounds.y + row * (tapeHeight + seed.tapeGapY);
 
@@ -159,27 +180,41 @@ function makeTape(layout: ProductLayoutKey, row: number, column: number): TapeCa
   };
 }
 
-export function createPrototypeCalibration(layout: ProductLayoutKey = "square"): ProductCalibration {
-  const photo = getProductPhoto(layout);
+export function createProductCalibrationSeed(product: CalibrationProductSource): ProductCalibration {
+  const label = product.label || product.layout;
+
   return {
     photo: {
-      src: photo.src,
-      width: photo.width,
-      height: photo.height,
+      src: product.src,
+      width: product.width,
+      height: product.height,
       notes:
-        `${layout === "landscape" ? "Landscape" : "Square"} cassette grid base. Default tape quads are reset to the clean ${photo.columns} x ${photo.rows} grid in this exported product image.`
+        `${label} cassette grid base. Default tape quads are reset to the clean ${product.columns} x ${product.rows} grid in this exported product image.`
     },
     renderSettings: defaultRenderSettings,
-    previewFrame: getDefaultPreviewFrame(layout),
+    previewFrame: getDefaultPreviewFrameForProduct(product),
     layout: {
-      columns: photo.columns,
-      rows: photo.rows
+      columns: product.columns,
+      rows: product.rows
     },
     masks: defaultMasks,
-    tapes: Array.from({ length: photo.columns * photo.rows }, (_, index) =>
-      makeTape(layout, Math.floor(index / photo.columns), index % photo.columns)
+    tapes: Array.from({ length: product.columns * product.rows }, (_, index) =>
+      makeTape(product, Math.floor(index / product.columns), index % product.columns)
     )
   };
+}
+
+export function createPrototypeCalibration(layout: ProductLayoutKey = "square"): ProductCalibration {
+  const photo = getProductPhoto(layout);
+  return createProductCalibrationSeed({
+    layout,
+    src: photo.src,
+    width: photo.width,
+    height: photo.height,
+    columns: photo.columns,
+    rows: photo.rows,
+    label: layout === "landscape" ? "Landscape" : "Square"
+  });
 }
 
 export function cloneCalibration(calibration: ProductCalibration): ProductCalibration {
@@ -214,6 +249,63 @@ export function normalizeCalibration(calibration: ProductCalibration): ProductCa
     }
   }));
   return next;
+}
+
+function scalePoint(point: Point, scaleX: number, scaleY: number): Point {
+  return {
+    x: point.x * scaleX,
+    y: point.y * scaleY
+  };
+}
+
+export function adaptCalibrationToProduct(
+  calibration: ProductCalibration,
+  product: CalibrationProductSource
+): { calibration: ProductCalibration; scaled: boolean; tapeCountMismatch: boolean } {
+  const normalized = normalizeCalibration(calibration);
+  const sourceWidth = normalized.photo.width || product.width;
+  const sourceHeight = normalized.photo.height || product.height;
+  const scaleX = product.width / sourceWidth;
+  const scaleY = product.height / sourceHeight;
+  const scaled = Math.abs(scaleX - 1) > 0.0001 || Math.abs(scaleY - 1) > 0.0001;
+  const tapeCountMismatch = normalized.tapes.length !== product.columns * product.rows;
+  const next: ProductCalibration = {
+    ...normalized,
+    photo: {
+      src: product.src,
+      width: product.width,
+      height: product.height,
+      notes: product.label
+        ? `${product.label} mockup image from product variant.`
+        : normalized.photo.notes
+    },
+    layout: {
+      columns: product.columns,
+      rows: product.rows
+    }
+  };
+
+  if (scaled) {
+    next.previewFrame = normalized.previewFrame
+      ? {
+          x: normalized.previewFrame.x * scaleX,
+          y: normalized.previewFrame.y * scaleY,
+          width: normalized.previewFrame.width * scaleX,
+          height: normalized.previewFrame.height * scaleY,
+          rotationDeg: normalized.previewFrame.rotationDeg
+        }
+      : getDefaultPreviewFrameForProduct(product);
+    next.tapes = normalized.tapes.map((tape) => ({
+      ...tape,
+      quad: tape.quad.map((point) => scalePoint(point, scaleX, scaleY)) as Quad
+    }));
+  }
+
+  return {
+    calibration: next,
+    scaled,
+    tapeCountMismatch
+  };
 }
 
 export function updateTapePoint(

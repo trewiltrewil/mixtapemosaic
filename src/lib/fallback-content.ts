@@ -171,7 +171,7 @@ export const fallbackProductVariantList = Object.values(productVariants).map((va
   productType: variant.productType,
   priceCents: variant.priceCents,
   productionEstimate: "Ships in 2-3 weeks",
-  layout: variant.id === "landscape" ? "landscape" : "square",
+  layout: variant.id === "landscape" ? "landscape" : variant.id === "portrait" ? "portrait" : "square",
   columns: variant.id === "landscape" ? 8 : 6,
   rows: 9,
   panelColumns: variant.id === "landscape" ? 4 : 3,

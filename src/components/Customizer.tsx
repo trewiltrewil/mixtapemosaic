@@ -7,7 +7,7 @@ import type { PointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getProductPhoto, type ProductLayoutKey } from "@/lib/assets";
 import { useCart } from "@/components/CartProvider";
-import { createPrototypeCalibration, normalizeCalibration } from "@/lib/calibration";
+import { createProductCalibrationSeed, createPrototypeCalibration, normalizeCalibration } from "@/lib/calibration";
 import { defaultProductionConfig } from "@/lib/geometry";
 import { loadImage, type LoadedImage } from "@/lib/image";
 import { drawRealisticPreview } from "@/lib/preview-renderer";
@@ -166,24 +166,19 @@ function PanelDiagram({ size }: { size: ProductSizeOption }) {
 }
 
 function createVariantCalibration(size: ProductSizeOption): ProductCalibration {
-  const calibration = createPrototypeCalibration(size.layout);
-  const photo = size.mockupPhoto;
+  const photo = size.mockupPhoto ?? getProductPhoto(size.layout);
 
-  return normalizeCalibration({
-    ...calibration,
-    photo: photo
-      ? {
-          src: photo.src,
-          width: photo.width,
-          height: photo.height,
-          notes: `${size.label} mockup image from Sanity product variant.`
-        }
-      : calibration.photo,
-    layout: {
+  return normalizeCalibration(
+    createProductCalibrationSeed({
+      layout: size.layout,
+      src: photo.src,
+      width: photo.width,
+      height: photo.height,
       columns: size.columns,
-      rows: size.rows
-    }
-  });
+      rows: size.rows,
+      label: size.label
+    })
+  );
 }
 
 type CropState = {

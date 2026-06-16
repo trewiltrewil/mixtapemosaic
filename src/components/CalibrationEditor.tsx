@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { getProductPhoto, productPhotos, type ProductLayoutKey } from "@/lib/assets";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { findProductPhoto, getProductPhoto, productPhotos, type ProductLayoutKey, type ProductPhoto } from "@/lib/assets";
 import {
+  adaptCalibrationToProduct,
   bilinearPoint,
+  type CalibrationProductSource,
   createDefaultTapeFeatures,
+  createProductCalibrationSeed,
   createPrototypeCalibration,
   getTapeFeatures,
   localPointFromQuad,
@@ -62,6 +65,26 @@ type ViewTransform = {
   panY: number;
 };
 
+type VariantMockupPhoto = Pick<ProductPhoto, "src" | "width" | "height">;
+
+type ProductVariantOption = {
+  id: string;
+  label: string;
+  layout: ProductLayoutKey;
+  columns: number;
+  rows: number;
+  panelColumns: number;
+  panelRows: number;
+  panelCount: number;
+  tapeCountLabel: string;
+  aspectRatio: string;
+  mockupPhoto?: VariantMockupPhoto;
+};
+
+type ProductVariantPayload = ProductVariantOption & {
+  layout?: string;
+};
+
 const minZoom = 1;
 const maxZoom = 8;
 const defaultFeatureTarget = "circle:transparentHoles:roller-left";
@@ -70,13 +93,68 @@ const featureCenterHitPx = 9;
 const raisedCornerHitPx = 10;
 const panStartPx = 4;
 
-function getDefaultPreviewFrame(layout: ProductLayoutKey) {
-  return createPrototypeCalibration(layout).previewFrame ?? {
+function productSourceFromVariant(variant: ProductVariantOption, photo: VariantMockupPhoto): CalibrationProductSource {
+  return {
+    layout: variant.layout,
+    src: photo.src,
+    width: photo.width,
+    height: photo.height,
+    columns: variant.columns,
+    rows: variant.rows,
+    label: variant.label
+  };
+}
+
+function getVariantPhoto(variant: ProductVariantOption): VariantMockupPhoto | null {
+  return variant.mockupPhoto ?? findProductPhoto(variant.layout) ?? null;
+}
+
+function getDefaultPreviewFrame(photo: VariantMockupPhoto | null) {
+  return {
     x: 0,
     y: 0,
-    width: getProductPhoto(layout).width,
-    height: getProductPhoto(layout).height,
+    width: photo?.width ?? getProductPhoto("square").width,
+    height: photo?.height ?? getProductPhoto("square").height,
     rotationDeg: 0
+  };
+}
+
+function makeFallbackVariant(layout: ProductLayoutKey): ProductVariantOption {
+  const photo = getProductPhoto(layout);
+  return {
+    id: layout,
+    label: layout === "landscape" ? "Landscape" : "Square",
+    layout,
+    columns: photo.columns,
+    rows: photo.rows,
+    panelColumns: layout === "landscape" ? 4 : 3,
+    panelRows: 3,
+    panelCount: layout === "landscape" ? 12 : 9,
+    tapeCountLabel: `${photo.columns * photo.rows} cassettes`,
+    aspectRatio: `${photo.width} / ${photo.height}`,
+    mockupPhoto: photo
+  };
+}
+
+const fallbackVariantOptions = Object.keys(productPhotos).map((layout) =>
+  makeFallbackVariant(layout as ProductLayoutKey)
+);
+
+function variantFromPayload(value: ProductVariantPayload): ProductVariantOption {
+  const layout = (value.layout || "square").trim().toLowerCase();
+  const fallbackPhoto = findProductPhoto(layout);
+  return {
+    id: value.id,
+    label: value.label,
+    layout,
+    columns: value.columns || fallbackPhoto?.columns || 6,
+    rows: value.rows || fallbackPhoto?.rows || 9,
+    panelColumns: value.panelColumns || (layout === "landscape" ? 4 : 3),
+    panelRows: value.panelRows || (layout === "portrait" ? 4 : 3),
+    panelCount: value.panelCount || (layout === "square" ? 9 : 12),
+    tapeCountLabel: value.tapeCountLabel || `${(value.columns || fallbackPhoto?.columns || 6) * (value.rows || fallbackPhoto?.rows || 9)} cassettes`,
+    aspectRatio: value.aspectRatio || `${value.panelColumns || 3} / ${value.panelRows || 3}`,
+    mockupPhoto: value.mockupPhoto
   };
 }
 
@@ -192,7 +270,8 @@ function isCalibration(value: unknown): value is ProductCalibration {
 
 export function CalibrationEditor() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [layoutKey, setLayoutKey] = useState<ProductLayoutKey>("square");
+  const [variants, setVariants] = useState<ProductVariantOption[]>(fallbackVariantOptions);
+  const [selectedVariantId, setSelectedVariantId] = useState(fallbackVariantOptions[0]?.id ?? "square");
   const [photo, setPhoto] = useState<LoadedImage | null>(null);
   const [calibration, setCalibration] = useState<ProductCalibration>(() => createPrototypeCalibration("square"));
   const [selectedTape, setSelectedTape] = useState(0);
@@ -200,48 +279,118 @@ export function CalibrationEditor() {
   const [drag, setDrag] = useState<DragState | null>(null);
   const [view, setView] = useState<ViewTransform>({ zoom: 1, panX: 0, panY: 0 });
   const [status, setStatus] = useState("Loading prototype photo...");
+  const selectedVariant = useMemo(
+    () => variants.find((variant) => variant.id === selectedVariantId) ?? variants[0] ?? fallbackVariantOptions[0],
+    [selectedVariantId, variants]
+  );
+  const layoutKey = selectedVariant?.layout ?? "square";
+  const selectedProductPhoto = selectedVariant ? getVariantPhoto(selectedVariant) : null;
 
   useEffect(() => {
     let active = true;
-    const productPhoto = getProductPhoto(layoutKey);
-    setPhoto(null);
-    setCalibration(createPrototypeCalibration(layoutKey));
-    setSelectedTape(0);
-    setSelectedFeature(defaultFeatureTarget);
-    setStatus(`Loading ${layoutKey} prototype photo...`);
 
-    loadImage(productPhoto.src).then((image) => {
-      if (active) {
-        setPhoto(image);
-        setStatus("Photo loaded. Run vision estimate, then zoom in and correct the tape corners.");
-      }
-    });
-
-    fetch(`/api/calibration?layout=${layoutKey}&ts=${Date.now()}`, { cache: "no-store" })
+    fetch("/api/products/variants", { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) {
           return null;
         }
-        return (await response.json()) as unknown;
+        return (await response.json()) as { variants?: ProductVariantPayload[] };
       })
-      .then((saved) => {
-        if (active && isCalibration(saved)) {
-          setCalibration(normalizeCalibration(saved));
-          setSelectedTape(0);
-          setSelectedFeature(defaultFeatureTarget);
-          setStatus("Saved calibration loaded from this project.");
+      .then((payload) => {
+        if (!active) {
+          return;
         }
+        const nextVariants = (payload?.variants ?? []).map(variantFromPayload);
+        if (!nextVariants.length) {
+          setStatus("Product variants unavailable. Using built-in calibration fallbacks.");
+          return;
+        }
+        setVariants(nextVariants);
+        setSelectedVariantId((current) =>
+          nextVariants.some((variant) => variant.id === current) ? current : nextVariants[0].id
+        );
       })
       .catch(() => {
         if (active) {
-          setStatus("Photo loaded. No saved calibration found yet.");
+          setStatus("Product variants unavailable. Using built-in calibration fallbacks.");
         }
       });
 
     return () => {
       active = false;
     };
-  }, [layoutKey]);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    const variant = selectedVariant;
+    const productPhoto = selectedProductPhoto;
+    if (!variant || !productPhoto) {
+      setPhoto(null);
+      setStatus("This variant needs a mockup image in Sanity before it can be calibrated.");
+      return () => {
+        active = false;
+      };
+    }
+
+    const productSource = productSourceFromVariant(variant, productPhoto);
+    setPhoto(null);
+    setSelectedTape(0);
+    setSelectedFeature(defaultFeatureTarget);
+    setStatus(`Loading ${variant.label} mockup and saved ${layoutKey} calibration...`);
+
+    Promise.all([
+      loadImage(productPhoto.src),
+      fetch(`/api/calibration?layout=${encodeURIComponent(layoutKey)}&ts=${Date.now()}`, { cache: "no-store" })
+        .then(async (response) => {
+          if (!response.ok) {
+            return null;
+          }
+          return (await response.json()) as unknown;
+        })
+        .catch(() => null)
+    ])
+      .then(([image, saved]) => {
+        if (!active) {
+          return;
+        }
+        setPhoto(image);
+
+        if (isCalibration(saved)) {
+          const adapted = adaptCalibrationToProduct(saved, productSource);
+          setCalibration(adapted.calibration);
+          setSelectedTape(0);
+          setSelectedFeature(defaultFeatureTarget);
+          if (adapted.scaled) {
+            setStatus(
+              "Saved calibration was scaled to this mockup image size. Inspect carefully before saving."
+            );
+          } else if (adapted.tapeCountMismatch) {
+            setStatus(
+              "Saved calibration loaded, but the tape count differs from this variant. Inspect before saving."
+            );
+          } else {
+            setStatus("Saved calibration loaded from this project.");
+          }
+          return;
+        }
+
+        setCalibration(normalizeCalibration(createProductCalibrationSeed(productSource)));
+        setSelectedTape(0);
+        setSelectedFeature(defaultFeatureTarget);
+        setStatus("No saved calibration found for this layout key. A seed was created in memory only.");
+      })
+      .catch((error) => {
+        if (active) {
+          setPhoto(null);
+          setStatus(error instanceof Error ? error.message : "Unable to load this mockup image.");
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [layoutKey, selectedProductPhoto, selectedVariant]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -269,7 +418,7 @@ export function CalibrationEditor() {
       context.scale(view.zoom, view.zoom);
       context.drawImage(photo, photoRect.x, photoRect.y, photoRect.width, photoRect.height);
 
-      const frame = calibration.previewFrame ?? getDefaultPreviewFrame(layoutKey);
+      const frame = calibration.previewFrame ?? getDefaultPreviewFrame(selectedProductPhoto);
       const framePoints = previewFrameCorners(frame).map((point) =>
         getScaledCalibrationPoint(point, photo, canvas.width, canvas.height)
       );
@@ -389,7 +538,7 @@ export function CalibrationEditor() {
     render();
     window.addEventListener("resize", render);
     return () => window.removeEventListener("resize", render);
-  }, [photo, calibration, selectedFeature, selectedTape, view]);
+  }, [photo, calibration, selectedFeature, selectedProductPhoto, selectedTape, view]);
 
   function canvasClientPoint(clientX: number, clientY: number): Point {
     const canvas = canvasRef.current!;
@@ -617,7 +766,7 @@ export function CalibrationEditor() {
       const normalized = normalizeCalibration(current);
       return {
         ...normalized,
-        previewFrame: updater(normalized.previewFrame ?? getDefaultPreviewFrame(layoutKey))
+        previewFrame: updater(normalized.previewFrame ?? getDefaultPreviewFrame(selectedProductPhoto))
       };
     });
   }
@@ -667,7 +816,7 @@ export function CalibrationEditor() {
   const selectedFeatures = getTapeFeatures(selected);
   const featureTargets = featureTargetsForTape(selectedTape);
   const activeFeature = selectedFeatureTarget();
-  const previewFrame = calibration.previewFrame ?? getDefaultPreviewFrame(layoutKey);
+  const previewFrame = calibration.previewFrame ?? getDefaultPreviewFrame(selectedProductPhoto);
   const renderSettings = normalizeCalibration(calibration).renderSettings!;
 
   return (
@@ -808,17 +957,26 @@ export function CalibrationEditor() {
 
         <div className="panel two-col">
           <label>
-            Layout
+            Product variant
             <select
-              value={layoutKey}
-              onChange={(event) => setLayoutKey(event.target.value as ProductLayoutKey)}
+              value={selectedVariantId}
+              onChange={(event) => setSelectedVariantId(event.target.value)}
             >
-              {Object.keys(productPhotos).map((key) => (
-                <option key={key} value={key}>
-                  {key === "landscape" ? "Landscape" : "Square"}
+              {variants.map((variant) => (
+                <option key={variant.id} value={variant.id}>
+                  {variant.label} ({variant.layout})
                 </option>
               ))}
             </select>
+            <span className="metric">
+              {selectedVariant?.columns} x {selectedVariant?.rows} cassette grid ·{" "}
+              {selectedVariant?.panelColumns} x {selectedVariant?.panelRows} panels ·{" "}
+              {selectedProductPhoto
+                ? selectedVariant?.mockupPhoto
+                  ? "Sanity mockup"
+                  : "Built-in fallback mockup"
+                : "Mockup missing"}
+            </span>
           </label>
           <button
             type="button"
@@ -830,10 +988,24 @@ export function CalibrationEditor() {
           <button
             type="button"
             onClick={() => {
-              setCalibration(createPrototypeCalibration(layoutKey));
+              if (!selectedVariant || !selectedProductPhoto) {
+                setStatus("This variant needs a mockup image before a seed can be created.");
+                return;
+              }
+              const confirmed = window.confirm(
+                "Reset seed only changes the editor state. It will not replace saved calibration until you click Save JSON."
+              );
+              if (!confirmed) {
+                return;
+              }
+              setCalibration(
+                normalizeCalibration(
+                  createProductCalibrationSeed(productSourceFromVariant(selectedVariant, selectedProductPhoto))
+                )
+              );
               setSelectedTape(0);
               setSelectedFeature(defaultFeatureTarget);
-              setStatus(`Reset ${layoutKey} to the default grid seed.`);
+              setStatus(`Reset ${layoutKey} to the default grid seed in memory. Click Save JSON to persist it.`);
             }}
           >
             Reset seed
@@ -983,7 +1155,7 @@ export function CalibrationEditor() {
             <button
               type="button"
               onClick={() => {
-                updatePreviewFrame(() => getDefaultPreviewFrame(layoutKey));
+                updatePreviewFrame(() => getDefaultPreviewFrame(selectedProductPhoto));
                 setStatus("Customizer crop reset. Save JSON to keep this framing.");
               }}
             >
