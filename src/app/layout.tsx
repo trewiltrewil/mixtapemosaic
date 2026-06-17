@@ -7,7 +7,21 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Mixtape Mosaic",
-  description: "Personalized vintage cassette wall art made from your chosen image."
+  description: "Personalized vintage cassette wall art made from your chosen image.",
+  icons: {
+    icon: [
+      {
+        url: "/favicon.svg",
+        type: "image/svg+xml"
+      }
+    ],
+    apple: [
+      {
+        url: "/favicon.svg",
+        type: "image/svg+xml"
+      }
+    ]
+  }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
