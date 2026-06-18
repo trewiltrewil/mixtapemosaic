@@ -235,10 +235,15 @@ export const getActiveProductVariants = cache(async (): Promise<CmsProductVarian
     .filter((variant) => variant.variantId && variant.displayName && variant.productType && Number.isFinite(variant.priceCents))
     .map((variant, index) => {
       const layout = (variant.customizerLayoutKey || "square").trim().toLowerCase();
-      const columns = variant.columns || (layout === "landscape" ? 8 : 6);
-      const rows = variant.rows || 9;
       const panelColumns = variant.panelColumns || (layout === "landscape" ? 4 : layout === "portrait" ? 3 : 3);
       const panelRows = variant.panelRows || (layout === "landscape" ? 3 : layout === "portrait" ? 4 : 3);
+      const columns = variant.columns || panelColumns * 2;
+      const rows = variant.rows || panelRows * 3;
+      const aspectRatio =
+        variant.aspectRatio ||
+        (variant.mockupImageWidth && variant.mockupImageHeight
+          ? `${variant.mockupImageWidth} / ${variant.mockupImageHeight}`
+          : `${panelColumns} / ${panelRows}`);
 
       return {
         id: variant.variantId,
@@ -258,11 +263,9 @@ export const getActiveProductVariants = cache(async (): Promise<CmsProductVarian
         rows,
         panelColumns,
         panelRows,
-        panelCount:
-          variant.panelCount ||
-          (variant.panelColumns && variant.panelRows ? variant.panelColumns * variant.panelRows : layout === "landscape" ? 12 : layout === "portrait" ? 12 : 9),
+        panelCount: variant.panelCount || panelColumns * panelRows,
         tapeCountLabel: variant.tapeCountLabel || `${columns * rows} tapes`,
-        aspectRatio: variant.aspectRatio || (layout === "landscape" ? "1630 / 1254" : "1 / 1"),
+        aspectRatio,
         sortOrder: variant.sortOrder ?? index
       };
     });

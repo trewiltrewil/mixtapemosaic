@@ -119,21 +119,40 @@ function mapQuad(quad: Quad, mapping: PhotoMapping): Quad {
   return quad.map((point) => mapping.mapPoint(point)) as Quad;
 }
 
+function getCalibrationTapeGrid(calibration: ProductCalibration) {
+  const tapeColumns = calibration.tapes.reduce(
+    (max, tape) => Math.max(max, Number.isFinite(tape.column) ? tape.column + 1 : 0),
+    0
+  );
+  const tapeRows = calibration.tapes.reduce(
+    (max, tape) => Math.max(max, Number.isFinite(tape.row) ? tape.row + 1 : 0),
+    0
+  );
+
+  return {
+    columns: Math.max(1, tapeColumns || calibration.layout.columns || 1),
+    rows: Math.max(1, tapeRows || calibration.layout.rows || 1)
+  };
+}
+
 function getPreviewArtworkLayout(calibration: ProductCalibration) {
   const settings = {
     ...defaultProductRenderSettings,
     ...calibration.renderSettings
   };
+  const grid = getCalibrationTapeGrid(calibration);
 
   return {
     width:
-      calibration.layout.columns * TAPE.widthMm +
-      Math.max(0, calibration.layout.columns - 1) * settings.artworkGapXMm,
+      grid.columns * TAPE.widthMm +
+      Math.max(0, grid.columns - 1) * settings.artworkGapXMm,
     height:
-      calibration.layout.rows * TAPE.heightMm +
-      Math.max(0, calibration.layout.rows - 1) * settings.artworkGapYMm,
+      grid.rows * TAPE.heightMm +
+      Math.max(0, grid.rows - 1) * settings.artworkGapYMm,
     gapXMm: settings.artworkGapXMm,
-    gapYMm: settings.artworkGapYMm
+    gapYMm: settings.artworkGapYMm,
+    columns: grid.columns,
+    rows: grid.rows
   };
 }
 
@@ -524,6 +543,15 @@ export function drawRealisticPreview(
     overlayOpacity > 0 ? Math.min(1, Math.max(0, 1 - raisedEdgeArtworkOpacity / overlayOpacity)) : 0;
 
   calibration.tapes.forEach((tape) => {
+    if (
+      tape.column < 0 ||
+      tape.row < 0 ||
+      tape.column >= sourceLayout.columns ||
+      tape.row >= sourceLayout.rows
+    ) {
+      return;
+    }
+
     const features = getTapeFeatures(tape);
     const sourceX = mmToPx(
       tape.column * (TAPE.widthMm + sourceLayout.gapXMm),

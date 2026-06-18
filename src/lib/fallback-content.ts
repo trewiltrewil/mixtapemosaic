@@ -172,12 +172,12 @@ export const fallbackProductVariantList = Object.values(productVariants).map((va
   priceCents: variant.priceCents,
   productionEstimate: "Ships in 2-3 weeks",
   layout: variant.id === "landscape" ? "landscape" : variant.id === "portrait" ? "portrait" : "square",
-  columns: variant.id === "landscape" ? 8 : 6,
-  rows: 9,
   panelColumns: variant.id === "landscape" ? 4 : 3,
   panelRows: variant.id === "portrait" ? 4 : 3,
   panelCount: variant.id === "square" ? 9 : 12,
-  tapeCountLabel: `${(variant.id === "landscape" ? 8 : 6) * 9} tapes`,
-  aspectRatio: variant.id === "landscape" ? "1630 / 1254" : "1 / 1",
+  columns: (variant.id === "landscape" ? 4 : 3) * 2,
+  rows: (variant.id === "portrait" ? 4 : 3) * 3,
+  tapeCountLabel: `${(variant.id === "landscape" ? 4 : 3) * 2 * (variant.id === "portrait" ? 4 : 3) * 3} tapes`,
+  aspectRatio: variant.id === "landscape" ? "4 / 3" : variant.id === "portrait" ? "3 / 4" : "1 / 1",
   sortOrder: index
 }));
